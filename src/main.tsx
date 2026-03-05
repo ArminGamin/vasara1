@@ -7,6 +7,7 @@ import "./index.css";
 import "./styles.css";
 import "./design-revolution.css";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // Performance monitoring and analytics
 if (import.meta.env.PROD) {
@@ -45,5 +46,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <App />
     </BrowserRouter>
     <Analytics />
+    <SpeedInsights />
   </React.StrictMode>
 );
