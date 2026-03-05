@@ -32,14 +32,15 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 import { loadStripe } from '@stripe/stripe-js';
 import StripeCardSection from './components/StripeCardSection';
 import PayPalButton from './components/PayPalButton';
-import CookieConsent from "./components/CookieConsent";
-import { LanguageDetectionPopup } from "./components/LanguageDetectionPopup";
-import { ComparisonTable } from "./components/ComparisonTable";
-import { ReviewsSection } from "./components/ReviewsSection";
-import { WhyChooseUs } from "./components/WhyChooseUs";
-import { FAQAccordion } from "./components/FAQAccordion";
-import { EmailCapturePopup } from "./components/EmailCapturePopup";
-import { StickyMobileCTA } from "./components/StickyMobileCTA";
+// Lazy-load below-fold components – defers framer-motion and reduces main-thread work
+const CookieConsent = lazy(() => import("./components/CookieConsent").then((m) => ({ default: m.default })));
+const LanguageDetectionPopup = lazy(() => import("./components/LanguageDetectionPopup").then((m) => ({ default: m.LanguageDetectionPopup })));
+const ComparisonTable = lazy(() => import("./components/ComparisonTable").then((m) => ({ default: m.ComparisonTable })));
+const ReviewsSection = lazy(() => import("./components/ReviewsSection").then((m) => ({ default: m.ReviewsSection })));
+const WhyChooseUs = lazy(() => import("./components/WhyChooseUs").then((m) => ({ default: m.WhyChooseUs })));
+const FAQAccordion = lazy(() => import("./components/FAQAccordion").then((m) => ({ default: m.FAQAccordion })));
+const EmailCapturePopup = lazy(() => import("./components/EmailCapturePopup").then((m) => ({ default: m.EmailCapturePopup })));
+const StickyMobileCTA = lazy(() => import("./components/StickyMobileCTA").then((m) => ({ default: m.StickyMobileCTA })));
 
 const STRIPE_PK = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
@@ -120,7 +121,7 @@ const HERO_IMAGES = [
   { src: '/hero-blue-glock.webp', alt: 'Elektrinis vandens pistoletas – mėlynas' },
 ];
 
-function HeroSlideshow({ language }: { language: string }) {
+const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language: string }) {
   const [idx, setIdx] = useState(0);
   const len = HERO_IMAGES.length;
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -146,6 +147,7 @@ function HeroSlideshow({ language }: { language: string }) {
             alt={img.alt}
             className={`hero-carousel-img ${i === idx ? 'active' : ''}`}
             loading={i === 0 ? 'eager' : 'lazy'}
+            fetchPriority={i === 0 ? 'high' : undefined}
             draggable={false}
           />
         ))}
@@ -176,7 +178,7 @@ function HeroSlideshow({ language }: { language: string }) {
       </div>
     </>
   );
-}
+});
 
 // Info Pages Components
 const PristatymoInfo = () => (
@@ -459,6 +461,7 @@ function HomePage() {
     if (/(^|\\b)2g(\\b|$)/i.test(String(type))) return; // avoid on very slow networks
 
     const sources: string[] = products
+      .slice(0, 5)
       .map((p: any) => p?.image || (p?.images && p.images[0]) || '')
       .filter(Boolean);
 
@@ -1078,6 +1081,7 @@ function HomePage() {
 
   return (
     <>
+    <Suspense fallback={null}>
     <LanguageDetectionPopup
       currentLang={language}
       onChooseLanguage={(lang) => {
@@ -1090,6 +1094,8 @@ function HomePage() {
         }
       }}
     />
+    </Suspense>
+    <Suspense fallback={null}>
     <EmailCapturePopup
       delayMs={12000}
       onSubscribe={async (emailToSubscribe) => {
@@ -1102,6 +1108,7 @@ function HomePage() {
         if (!response.ok && response.status !== 409) throw new Error('Subscribe failed');
       }}
     />
+    </Suspense>
     <div
       className="min-h-screen flex flex-col bg-bg touch-action-pan-y"
       onTouchStart={handleTouchStart}
@@ -1251,6 +1258,7 @@ function HomePage() {
         <section
           ref={(el) => { sectionRefs.current[1] = el; }}
           className="snap-slide pillow-why-section"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}
         >
           <div className="slide-content w-full">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1282,7 +1290,7 @@ function HomePage() {
                     </p>
                   </div>
                 </div>
-                <ComparisonTable embedded otherLabel={language === 'lt' ? 'Kiti' : 'Others'} />
+                <Suspense fallback={null}><ComparisonTable embedded otherLabel={language === 'lt' ? 'Kiti' : 'Others'} /></Suspense>
               </div>
             </div>
           </div>
@@ -1306,6 +1314,7 @@ function HomePage() {
         <section
           ref={(el) => { sectionRefs.current[2] = el; }}
           className="snap-slide bg-bg"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px' }}
         >
           <div className="slide-content w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
       {/* Recently Viewed */}
@@ -1356,6 +1365,7 @@ function HomePage() {
                 muted
                 loop
                 autoPlay
+                preload="metadata"
                 controls
                 aria-label="Promo 1"
               />
@@ -1368,6 +1378,7 @@ function HomePage() {
                 muted
                 loop
                 autoPlay
+                preload="metadata"
                 controls
                 aria-label="Promo 2"
               />
@@ -1380,6 +1391,7 @@ function HomePage() {
                 muted
                 loop
                 autoPlay
+                preload="metadata"
                 controls
                 aria-label="Promo 3"
               />
@@ -1579,16 +1591,16 @@ function HomePage() {
         </section>
 
         {/* Section 5: Reviews */}
-        <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg">
+        <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
           <div className="slide-content w-full">
-      <ReviewsSection />
+      <Suspense fallback={null}><ReviewsSection /></Suspense>
           </div>
         </section>
 
         {/* Section 6: FAQ + Newsletter + Footer – no bottom padding so footer is last */}
-        <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg">
+        <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
           <div className="slide-content w-full">
-      <FAQAccordion />
+      <Suspense fallback={null}><FAQAccordion /></Suspense>
 
       {/* Newsletter */}
       <section className="relative bg-primary text-white py-8 md:py-10 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
@@ -1816,7 +1828,7 @@ function HomePage() {
         </section>
       </div>
 
-      <StickyMobileCTA totalItems={totalItems} onCartClick={() => setCartOpen(true)} />
+      <Suspense fallback={null}><StickyMobileCTA totalItems={totalItems} onCartClick={() => setCartOpen(true)} /></Suspense>
 
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
@@ -2934,7 +2946,7 @@ function HomePage() {
       />
 
       {/* Cookie Consent Banner */}
-      {showCookie ? <CookieConsent /> : null}
+      {showCookie ? <Suspense fallback={null}><CookieConsent /></Suspense> : null}
     </div>
     </>
   );

@@ -18,7 +18,7 @@ const PLACEHOLDER_IMAGE = "/placeholder.svg";
 
 // Renders a <picture> with AVIF/WebP where safely supported.
 // On load error, falls back to placeholder image to avoid broken icon.
-export default function OptimizedImage({ src, alt, className, width, height, loading = "lazy", decoding = "async", sizes, srcSet, fetchPriority, onClick }: Props) {
+const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className, width, height, loading = "lazy", decoding = "async", sizes, srcSet, fetchPriority, onClick }: Props) {
   const [fallback, setFallback] = useState(false);
   const effectiveSrc = fallback ? PLACEHOLDER_IMAGE : src;
   const handleError = useCallback(() => setFallback(true), []);
@@ -93,6 +93,6 @@ export default function OptimizedImage({ src, alt, className, width, height, loa
       onClick={onClick}
     />
   );
-}
+});
 
-
+export default OptimizedImage;

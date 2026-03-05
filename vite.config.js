@@ -56,7 +56,9 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           stripe: ['@stripe/react-stripe-js', '@stripe/stripe-js'],
-          motion: ['framer-motion']
+          motion: ['framer-motion'],
+          lucide: ['lucide-react'],
+          router: ['react-router-dom']
         }
       }
     },

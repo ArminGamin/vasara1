@@ -5,6 +5,7 @@ const CACHE_VERSION = 'vasaros-kampelis-v1';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
+const THIRD_PARTY_CACHE = `${CACHE_VERSION}-thirdparty`;
 
 // Assets to cache immediately on install
 // Note: Hashed JS/CSS in /assets/ are injected at build time by inject-sw-assets.js
@@ -47,7 +48,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => (name.startsWith('christmas-shop-') || name.startsWith('vasaros-kampelis-')) && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE)
+            .filter((name) => (name.startsWith('christmas-shop-') || name.startsWith('vasaros-kampelis-')) && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE && name !== THIRD_PARTY_CACHE)
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
@@ -85,7 +86,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Handle different types of requests with appropriate strategies
-  if (isImageRequest(request)) {
+  if (isStripeRequest(url)) {
+    event.respondWith(handleThirdPartyScript(request));
+  } else if (isImageRequest(request)) {
     event.respondWith(handleImageRequest(request));
   } else if (isApiRequest(url)) {
     event.respondWith(handleApiRequest(request));
@@ -95,6 +98,27 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(handleDynamicRequest(request));
   }
 });
+
+// Stripe CDN – short cache (2m/5m); we extend via SW Cache First, 7-day retention
+function isStripeRequest(url) {
+  return url.hostname === 'js.stripe.com' || url.hostname === 'm.stripe.network';
+}
+
+// Handle third-party scripts (Stripe) – Cache First, long retention
+async function handleThirdPartyScript(request) {
+  try {
+    const cache = await caches.open(THIRD_PARTY_CACHE);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    const res = await fetch(request);
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  } catch (e) {
+    const cached = await caches.match(request);
+    return cached || new Response('', { status: 504 });
+  }
+}
 
 // Check if request is for an image
 function isImageRequest(request) {
