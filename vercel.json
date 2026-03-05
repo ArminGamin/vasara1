@@ -19,7 +19,7 @@
   ],
   "headers": [
     {
-      "source": "/assets/(.*)",
+      "source": "/assets/:path*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/:all*.js",
+      "source": "/(.*)\\.(js|css)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/:all*.css",
+      "source": "/:path*.(jpg|jpeg|png|webp|avif|gif|svg|ico)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -46,11 +46,11 @@
       ]
     },
     {
-      "source": "/:all*.(jpg|jpeg|png|webp|avif|gif|svg|ico)",
+      "source": "/index.html",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }
