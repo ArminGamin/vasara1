@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     const amount = (payment.amount / 100).toFixed(2);
 
     try {
-      const base = process.env.NEXT_PUBLIC_URL || "https://kaledukampelis.com";
+      const base = process.env.NEXT_PUBLIC_URL || "https://vasaroskampelis.com";
       await fetch(`${base}/api/notify-discord`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

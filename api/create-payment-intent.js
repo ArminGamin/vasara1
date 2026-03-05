@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+const { computeOrderTotal } = require("./price-table");
 
 const secretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(secretKey || "");
@@ -14,10 +15,19 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { amount, name, surname, email, phone, address, items } = req.body || {};
+  const { name, surname, email, phone, address, items, giftWrapping } = req.body || {};
 
-  if (!amount || typeof amount !== "number") {
-    res.status(400).json({ error: "Invalid amount" });
+  const computed = computeOrderTotal(items, !!giftWrapping);
+  if (!computed.itemsValid || computed.amountCents < 1) {
+    res.status(400).json({ error: "Invalid items or amount" });
+    return;
+  }
+
+  const amountCents = computed.amountCents;
+  const MIN_CENTS = 1;
+  const MAX_CENTS = 1_000_000; // 10,000 EUR
+  if (amountCents < MIN_CENTS || amountCents > MAX_CENTS) {
+    res.status(400).json({ error: 'Invalid amount' });
     return;
   }
 
@@ -28,12 +38,12 @@ export default async function handler(req, res) {
       email: email || "",
       phone: phone || "",
       address: address || "",
-      items: items || ""
+      items: Array.isArray(items) ? items.map((it) => `${it.name}×${it.quantity}`).join(", ") : ""
     };
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount, // amount in cents
-      currency: "eur",
+      amount: amountCents,
+      currency: "eur", // Must be EUR - server enforces
       metadata
     });
 

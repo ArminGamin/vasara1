@@ -1,7 +1,7 @@
 // Pings Google and Bing with the sitemap index URL
 import https from 'https';
 
-const SITEMAP_URL = 'https://kaledukampelis.com/sitemap_index.xml';
+const SITEMAP_URL = 'https://vasaroskampelis.com/sitemap_index.xml';
 const targets = [
   `https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`,
   `https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`

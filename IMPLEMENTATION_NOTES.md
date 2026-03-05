@@ -1,7 +1,7 @@
 # Implementation Notes - Structured Data & Service Worker
 
 ## Overview
-This document describes the implementation of JSON-LD structured data and service worker caching for the Christmas Shop application.
+This document describes the implementation of JSON-LD structured data and service worker caching for the Vasaros Kampelis application.
 
 ## ✅ Implemented Features
 
@@ -31,14 +31,9 @@ This document describes the implementation of JSON-LD structured data and servic
   - Home → Products navigation path
 
 #### Product Collection Schema
-- **Type**: ItemList with 6 Products
+- **Type**: ItemList with Products
 - **Products Included**:
-  1. LED Christmas House (€12.99)
-  2. Christmas Ornament Set (€18.99)
-  3. Christmas Wreath with Pine (€24.99)
-  4. LED String Lights (€29.99)
-  5. Advent Calendar (€34.99)
-  6. Christmas Mug (€9.99)
+  - Vandens šautuvai – Vasaros Kampelis (water blasters, various variants)
 
 - **Each Product Includes**:
   - Unique @id identifier
@@ -53,7 +48,7 @@ This document describes the implementation of JSON-LD structured data and servic
 - **Questions Covered**:
   - Delivery time (2-5 business days)
   - Return policy (30-day return right)
-  - Free shipping threshold (€30+)
+  - Free shipping threshold (€80+)
 
 ### 2. Service Worker Implementation (public/service-worker.js)
 
@@ -180,7 +175,7 @@ Then:
 ## 🔧 Cache Management
 
 ### Cache Versions
-Current version: `christmas-shop-v1`
+Current version: `vasaros-kampelis-v1`
 - To force cache update, increment version in service-worker.js
 
 ### Cache Limits

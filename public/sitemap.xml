@@ -7,7 +7,7 @@
 
   <!-- Main Page -->
   <url>
-    <loc>https://kaledukampelis.com/</loc>
+    <loc>https://vasaroskampelis.com/</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -20,25 +20,25 @@
 
   <!-- Product Categories -->
   <url>
-    <loc>https://kaledukampelis.com/kaledu-nameliai</loc>
+    <loc>https://vasaroskampelis.com/kaledu-nameliai</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/led-girliandos</loc>
+    <loc>https://vasaroskampelis.com/led-girliandos</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/kaledu-puokstes</loc>
+    <loc>https://vasaroskampelis.com/kaledu-puokstes</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/dekoracijos</loc>
+    <loc>https://vasaroskampelis.com/dekoracijos</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -46,13 +46,13 @@
 
   <!-- Seasonal Pages -->
   <url>
-    <loc>https://kaledukampelis.com/kaledu-pasiulymai</loc>
+    <loc>https://vasaroskampelis.com/kaledu-pasiulymai</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/nuolaidos</loc>
+    <loc>https://vasaroskampelis.com/nuolaidos</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -61,19 +61,19 @@
   <!-- Info Pages -->
   
   <url>
-    <loc>https://kaledukampelis.com/pristatymo-info</loc>
+    <loc>https://vasaroskampelis.com/pristatymo-info</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/grazinimai</loc>
+    <loc>https://vasaroskampelis.com/grazinimai</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://kaledukampelis.com/privatumo-politika</loc>
+    <loc>https://vasaroskampelis.com/privatumo-politika</loc>
     <lastmod>2024-12-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

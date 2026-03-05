@@ -2,29 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://kaledukampelis.com/</loc>
-    <lastmod>2025-11-11</lastmod>
+    <loc>https://vasaroskampelis.com/</loc>
+    <lastmod>2026-03-04</lastmod>
+    
     <image:image>
-      <image:loc>https://kaledukampelis.com/logo.png?v=3</image:loc>
+      <image:loc>https://vasaroskampelis.com/logo.png?v=3</image:loc>
       <image:title>Kalėdų Kampelis logotipas</image:title>
     </image:image>
-  </url>
-  <url>
-    <loc>https://kaledukampelis.com/</loc>
-    <lastmod>2025-11-11</lastmod>
+
     <image:image>
-      <image:loc>https://kaledukampelis.com/products/megztiniai/red.png</image:loc>
+      <image:loc>https://vasaroskampelis.com/products/megztiniai/red.png</image:loc>
       <image:title>Kalėdinis megztinis — raudonas</image:title>
     </image:image>
+
     <image:image>
-      <image:loc>https://kaledukampelis.com/products/megztiniai/green.png</image:loc>
+      <image:loc>https://vasaroskampelis.com/products/megztiniai/green.png</image:loc>
       <image:title>Kalėdinis megztinis — žalias</image:title>
     </image:image>
+
     <image:image>
-      <image:loc>https://kaledukampelis.com/products/megztiniai/navy.png</image:loc>
+      <image:loc>https://vasaroskampelis.com/products/megztiniai/navy.png</image:loc>
       <image:title>Kalėdinis megztinis — tamsiai mėlynas</image:title>
     </image:image>
   </url>
 </urlset>
-
-

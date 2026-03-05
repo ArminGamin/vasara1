@@ -6,7 +6,7 @@ import path from 'path';
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const SRC_PRODUCTS = path.join(ROOT, 'src', 'data', 'products.ts');
-const SITE_ORIGIN = 'https://kaledukampelis.com';
+const SITE_ORIGIN = 'https://vasaroskampelis.com';
 
 function formatDate(d = new Date()) {
   return d.toISOString().slice(0, 10);

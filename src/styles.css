@@ -1,0 +1,146 @@
+/**
+ * Vasaros Kampelis – design system.
+ * Colors: primary (blue), accent/CTA (orange), neutrals only.
+ * Spacing: 8px base unit. Container: 72rem max, consistent padding.
+ */
+:root {
+  /* Colors – primary + accent + neutrals */
+  --color-bg: #F5FBFF;
+  --color-surface: #FFFFFF;
+  --color-primary: #0EA5E9;
+  --color-primaryDark: #0284C7;
+  --color-footer: #0B1220;
+  --color-cta: #FF7A00;
+  --color-ctaHover: #E66D00;
+  --color-success: #22C55E;
+  --color-text: #0F172A;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+  --color-promoBg: #FFF7ED;
+  --color-promoBorder: #FFE4CC;
+
+  /* 8px spacing scale */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+  --space-12: 96px;
+
+  /* Layout */
+  --container-max: 72rem;
+  --container-padding: var(--space-2);
+  --section-block: var(--space-8);
+  --section-block-sm: var(--space-6);
+
+  /* Buttons */
+  --btn-radius: 12px;
+  --btn-padding-y: 12px;
+  --btn-padding-x: 24px;
+  --btn-cta-min-height: 52px;
+  --focus-ring: 0 0 0 3px var(--color-surface), 0 0 0 5px var(--color-primary);
+  --focus-ring-cta: 0 0 0 3px var(--color-surface), 0 0 0 5px var(--color-cta);
+}
+
+.dark {
+  --color-bg: #0F172A;
+  --color-surface: #1E293B;
+  --color-text: #F8FAFC;
+  --color-muted: #94A3B8;
+  --color-border: #334155;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+}
+
+/* Main scroll area – smooth continuous scroll */
+.snap-scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 0;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--color-footer);
+}
+
+/* Each section: full viewport height, content centered */
+.snap-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .snap-slide {
+    min-height: 100vh;
+  }
+}
+
+/* Last section: auto height so footer sits naturally */
+.snap-slide.snap-auto {
+  min-height: auto;
+}
+
+/* Smooth fade-up entrance as you scroll into view */
+.snap-slide .slide-content {
+  opacity: 0;
+  transform: translate3d(0, 60px, 0);
+  transition:
+    opacity 1s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  will-change: opacity, transform;
+}
+
+.snap-slide.is-visible .slide-content {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snap-slide .slide-content {
+    transition: none;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  .snap-slide.is-visible .slide-content {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Section vertical rhythm – 8px-based spacing */
+.snap-slide .slide-content {
+  padding-block: 0;
+}
+
+/* Shared container (max-width + horizontal padding) */
+.layout-container {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --container-padding: var(--space-3);
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --container-padding: var(--space-4);
+  }
+}

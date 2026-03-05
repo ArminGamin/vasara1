@@ -11,27 +11,34 @@ type Props = {
   sizes?: string;
   srcSet?: string;
   fetchPriority?: "high" | "low" | "auto";
+  onClick?: () => void;
 };
 
+const PLACEHOLDER_IMAGE = "/placeholder.svg";
+
 // Renders a <picture> with AVIF/WebP where safely supported.
-// - For Unsplash: add fm=avif/webp params
-// For local product assets, prefer AVIF/WebP with safe runtime fallback to PNG/JPG.
-export default function OptimizedImage({ src, alt, className, width, height, loading = "lazy", decoding = "async", sizes, srcSet, fetchPriority }: Props) {
+// On load error, falls back to placeholder image to avoid broken icon.
+export default function OptimizedImage({ src, alt, className, width, height, loading = "lazy", decoding = "async", sizes, srcSet, fetchPriority, onClick }: Props) {
+  const [fallback, setFallback] = useState(false);
+  const effectiveSrc = fallback ? PLACEHOLDER_IMAGE : src;
+  const handleError = useCallback(() => setFallback(true), []);
+  const fpAttr = fetchPriority ? { fetchpriority: fetchPriority as any } : {};
   const isUnsplash = /images\.unsplash\.com/.test(src);
   const isLocalProduct = /^\/products\/.+\.(png|jpe?g)$/i.test(src);
-  const fpAttr = fetchPriority ? { fetchpriority: fetchPriority as any } : {};
 
   if (isUnsplash) {
     const url = new URL(src);
-    // Ensure width param remains if provided; set fit/crop implicitly
     const baseParams = url.search ? `${url.search}&` : "?";
     const avifSrc = `${url.origin}${url.pathname}${baseParams}fm=avif`;
     const webpSrc = `${url.origin}${url.pathname}${baseParams}fm=webp`;
+    if (fallback) {
+      return <img src={PLACEHOLDER_IMAGE} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} onClick={onClick} />;
+    }
     return (
       <picture>
         <source srcSet={avifSrc} type="image/avif" />
         <source srcSet={webpSrc} type="image/webp" />
-        <img src={src} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} sizes={sizes} srcSet={srcSet} {...fpAttr} />
+        <img src={src} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} sizes={sizes} srcSet={srcSet} onError={handleError} {...fpAttr} onClick={onClick} />
       </picture>
     );
   }
@@ -41,10 +48,17 @@ export default function OptimizedImage({ src, alt, className, width, height, loa
     const sourceChain = useMemo(() => [`${base}.avif`, `${base}.webp`, src], [base, src]);
     const [currentSrcIndex, setCurrentSrcIndex] = useState(0);
 
-    const handleError = useCallback(() => {
-      setCurrentSrcIndex((i) => (i < sourceChain.length - 1 ? i + 1 : i));
+    const handleLocalError = useCallback(() => {
+      setCurrentSrcIndex((i) => {
+        if (i < sourceChain.length - 1) return i + 1;
+        setFallback(true);
+        return i;
+      });
     }, [sourceChain.length]);
 
+    if (fallback) {
+      return <img src={PLACEHOLDER_IMAGE} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} sizes={sizes} onClick={onClick} />;
+    }
     return (
       <img
         src={sourceChain[currentSrcIndex]}
@@ -57,14 +71,15 @@ export default function OptimizedImage({ src, alt, className, width, height, loa
         sizes={sizes}
         srcSet={srcSet}
         {...fpAttr}
-        onError={handleError}
+        onError={handleLocalError}
+        onClick={onClick}
       />
     );
   }
 
   return (
     <img
-      src={src}
+      src={effectiveSrc}
       alt={alt}
       className={className}
       width={width as any}
@@ -74,6 +89,8 @@ export default function OptimizedImage({ src, alt, className, width, height, loa
       sizes={sizes}
       srcSet={srcSet}
       {...fpAttr}
+      onError={handleError}
+      onClick={onClick}
     />
   );
 }

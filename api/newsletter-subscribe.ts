@@ -1,5 +1,35 @@
 // Using loose types to avoid requiring '@vercel/node' in this Vite app
 
+// In-memory rate limit per IP (5 req / 15 min). Use Upstash for multi-instance.
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX = 5;
+const ipCounts = new Map<string, { count: number; resetAt: number }>();
+
+function getClientIp(req: any): string {
+  return (
+    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+    req.headers['x-real-ip'] ||
+    req.socket?.remoteAddress ||
+    'unknown'
+  );
+}
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipCounts.get(ip);
+  if (!entry) {
+    ipCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (now > entry.resetAt) {
+    ipCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 // Optional Redis (Upstash) for global dedup
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -28,6 +58,11 @@ async function redisSetNX(key: string, value: string, ttlSeconds: number) {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const ip = getClientIp(req);
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ error: 'Per daug bandymų. Bandykite vėliau.' });
+  }
 
   try {
     const { email } = (req.body || {}) as { email?: string };
@@ -60,7 +95,7 @@ export default async function handler(req: any, res: any) {
     const fromAddress = process.env.RESEND_FROM || 'onboarding@resend.dev';
     const emailBody = {
       from: fromAddress,
-      to: ['kaleddovanos@gmail.com'],
+      to: ['info@vasaroskampelis.com'],
       subject: 'Naujas naujienlaiškio prenumeratorius',
       text: `Gautas naujas prenumeratos adresas: ${e}`,
     } as const;

@@ -1,8 +1,8 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kaledukampelis.com/sitemap.xml
-Sitemap: https://kaledukampelis.com/sitemap_index.xml
+Sitemap: https://vasaroskampelis.com/sitemap.xml
+Sitemap: https://vasaroskampelis.com/sitemap_index.xml
 
 # Optimize crawling
 Crawl-delay: 1

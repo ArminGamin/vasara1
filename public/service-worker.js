@@ -1,14 +1,16 @@
-// Service Worker for Christmas Shop
+// Service Worker for Vasaros Kampelis
 // Version 1.0.0
 
-const CACHE_VERSION = 'christmas-shop-v3';
+const CACHE_VERSION = 'vasaros-kampelis-v1';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 
 // Assets to cache immediately on install
+// Note: Hashed JS/CSS in /assets/ are injected at build time by inject-sw-assets.js
 const STATIC_ASSETS = [
   '/',
+  '/index.html',
   '/manifest.json',
   '/robots.txt'
 ];
@@ -45,7 +47,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name.startsWith('christmas-shop-') && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE)
+            .filter((name) => (name.startsWith('christmas-shop-') || name.startsWith('vasaros-kampelis-')) && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE)
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
@@ -71,13 +73,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Bypass HTML and XML entirely (no caching for documents/sitemaps)
-  if (request.destination === 'document' || /\.html?($|\?)/i.test(url.pathname) || /\.xml($|\?)/i.test(url.pathname)) {
+  // Navigation requests (document): Network First, fallback to cached /index.html for offline SPA
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(handleNavigationRequest(request));
     return;
   }
 
-  // Do not intercept hero images (ensure direct network path)
-  if (request.destination === 'image' && /^\/products\/megztiniai\//.test(url.pathname)) {
+  // Bypass XML (sitemaps) - we don't cache them
+  if (/\.xml($|\?)/i.test(url.pathname)) {
     return;
   }
 
@@ -99,11 +102,9 @@ function isImageRequest(request) {
          /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(request.url);
 }
 
-// Check if request is for an API
+// Check if request is for our /api/ (don't intercept external APIs like googleapis)
 function isApiRequest(url) {
-  return url.pathname.startsWith('/api/') || 
-         url.hostname.includes('firebase') ||
-         url.hostname.includes('googleapis');
+  return url.pathname.startsWith('/api/');
 }
 
 // Check if request is for a static asset
@@ -246,16 +247,37 @@ function fetchWithTimeout(request, timeout) {
   ]);
 }
 
-// Helper: Fetch and update cache in background
+// Helper: Fetch and update cache in background (clone before caching - response is a stream)
 async function fetchAndUpdateCache(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse);
+      cache.put(request, networkResponse.clone());
     }
   } catch (error) {
     // Silently fail - cached version is already being served
+  }
+}
+
+// Handle navigation requests: Network First, fallback to cached /index.html for offline SPA
+async function handleNavigationRequest(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cached = await caches.match('/index.html');
+    if (cached) {
+      return cached;
+    }
+    return new Response(
+      '<html><body><h1>Offline</h1><p>Patikrinkite interneto ryšį.</p></body></html>',
+      { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'text/html' } }
+    );
   }
 }
 

@@ -1,42 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
   <url>
-    <loc>https://kaledukampelis.com/</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/"/>
+    <loc>https://vasaroskampelis.com/</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/"/>
   </url>
+
   <url>
-    <loc>https://kaledukampelis.com/apie-mus</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/apie-mus"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/apie-mus"/>
+    <loc>https://vasaroskampelis.com/apie-mus</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/apie-mus"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/apie-mus"/>
   </url>
+
   <url>
-    <loc>https://kaledukampelis.com/duk</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/duk"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/duk"/>
+    <loc>https://vasaroskampelis.com/duk</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/duk"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/duk"/>
   </url>
+
   <url>
-    <loc>https://kaledukampelis.com/pristatymo-info</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/pristatymo-info"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/pristatymo-info"/>
+    <loc>https://vasaroskampelis.com/pristatymo-info</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/pristatymo-info"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/pristatymo-info"/>
   </url>
+
   <url>
-    <loc>https://kaledukampelis.com/grazinimai</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/grazinimai"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/grazinimai"/>
+    <loc>https://vasaroskampelis.com/grazinimai</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/grazinimai"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/grazinimai"/>
   </url>
+
   <url>
-    <loc>https://kaledukampelis.com/privatumo-politika</loc>
-    <lastmod>2025-11-11</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://kaledukampelis.com/privatumo-politika"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://kaledukampelis.com/privatumo-politika"/>
+    <loc>https://vasaroskampelis.com/privatumo-politika</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/privatumo-politika"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/privatumo-politika"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos</loc>
+    <lastmod>2026-03-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos"/>
   </url>
 </urlset>
-
-

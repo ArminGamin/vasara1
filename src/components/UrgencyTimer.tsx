@@ -48,29 +48,29 @@ export const UrgencyTimer: React.FC<UrgencyTimerProps> = ({
   }, [endTime]);
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+    <div className="bg-brand-bg-alt border border-brand-urgency/40 rounded-lg p-4 mb-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
-          <Clock className="w-5 h-5 text-red-600" />
-          <span className="font-semibold text-red-800">Ribotas laikas!</span>
+          <Clock className="w-5 h-5 text-brand-urgency" />
+          <span className="font-semibold text-brand-urgency">Ribotas laikas!</span>
         </div>
-        <div className="text-sm text-red-600 font-medium">
+        <div className="text-sm text-brand-urgency font-medium">
           Pasiūlymas baigiasi:
         </div>
       </div>
 
       <div className="flex items-center space-x-4 mb-3">
         <div className="text-center">
-          <div className="text-2xl font-bold text-red-600">{timeLeft.hours}</div>
-          <div className="text-xs text-red-500">Valandos</div>
+          <div className="text-2xl font-bold text-brand-urgency">{timeLeft.hours}</div>
+          <div className="text-xs text-brand-urgency/80">Valandos</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-red-600">{timeLeft.minutes}</div>
-          <div className="text-xs text-red-500">Minutės</div>
+          <div className="text-2xl font-bold text-brand-urgency">{timeLeft.minutes}</div>
+          <div className="text-xs text-brand-urgency/80">Minutės</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-red-600">{timeLeft.seconds}</div>
-          <div className="text-xs text-red-500">Sekundės</div>
+          <div className="text-2xl font-bold text-brand-urgency">{timeLeft.seconds}</div>
+          <div className="text-xs text-brand-urgency/80">Sekundės</div>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export const UrgencyTimer: React.FC<UrgencyTimerProps> = ({
           </div>
         )}
         {showStock && (
-          <div className="flex items-center space-x-1 text-orange-600">
+          <div className="flex items-center space-x-1 text-brand-orange">
             <Eye className="w-4 h-4" />
             <span>Liko tik {stock} vnt.</span>
           </div>

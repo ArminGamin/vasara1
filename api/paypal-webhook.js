@@ -183,7 +183,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'No total in webhook payload' });
     }
 
-    const base = process.env.NEXT_PUBLIC_URL || 'https://kaledukampelis.com';
+    const base = process.env.NEXT_PUBLIC_URL || 'https://vasaroskampelis.com';
     await fetch(`${base}/api/notify-discord`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

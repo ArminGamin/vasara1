@@ -40,7 +40,7 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+          className="bg-surface rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
         >
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
@@ -95,7 +95,7 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
                             </span>
                           </div>
                           <div className="text-center">
-                            <span className="text-lg font-bold text-red-600">
+                            <span className="text-lg font-bold text-brand-orange">
                               €{product.price}
                             </span>
                             <span className="text-sm text-gray-400 line-through ml-1">
@@ -169,7 +169,7 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
                     {products.map(product => (
                       <td key={product.id} className="p-4 text-center">
                         {getFeatureValue(product, feature) ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
+                          <Check className="w-5 h-5 text-brand-green mx-auto" />
                         ) : (
                           <XIcon className="w-5 h-5 text-gray-400 mx-auto" />
                         )}
@@ -184,7 +184,7 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
                   {products.map(product => (
                     <td key={product.id} className="p-4 text-center">
                       <div className="flex flex-wrap justify-center gap-1">
-                        {product.colors.map((color, index) => (
+                        {product.colors?.map((color, index) => (
                           <span
                             key={index}
                             className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
@@ -228,7 +228,7 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
                 Uždaryti
               </button>
               {products.length >= 2 && (
-                <button className="px-6 py-2 bg-gradient-to-r from-red-600 to-green-600 text-white rounded-lg hover:from-red-700 hover:to-green-700 transition">
+                <button className="px-6 py-2 bg-brand-orange hover:bg-brand-orange-hover text-white rounded-lg transition min-h-[44px]">
                   Pridėti visus į krepšelį
                 </button>
               )}

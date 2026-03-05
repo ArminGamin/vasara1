@@ -15,6 +15,7 @@ import {
   Package,
   CreditCard,
   Lock,
+  ShieldCheck,
   Share2,
   Clock,
   Users,
@@ -31,23 +32,30 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 import { loadStripe } from '@stripe/stripe-js';
 import StripeCardSection from './components/StripeCardSection';
 import PayPalButton from './components/PayPalButton';
-import Snowfall from "./components/Snowfall";
 import CookieConsent from "./components/CookieConsent";
+import { LanguageDetectionPopup } from "./components/LanguageDetectionPopup";
+import { ComparisonTable } from "./components/ComparisonTable";
+import { ReviewsSection } from "./components/ReviewsSection";
+import { WhyChooseUs } from "./components/WhyChooseUs";
+import { FAQAccordion } from "./components/FAQAccordion";
+import { EmailCapturePopup } from "./components/EmailCapturePopup";
+import { StickyMobileCTA } from "./components/StickyMobileCTA";
 
 const STRIPE_PK = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
 
 // Bridge component that exposes a pay() function via ref so parent can trigger payment
+// Server computes amount from items – never trust client-provided amount
 function StripePayBridge({
   payRef,
-  amountCents,
   customer,
-  itemsSummary
+  items,
+  giftWrapping
 }: {
   payRef: React.MutableRefObject<null | (() => Promise<{ ok: boolean; error?: string }>)>;
-  amountCents: number;
   customer: { name: string; surname: string; email: string; phone: string; address: string };
-  itemsSummary: string;
+  items: Array<{ productId: number; name: string; selectedColor?: string; selectedSize?: string; quantity: number }>;
+  giftWrapping: boolean;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -61,13 +69,19 @@ function StripePayBridge({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: amountCents,
           name: customer.name,
           surname: customer.surname,
           email: customer.email,
           phone: customer.phone,
           address: customer.address,
-          items: itemsSummary
+          items: items.map((it) => ({
+            productId: it.productId,
+            name: it.name,
+            selectedColor: it.selectedColor ?? '',
+            selectedSize: it.selectedSize ?? '',
+            quantity: it.quantity
+          })),
+          giftWrapping
         })
       });
       if (!resp.ok) {
@@ -91,7 +105,7 @@ function StripePayBridge({
       return { ok: true };
     };
     return () => { payRef.current = null; };
-  }, [stripe, elements, payRef, amountCents, customer, itemsSummary]);
+  }, [stripe, elements, payRef, customer, items, giftWrapping]);
 
   return null;
 }
@@ -99,67 +113,104 @@ function StripePayBridge({
 // Lazy load non-critical components for code splitting
 const ProductComparison = lazy(() => import("./components/ProductComparison").then(module => ({ default: module.ProductComparison })));
 
+const HERO_IMAGES = [
+  { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
+  { src: '/hero-blue-ar.webp', alt: 'Elektrinis vandens šautuvas – mėlynas' },
+  { src: '/hero-pink-glock.webp', alt: 'Elektrinis vandens pistoletas – rožinis' },
+  { src: '/hero-blue-glock.webp', alt: 'Elektrinis vandens pistoletas – mėlynas' },
+];
+
+function HeroSlideshow({ language }: { language: string }) {
+  const [idx, setIdx] = useState(0);
+  const len = HERO_IMAGES.length;
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const go = useCallback((n: number) => {
+    setIdx((n % len + len) % len);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => setIdx(i => (i + 1) % len), 5000);
+  }, [len]);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => setIdx(i => (i + 1) % len), 5000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [len]);
+
+  return (
+    <>
+      <div className="hero-carousel">
+        {HERO_IMAGES.map((img, i) => (
+          <img
+            key={i}
+            src={img.src}
+            alt={img.alt}
+            className={`hero-carousel-img ${i === idx ? 'active' : ''}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            draggable={false}
+          />
+        ))}
+        <div className="hero-dots">
+          {HERO_IMAGES.map((_, i) => (
+            <button key={i} className={`hero-dot ${i === idx ? 'on' : ''}`} onClick={() => go(i)} aria-label={`Slide ${i + 1}`} />
+          ))}
+        </div>
+      </div>
+      <div className="hero-overlay">
+        <div className="hero-overlay-inner">
+          <h1 className="hero-overlay-title">
+            {language === 'lt' ? 'Vasaros mūšis!' : 'Summer battle!'}
+          </h1>
+          <p className="hero-overlay-sub">
+            {language === 'lt'
+              ? '💦 Vandens šautuvai, kurie šaudo iki 10 metrų. Tikras veiksmas! 💥'
+              : '💦 Water blasters that shoot up to 10m. Real action!'}
+          </p>
+          <button
+            type="button"
+            onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
+            className="hero-overlay-cta"
+          >
+            {language === 'lt' ? 'PIRK DABAR' : 'SHOP NOW'}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // Info Pages Components
 const PristatymoInfo = () => (
-  <PageWrapper title="Pristatymo Informacija">
-    <p className="text-gray-700 mb-4">Pristatymas tikimasi per 8-12 darbo dienų.</p>
-    <p className="text-gray-700">
-      Atkreipkite dėmesį, kad pristatymo laikas gali skirtis dėl nuo mūsų
-      nepriklausančių veiksnių, tokių kaip muitinės formalumai ir vietinės
-      pristatymo paslaugos. Būkite tikri, kad stengiamės apdoroti ir išsiųsti
-      jūsų užsakymą kuo greičiau, kad užtikrintume pristatymą laiku.
+  <PageWrapper title="Pristatymo informacija">
+    <p className="text-brand-muted font-medium">
+      Įprastai užsakymą pristatome per 8–12 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau. Užsakymams virš 80€ - nemokamas pristatymas.
     </p>
   </PageWrapper>
 );
 
 const Grazinimai = () => (
   <PageWrapper title="Grąžinimai">
-    <p className="text-gray-700">
-      Norime, kad būtumėte visiškai patenkinti savo pirkiniu! Atkreipkite dėmesį, kad visi pardavimai yra galutiniai, todėl grąžinti ar pakeisti prekių negalime. Raginame atidžiai peržiūrėti prekės aprašymą, dydžius ir nuotraukas prieš pateikiant užsakymą. Jei turite klausimų arba reikia pagalbos renkantis tinkamą prekę, mūsų komanda mielai jums padės – susisiekite dar prieš pirkdami!
-    </p>
+    <div className="text-brand-muted space-y-4 font-medium">
+      <p>
+        Norime, kad būtumėte visiškai patenkinti savo pirkiniu! Atkreipkite dėmesį, kad visi pardavimai yra galutiniai, todėl grąžinti ar pakeisti prekių negalime. Raginame atidžiai peržiūrėti prekės aprašymą ir nuotraukas prieš pateikiant užsakymą. Jei turite klausimų arba reikia pagalbos renkantis tinkamą prekę, mūsų komanda mielai jums padės - <Link to="/kontaktai" className="text-brand-blue-deep underline">susisiekite</Link> dar prieš pirkdami! 🤝
+      </p>
+    </div>
   </PageWrapper>
 );
 
 const PrivatumoPolitika = () => (
   <PageWrapper title="Privatumo Politika">
-    <div className="text-gray-700 space-y-4">
-      <p>
-        Mes renkame informaciją iš klientų, kai jie atlieka pirkimą arba užsiprenumeruoja naujienlaiškį. 
-        Ši informacija gali apimti jūsų vardą, el. pašto adresą, pašto adresą ir mokėjimo informaciją. 
-        Taip pat galime rinkti informaciją apie jūsų pageidavimus ir produktus, kuriuos įsigyjate mūsų parduotuvėje.
-      </p>
-      
-      <h3 className="font-semibold text-lg">Informacijos naudojimas</h3>
-      <p>
-        Surinktą informaciją naudojame užsakymų apdorojimui, klientų aptarnavimui ir apsipirkimo patirčiai mūsų svetainėje gerinti. 
-        Jūsų el. pašto adresas gali būti naudojamas naujienoms, pasiūlymams ar akcijoms siųsti. 
-        Galite bet kada atsisakyti šių pranešimų.
-      </p>
-      
-      <h3 className="font-semibold text-lg">Informacijos bendrinimas</h3>
-      <p>
-        Asmeninė informacija nėra parduodama, nuomojama ar kitaip perduodama trečiosioms šalims, išskyrus atvejus, 
-        kai tai būtina užsakymui įvykdyti, laikantis įstatymų reikalavimų arba siekiant apsaugoti mūsų teises.
-      </p>
-      
-      <h3 className="font-semibold text-lg">Saugumas</h3>
-      <p>
-        Mes rimtai žiūrime į asmeninės informacijos apsaugą ir taikome tinkamas technines bei organizacines priemones, 
-        siekiant apsaugoti ją nuo neteisėtos prieigos, praradimo ar paviešinimo. 
-        Mokėjimai atliekami per saugius serverius, o klientų duomenys saugomi apsaugotoje duomenų bazėje.
-      </p>
-      
-      <h3 className="font-semibold text-lg">Privatumo politikos pakeitimai</h3>
-      <p>
-        Ši privatumo politika gali būti atnaujinama be išankstinio įspėjimo. 
-        Atnaujinta versija visada bus pateikta šioje svetainėje ir įsigalios nuo paskelbimo momento.
-      </p>
-      
-      <h3 className="font-semibold text-lg">Kontaktai</h3>
-      <p>
-        Kilus klausimams ar pastebėjimams dėl šios privatumo politikos, susisiekite su mumis el. paštu ar per socialinius tinklus – 
-        kontaktus rasite kontaktų skiltyje.
-      </p>
+    <div className="text-brand-muted space-y-4 font-medium">
+      <p>Mes renkame informaciją iš klientų, kai jie atlieka pirkimą arba užsiprenumeruoja naujienlaiškį. Ši informacija gali apimti jūsų vardą, el. pašto adresą, pašto adresą ir mokėjimo informaciją. Taip pat galime rinkti informaciją apie jūsų pageidavimus ir produktus, kuriuos įsigyjate mūsų parduotuvėje.</p>
+      <h3 className="text-brand-blue-deep font-semibold text-lg">Informacijos naudojimas</h3>
+      <p>Surinktą informaciją naudojame užsakymų apdorojimui, klientų aptarnavimui ir apsipirkimo patirčiai mūsų svetainėje gerinti. Jūsų el. pašto adresas gali būti naudojamas naujienoms, pasiūlymams ar akcijoms siųsti. Galite bet kada atsisakyti šių pranešimų.</p>
+      <h3 className="text-brand-blue-deep font-semibold text-lg">Informacijos bendrinimas</h3>
+      <p>Asmeninė informacija nėra parduodama, nuomojama ar kitaip perduodama trečiosioms šalims, išskyrus atvejus, kai tai būtina užsakymui įvykdyti, laikantis įstatymų reikalavimų arba siekiant apsaugoti mūsų teises.</p>
+      <h3 className="text-brand-blue-deep font-semibold text-lg">Saugumas</h3>
+      <p>Mes rimtai žiūrime į asmeninės informacijos apsaugą ir taikome tinkamas technines bei organizacines priemones, siekiant apsaugoti ją nuo neteisėtos prieigos, praradimo ar paviešinimo. Mokėjimai atliekami per saugius serverius, o klientų duomenys saugomi apsaugotoje duomenų bazėje.</p>
+      <h3 className="text-brand-blue-deep font-semibold text-lg">Privatumo politikos pakeitimai</h3>
+      <p>Ši privatumo politika gali būti atnaujinama be išankstinio įspėjimo. Atnaujinta versija visada bus pateikta šioje svetainėje ir įsigalios nuo paskelbimo momento.</p>
+      <h3 className="text-brand-blue-deep font-semibold text-lg">Kontaktai</h3>
+      <p>Kilus klausimams ar pastebėjimams dėl šios privatumo politikos, susisiekite su mumis el. paštu ar per socialinius tinklus - kontaktus rasite <Link to="/kontaktai" className="text-brand-blue-deep underline">kontaktų skiltyje</Link>.</p>
     </div>
   </PageWrapper>
 );
@@ -167,19 +218,20 @@ const PrivatumoPolitika = () => (
 const ApieMus = () => (
   <PageWrapper title="Apie mus">
     <div className="text-gray-800 space-y-4 text-lg font-medium">
-      <h2 className="text-2xl font-bold">Kalėdų Kampelis – apie mus:</h2>
+      <h2 className="text-2xl font-bold">Apie mus</h2>
       <p>
-        „Kalėdų Kampelis“ prasidėjo nuo paprasto tikslo – padaryti Kalėdas gražesnes ir
-        lengvai prieinamas visiems. Kiekvieną sezoną atrenkame <strong>premium kalėdų dekoracijas</strong>,
-        idėjas ir dovanas, kad jūsų namai spindėtų šventiniu džiaugsmu. Tikime, kad jaukumas slypi
-        smulkmenose – todėl kiekvienas užsakymas supakuojamas su šypsena ir rūpesčiu! :)
+        „Vasaros Kampelis“ gimė iš paprastos idėjos - vasara turi būti linksma. Norime, kad kiemai vėl prisipildytų juoko, vandens mūšių ir tikro judesio, o ne tik telefonų ekranų.
       </p>
       <p>
-        Rūpinamės greitu aptarnavimu, aiškiomis sąlygomis ir saugiu atsiskaitymu. Jei reikalinga pagalba
-        renkantis, parašykite – mūsų komanda visuomet pasiruošusi patarti!
+        Atrenkame vandens ginklus, kurie yra patvarūs, saugūs ir tikrai verti savo kainos. Testuojame, lyginame ir siūlome tik tai, kuo patys pasitikėtume.
       </p>
+      <ul className="list-none space-y-2">
+        <li>✔ Nemokamas pristatymas nuo 80€</li>
+        <li>✔ Užtikrinta kokybė</li>
+        <li>✔ Greitas ir saugus atsiskaitymas</li>
+      </ul>
       <p>
-        Norėdami peržiūrėti visą kolekciją, grįžkite į pagrindinį puslapį ir slinkite žemyn iki skyriaus „Mūsų Produktai“.
+        Jei kyla klausimų - parašykite mums. Mielai padėsime išsirinkti tinkamiausią variantą jūsų vasaros nuotykiams. 😉
       </p>
 
       <div className="mt-8">
@@ -188,14 +240,14 @@ const ApieMus = () => (
           <details className="group rounded-lg border border-gray-200 p-4 bg-white">
             <summary className="cursor-pointer font-semibold select-none">1️⃣ Ar pristatote į visą Lietuvą?</summary>
             <p className="mt-2 text-gray-700">
-              Atsakymas: Taip, užsakymus pristatome į visus Lietuvos miestus ir miestelius. Užsakymams virš 30 € pristatymas yra nemokamas.
+              Atsakymas: Taip užsakymus pristatome į visus Lietuvos miestus. Užsakymams virš 80 € pristatymas yra nemokamas.
             </p>
           </details>
 
           <details className="group rounded-lg border border-gray-200 p-4 bg-white">
             <summary className="cursor-pointer font-semibold select-none">2️⃣ Kiek laiko trunka pristatymas?</summary>
             <p className="mt-2 text-gray-700">
-              Atsakymas: Pristatymas paprastai trunka 8–12 darbo dienas, priklausomai nuo užsakymo kiekio. Per šventinį laikotarpį pristatymas gali užtrukti šiek tiek ilgiau.
+              Atsakymas: Įprastai užsakymą pristatome per 8–12 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau.
             </p>
           </details>
 
@@ -213,17 +265,11 @@ const ApieMus = () => (
             </p>
           </details>
 
-          <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-            <summary className="cursor-pointer font-semibold select-none">5️⃣ Ar taikote nuolaidas arba akcijas?</summary>
-            <p className="mt-2 text-gray-700">
-              Atsakymas: Taip! Šventiniu laikotarpiu reguliariai siūlome iki 55 % nuolaidas pasirinktiems produktams. Sekite mūsų naujienas arba prisijunkite prie naujienlaiškio.
-            </p>
-          </details>
 
           <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-            <summary className="cursor-pointer font-semibold select-none">6️⃣ Kaip susisiekti, jei turiu klausimų?</summary>
+            <summary className="cursor-pointer font-semibold select-none">5️⃣ Kaip susisiekti, jei turiu klausimų?</summary>
             <p className="mt-2 text-gray-700">
-              Atsakymas: Galite rašyti mums el. paštu <a href="mailto:kaleddovanos@gmail.com" className="text-red-600 underline">kaleddovanos@gmail.com</a> arba per Facebook ir Instagram žinutes. Atsakome per 24 valandas.
+              Atsakymas: Galite rašyti mums el. paštu <a href="mailto:info@vasaroskampelis.lt" className="text-brand-orange underline">info@vasaroskampelis.lt</a> arba per kontaktų puslapį. Atsakome per 24 valandas.
             </p>
           </details>
         </div>
@@ -232,59 +278,33 @@ const ApieMus = () => (
   </PageWrapper>
 );
 
-const DUK = () => (
-  <PageWrapper title="DUK">
-    <div className="text-gray-800 space-y-4 text-lg font-medium">
-      <h2 className="text-2xl font-bold">Dažniausiai užduodami klausimai</h2>
-      <div className="space-y-3 mt-4">
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">1️⃣ Ar pristatote į visą Lietuvą?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Taip, užsakymus pristatome į visus Lietuvos miestus ir miestelius. Užsakymams virš 30 € pristatymas yra nemokamas.
-          </p>
-        </details>
-
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">2️⃣ Kiek laiko trunka pristatymas?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Pristatymas paprastai trunka 8–12 darbo dienas, priklausomai nuo užsakymo kiekio. Per šventinį laikotarpį pristatymas gali užtrukti šiek tiek ilgiau.
-          </p>
-        </details>
-
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">3️⃣ Ar turite fizinę parduotuvę?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Šiuo metu dirbame tik internetu, tačiau siūlome greitą pristatymą visoje Lietuvoje ir saugų pirkimą internetu.
-          </p>
-        </details>
-
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">4️⃣ Kaip sužinoti, ar prekė yra sandėlyje?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Produktų puslapiuose nurodoma atsargų būsena. Jei matote žymą „Turime sandėlyje“, prekę galite užsisakyti iš karto.
-          </p>
-        </details>
-
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">5️⃣ Ar taikote nuolaidas arba akcijas?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Taip! Šventiniu laikotarpiu reguliariai siūlome iki 55 % nuolaidas pasirinktiems produktams. Sekite mūsų naujienas arba prisijunkite prie naujienlaiškio.
-          </p>
-        </details>
-
-        <details className="group rounded-lg border border-gray-200 p-4 bg-white">
-          <summary className="cursor-pointer font-semibold select-none">6️⃣ Kaip susisiekti, jei turiu klausimų?</summary>
-          <p className="mt-2 text-gray-700">
-            Atsakymas: Galite rašyti mums el. paštu <a href="mailto:kaleddovanos@gmail.com" className="text-red-600 underline">kaleddovanos@gmail.com</a> arba per Facebook ir Instagram žinutes. Atsakome per 24 valandas.
-          </p>
-        </details>
-      </div>
+const Kontaktai = () => (
+  <PageWrapper title="Kontaktai">
+    <div className="text-brand-muted space-y-6">
+      <h2 className="text-xl font-bold text-brand-blue-deep">Susisiekite su mumis</h2>
+      <p className="font-medium">Klausimams apie užsakymus, pristatymą ar prekes - rašykite.</p>
+      <p><strong className="text-brand-text">El. paštas:</strong>{' '}
+        <a href="mailto:info@vasaroskampelis.lt" className="text-brand-blue-deep underline">info@vasaroskampelis.lt</a>
+      </p>
+      <p><strong className="text-brand-text">Atsakome:</strong> <span className="font-medium">per 24 valandas.</span></p>
+      <p><strong className="text-brand-text">Socialiniai tinklai:</strong></p>
+      <span className="inline-flex flex-wrap items-center gap-4 mt-2">
+        <a href="https://www.tiktok.com/@vasaroskampelis" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-brand-blue-deep underline hover:text-brand-orange [&_img]:hover:opacity-80" aria-label="TikTok">
+          <img src="https://cdn.simpleicons.org/tiktok/0ea5e9" alt="" width="20" height="20" className="shrink-0" aria-hidden />
+          TikTok
+        </a>
+        <a href="https://www.instagram.com/vasaroskampelis/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-brand-blue-deep underline hover:text-brand-orange" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Instagram
+        </a>
+        <a href="https://facebook.com/vasaroskampelis" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-brand-blue-deep underline hover:text-brand-orange" aria-label="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </a>
+      </span>
     </div>
   </PageWrapper>
 );
-
-
-// --- Reusable Page Wrapper ---
 const PageWrapper = ({
   title,
   children,
@@ -295,14 +315,14 @@ const PageWrapper = ({
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="bg-red-600 text-white py-3 text-center text-lg font-bold">
+      <div className="bg-brand-blue-deep text-white py-3 text-center text-lg font-bold">
         {title}
       </div>
-      <div className="max-w-4xl mx-auto px-6 py-10 text-lg">{children}</div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 text-lg">{children}</div>
       <div className="text-center mb-10">
         <button
           onClick={() => navigate("/")}
-          className="bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition"
+          className="bg-brand-orange text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-orange-hover transition min-h-[48px]"
         >
           Grįžti atgal
         </button>
@@ -327,6 +347,10 @@ function HomePage() {
   // For products that define multiple size groups (e.g., Adults, Kids)
   const [selectedSizesByGroup, setSelectedSizesByGroup] = useState<number[]>([]);
   const [quantity, setQuantity] = useState(1);
+  const [sectionSizesByGroup, setSectionSizesByGroup] = useState<number[]>([0, 0]);
+  const [sectionImageIndex, setSectionImageIndex] = useState(0);
+  const [sectionQuantity, setSectionQuantity] = useState(1);
+  const [sectionAddSuccess, setSectionAddSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -342,10 +366,9 @@ function HomePage() {
   const [completedOrderNumber, setCompletedOrderNumber] = useState('');
   const [completedOrderEmail, setCompletedOrderEmail] = useState('');
   // Non-critical visuals deferred to idle
-  const [showSnow, setShowSnow] = useState(false);
   const [showCookie, setShowCookie] = useState(false);
   // Free shipping threshold uses FLOOR of subtotal cents (no rounding up to qualify)
-  const freeShippingCents = 3000; // €30.00
+  const freeShippingCents = 8000; // €80.00
   const subtotalCentsFloor = useMemo(() => (
     cartItems.reduce((sum: number, it: any) => {
       const priceCentsFloor = Math.floor(Number(it.price) * 100);
@@ -373,7 +396,6 @@ function HomePage() {
         setTimeout(fn, timeout);
       }
     };
-    schedule(() => setShowSnow(true), 1200);
     schedule(() => setShowCookie(true), 1000);
   }, []);
 
@@ -409,7 +431,6 @@ function HomePage() {
     expiry: '',
     cvv: ''
   });
-  const language = 'lt'; // Fixed to Lithuanian only
   
   // Preload 'Kalėdinis Megztinis' images on idle for faster first-view on mobile
   useEffect(() => {
@@ -530,63 +551,159 @@ function HomePage() {
     minutes: 0,
     seconds: 0
   });
+  const [countdownExpired, setCountdownExpired] = useState(false);
+  // Promo end date: set VITE_PROMO_END (e.g. "2025-08-31T23:59:59") or defaults to end of summer
+  const promoEndDate = useMemo(() => {
+    const env = (import.meta as any).env?.VITE_PROMO_END;
+    if (env) return new Date(env);
+    return new Date("2025-08-31T23:59:59");
+  }, []);
   // Bridge ref to trigger Stripe payment from parent button
   const stripePayRef = React.useRef<null | (() => Promise<{ ok: boolean; error?: string }>)>(null);
+  // Scroll-snap slideshow: container ref + section refs for entrance animations
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
   // Initialize products from centralized data source
   useEffect(() => {
     setProducts(initialProducts);
   }, [setProducts]);
 
-  // Translations
-  const translations = {
+  // Translations – summer shop, LT + EN
+  const [language, setLanguage] = useState<'lt' | 'en'>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = localStorage.getItem('splashzone-lang') as 'lt' | 'en' | null;
+      if (stored === 'lt' || stored === 'en') return stored;
+      // If Google Translate cookie is set, treat as EN (translation mode)
+      const gt = document.cookie.match(/googtrans=([^;]+)/);
+      if (gt && gt[1] !== '/lt/lt') return 'en';
+    }
+    return 'lt';
+  });
+
+  // Google Translate: load script when EN selected
+  useEffect(() => {
+    if (language !== 'en') return;
+    if (document.getElementById('google-translate-script')) return;
+    const s = document.createElement('script');
+    s.id = 'google-translate-script';
+    s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    s.async = true;
+    document.head.appendChild(s);
+  }, [language]);
+
+  const translations: Record<'lt' | 'en', Record<string, string>> = {
     lt: {
-      saleBanner: 'IŠPARDAVIMAS DABAR',
-      shopName: 'Kalėdų Kampelis',
+      saleBanner: 'Nemokamas pristatymas nuo 80€',
+      shopName: 'Vasaros Kampelis',
       cart: 'Krepšelis',
       wishlist: 'Pageidavimų sąrašas',
-      products: 'Mūsų Produktai',
+      products: 'Šautuvai',
       recentlyViewed: 'Neseniai žiūrėti',
-      addToCart: 'Įdėti į Krepšelį',
+      addToCart: 'Įdėti į krepšelį',
       viewProduct: 'Peržiūrėti',
       checkout: 'Atsiskaityti',
-      freeShipping: 'Nemokamas Pristatymas',
-      securePayment: 'Saugus Mokėjimas',
-      easyReturns: 'Lengvas Grąžinimas',
-      support: '24/7 Pagalba',
-      christmasCountdown: 'Laikas Iki Kalėdų',
-      countdownSubtitle: 'Nepraleiskite mūsų šventinių pasiūlymų!',
-      days: 'Dienos',
-      hours: 'Valandos',
-      minutes: 'Minutės',
-      seconds: 'Sekundės',
-      emptyCart: 'Jūsų krepšelis tuščias',
+      freeShipping: 'Nemokamas pristatymas',
+      securePayment: 'Saugus mokėjimas',
+      easyReturns: '30 dienų grąžinimas',
+      support: 'Pagalba',
+      christmasCountdown: 'Sezoninė nuolaida baigiasi',
+      countdownSubtitle: 'Pasiūlymas ribotam laikui – gauk daugiau už mažesnę kainą!',
+      days: 'D.',
+      hours: 'Val.',
+      minutes: 'Min.',
+      seconds: 'Sek.',
+      emptyCart: 'Krepšelis tuščias',
       continueShopping: 'Tęsti apsipirkimą',
-      recommendations: 'Rekomenduojame Jums',
+      recommendations: 'Rekomenduojame',
       shareProduct: 'Dalintis',
-      shareText: 'Pažiūrėkite šį gražų Kalėdų dekoraciją!',
+      shareText: 'Pažiūrėk šį vandens blasterį!',
       giftWrapping: 'Dovanų pakavimas',
       orderTotal: 'Viso',
       subtotal: 'Tarpinė suma',
       shipping: 'Pristatymas',
-      placeOrder: 'Pateikti Užsakymą',
+      placeOrder: 'Pateikti užsakymą',
       lastOrder: 'Paskutinis užsakymas',
       processing: 'Apdorojama',
       addedToCart: 'Pridėta į krepšelį!',
-      orderPlaced: 'Užsakymas sėkmingai pateiktas!',
+      orderPlaced: 'Užsakymas pateiktas!',
       addedToWishlist: 'Pridėta į pageidavimų sąrašą',
       removedFromWishlist: 'Pašalinta iš pageidavimų sąrašo',
-      happyCustomers: 'Patenkinti klientai'
-    }
+      happyCustomers: 'Patenkinti klientai',
+      heroHeadline: 'Vasaros linksmys prasideda čia',
+      heroSub: 'Galingi, saugūs vandens blasteriai – idealūs šeimai ir draugams. Nemokamas pristatymas nuo 80€.',
+      ctaShop: 'Žiūrėti produktus',
+      mostPopular: 'Populiauriausias',
+      newBadge: 'NAUJA',
+      guaranteeTitle: '30 dienų garantija',
+      whyUs: 'Kodėl mes?',
+      offerEnded: 'Pasiūlymas baigėsi',
+      buyNow: 'Pirkti dabar',
+      benefitCapacity: 'Didelė vandens talpa',
+      benefitSafeKids: 'Saugus vaikams',
+      benefitQuality: 'Kokybė ir atsparumas',
+      benefitReturns: '30 dienų grąžinimas',
+    },
+    en: {
+      saleBanner: 'Free shipping over €80',
+      shopName: 'Vasaros Kampelis',
+      cart: 'Cart',
+      wishlist: 'Wishlist',
+      products: 'Products',
+      recentlyViewed: 'Recently viewed',
+      addToCart: 'Add to cart',
+      viewProduct: 'View',
+      checkout: 'Checkout',
+      freeShipping: 'Free shipping',
+      securePayment: 'Secure payment',
+      easyReturns: '30-day returns',
+      support: 'Support',
+      christmasCountdown: 'Seasonal offer ends soon',
+      countdownSubtitle: 'Limited time – get more for less!',
+      days: 'Days',
+      hours: 'Hrs',
+      minutes: 'Min',
+      seconds: 'Sec',
+      emptyCart: 'Your cart is empty',
+      continueShopping: 'Continue shopping',
+      recommendations: 'Recommended for you',
+      shareProduct: 'Share',
+      shareText: 'Check out this water blaster!',
+      giftWrapping: 'Gift wrapping',
+      orderTotal: 'Total',
+      subtotal: 'Subtotal',
+      shipping: 'Shipping',
+      placeOrder: 'Place order',
+      lastOrder: 'Last order',
+      processing: 'Processing',
+      addedToCart: 'Added to cart!',
+      orderPlaced: 'Order placed successfully!',
+      addedToWishlist: 'Added to wishlist',
+      removedFromWishlist: 'Removed from wishlist',
+      happyCustomers: 'Happy customers',
+      heroHeadline: 'Summer fun starts here',
+      heroSub: 'Powerful, safe water blasters – perfect for family & friends. Free shipping over €80.',
+      ctaShop: 'Shop now',
+      mostPopular: 'Most popular',
+      newBadge: 'NEW',
+      guaranteeTitle: '30-day guarantee',
+      whyUs: 'Why choose us?',
+      offerEnded: 'Offer ended',
+      buyNow: 'Buy now',
+      benefitCapacity: 'Large water capacity',
+      benefitSafeKids: 'Safe for kids',
+      benefitQuality: 'Quality & durability',
+      benefitReturns: '30-day returns',
+    },
   };
 
-  const t = translations.lt;
+  const t = translations[language];
   const { products: storeProducts } = useProductStore();
   
   const renderStars = useCallback((_rating: number, size: string = 'w-4 h-4') => (
-    <div className="flex text-yellow-400">
+    <div className="flex text-brand-gold">
       {[...Array(5)].map((_, i) => (
-        <Star key={i} className={`${size} fill-yellow-400`} />
+        <Star key={i} className={`${size} fill-brand-gold`} />
       ))}
     </div>
   ), []);
@@ -777,24 +894,45 @@ function HomePage() {
   
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const christmas = new Date("2025-12-25T00:00:00");
       const now = new Date();
-      const difference = christmas.getTime() - now.getTime();
-      
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60)
-        });
+      const difference = promoEndDate.getTime() - now.getTime();
+
+      if (difference <= 0) {
+        setCountdownExpired(true);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
       }
+      setCountdownExpired(false);
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      });
     };
-    
+
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
-    
     return () => clearInterval(timer);
+  }, [promoEndDate]);
+
+  // Scroll-snap: add is-visible to sections when they enter the scroll container (respects prefers-reduced-motion in CSS)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const refs = sectionRefs.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("is-visible");
+        });
+      },
+      { root: container, threshold: 0.05, rootMargin: "0px 0px 0px 0px" }
+    );
+    refs.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
   }, []);
 
   // Mobile detection and touch handlers
@@ -856,6 +994,36 @@ function HomePage() {
     };
   }, [isMobile, productModalOpen, cartOpen]);
 
+  // Tab title: when user switches to another tab, flash between site name and "come back" message
+  const TAB_TITLE_DEFAULT = 'Vasaros Kampelis | Vandens šautuvai ir vasaros žaidimai';
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const comeBackTitle = language === 'lt' ? '👀 Jau išeini?' : 'Come back soon! 💦';
+        let showComeBack = false;
+        intervalId = setInterval(() => {
+          document.title = showComeBack ? TAB_TITLE_DEFAULT : comeBackTitle;
+          showComeBack = !showComeBack;
+        }, 1000);
+      } else {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        document.title = TAB_TITLE_DEFAULT;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (intervalId) clearInterval(intervalId);
+      document.title = TAB_TITLE_DEFAULT;
+    };
+  }, [language]);
+
   // Urgency timer effect
   useEffect(() => {
     const urgencyInterval = setInterval(() => {
@@ -887,7 +1055,7 @@ function HomePage() {
       const names = ['Ana', 'Petras', 'Marija', 'Jonas', 'Elena', 'Tomas', 'Lina', 'Darius', 'Gintarė', 'Arūnas', 'Rūta', 'Mantas', 'Ieva', 'Tomas', 'Eglė'];
       const lastNames = ['K.', 'L.', 'S.', 'M.', 'R.', 'N.', 'P.', 'B.', 'V.', 'G.', 'J.', 'D.', 'T.', 'A.', 'Z.'];
       const locations = ['Vilnius', 'Kaunas', 'Klaipėda', 'Šiauliai', 'Panevėžys', 'Alytus', 'Marijampolė', 'Utena', 'Tauragė', 'Telšiai', 'Mažeikiai', 'Plungė', 'Radviliškis', 'Kretinga'];
-      const products = ['Kalėdinis namelis', 'LED girlianda', 'Žaisliukų rinkinys', 'Puokštė', 'Dekoracijos'];
+      const products = ['Splash Blaster Pro', 'Mini Splash', '2-pack rinkinys', '4-pack rinkinys', 'Refill Pack'];
       
       const newOrder = {
         name: names[Math.floor(Math.random() * names.length)] + ' ' + 
@@ -910,20 +1078,37 @@ function HomePage() {
 
   return (
     <>
-    <div 
-      className="min-h-screen bg-red-50 flex flex-col touch-action-pan-y"
+    <LanguageDetectionPopup
+      currentLang={language}
+      onChooseLanguage={(lang) => {
+        setLanguage(lang);
+        if (typeof localStorage !== 'undefined') localStorage.setItem('splashzone-lang', lang);
+        if (lang === 'lt') {
+          const hadTranslation = document.cookie.includes('googtrans=');
+          document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          if (hadTranslation) window.location.reload();
+        }
+      }}
+    />
+    <EmailCapturePopup
+      delayMs={12000}
+      onSubscribe={async (emailToSubscribe) => {
+        const apiBase = (import.meta as any).env?.VITE_API_BASE || '';
+        const response = await fetch(`${apiBase}/api/newsletter-subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailToSubscribe }),
+        });
+        if (!response.ok && response.status !== 409) throw new Error('Subscribe failed');
+      }}
+    />
+    <div
+      className="min-h-screen flex flex-col bg-bg touch-action-pan-y"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Global snowfall overlay */}
-      {showSnow ? <Snowfall position="fixed" zIndex={5} /> : null}
-      {/* Sale Banner */}
-      <div className="relative bg-gradient-to-r from-red-600 to-green-600 text-white py-2 text-center text-sm sm:text-base font-semibold overflow-hidden">
-        <div className="relative tracking-wide">🎁 {t.saleBanner} 🎁</div>
-      </div>
-
-      {/* Header */}
+      {/* Storefront header: white, logo center, nav row below (reference design) */}
       {/* JSON-LD dynamic for products */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",
@@ -938,8 +1123,8 @@ function HomePage() {
             image: p.images?.[0] || p.image,
             description: p.description,
             sku: `KK-${p.id}`,
-            brand: { "@type": "Brand", name: "Kalėdų Kampelis" },
-            url: `https://kaledukampelis.com/?product=${p.id}`,
+            brand: { "@type": "Brand", name: "Vasaros Kampelis" },
+            url: `https://splashzone.example.com/?product=${p.id}`,
             offers: {
               "@type": "Offer",
               price: p.price,
@@ -964,7 +1149,7 @@ function HomePage() {
                 "returnMethod": "https://schema.org/ReturnByMail",
                 "returnFees": "https://schema.org/FreeReturn",
                 "refundType": "https://schema.org/FullRefund",
-                "returnPolicyUrl": "https://kaledukampelis.com/grazinimai"
+                "returnPolicyUrl": "https://splashzone.example.com/grazinimai"
               }
             },
             aggregateRating: {
@@ -977,269 +1162,157 @@ function HomePage() {
           }
         }))
       }) }} />
-      <header className="bg-white shadow-lg sticky top-0 z-50 ios-safe-area">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center h-16 sm:h-20">
-          <div className="flex items-center space-x-2 group">
-            <div className="text-2xl sm:text-3xl animate-bounce group-hover:animate-spin">🎄</div>
-            <h1 className="text-lg sm:text-2xl font-bold text-red-600 group-hover:text-green-600 transition-colors duration-300">{t.shopName}</h1>
-          </div>
-      <div className="flex items-center space-x-2 sm:space-x-4">
-        {/* Language Switcher */}
-        <div className="flex items-center gap-1 mr-1">
-          <button
-            onClick={() => {
-              // Lazy-load Google Translate only when user switches language
-              const ensureTranslate = () =>
-                new Promise<void>((resolve) => {
-                  if ((window as any).google?.translate) return resolve();
-                  const existing = document.getElementById('google-translate-script');
-                  if (existing) {
-                    // Wait briefly for existing script to finish
-                    setTimeout(() => resolve(), 350);
-                    return;
-                  }
-                  const s = document.createElement('script');
-                  s.id = 'google-translate-script';
-                  (window as any).__gt_cb = function () {
-                    resolve();
-                  };
-                  s.src = 'https://translate.google.com/translate_a/element.js?cb=__gt_cb';
-                  document.body.appendChild(s);
-                });
-              ensureTranslate().then(() => {
-                // Set cookie to EN and initialize translator
-                document.cookie = `googtrans=/auto/en; path=/`;
-                document.cookie = `googtrans=/auto/en; domain=${window.location.hostname}; path=/`;
-                try {
-                  const holder = document.getElementById('google_translate_element') || document.createElement('div');
-                  holder.id = 'google_translate_element';
-                  holder.style.display = 'none';
-                  document.body.appendChild(holder);
-                  if ((window as any).google?.translate) {
-                    new (window as any).google.translate.TranslateElement({
-                      pageLanguage: 'lt',
-                      includedLanguages: 'lt,en',
-                      autoDisplay: false
-                    }, 'google_translate_element');
-                  }
-                } catch {}
-              });
-            }}
-            className="px-2 py-1 border rounded text-xs hover:bg-gray-50"
-            title="English"
-          >🇬🇧 EN</button>
-          <button
-            onClick={() => {
-              const ensureTranslate = () =>
-                new Promise<void>((resolve) => {
-                  if ((window as any).google?.translate) return resolve();
-                  const existing = document.getElementById('google-translate-script');
-                  if (existing) {
-                    setTimeout(() => resolve(), 350);
-                    return;
-                  }
-                  const s = document.createElement('script');
-                  s.id = 'google-translate-script';
-                  (window as any).__gt_cb = function () {
-                    resolve();
-                  };
-                  s.src = 'https://translate.google.com/translate_a/element.js?cb=__gt_cb';
-                  document.body.appendChild(s);
-                });
-              ensureTranslate().then(() => {
-                document.cookie = `googtrans=/auto/lt; path=/`;
-                document.cookie = `googtrans=/auto/lt; domain=${window.location.hostname}; path=/`;
-                try {
-                  const holder = document.getElementById('google_translate_element') || document.createElement('div');
-                  holder.id = 'google_translate_element';
-                  holder.style.display = 'none';
-                  document.body.appendChild(holder);
-                  if ((window as any).google?.translate) {
-                    new (window as any).google.translate.TranslateElement({
-                      pageLanguage: 'lt',
-                      includedLanguages: 'lt,en',
-                      autoDisplay: false
-                    }, 'google_translate_element');
-                  }
-                } catch {}
-              });
-            }}
-            className="px-2 py-1 border rounded text-xs hover:bg-gray-50"
-            title="Lietuvių"
-          >🇱🇹 LT</button>
+      <header className="storefront-header ios-safe-area shrink-0">
+        <div className="storefront-header-emoji-deco" aria-hidden>
+          <span>☀️</span>
+          <span>🌴</span>
+          <span>💦</span>
+          <span>🌊</span>
+          <span>🏖️</span>
+          <span>🍉</span>
+          <span>🌻</span>
+          <span>⛱️</span>
+          <span>🍋</span>
+          <span>🐚</span>
+          <span>🌴</span>
+          <span>☀️</span>
+          <span>🌊</span>
         </div>
+        <div className="storefront-header-top">
+          <div className="min-h-[44px]" aria-hidden />
+          <Link to="/" className="storefront-logo">{t.shopName}</Link>
+          <div className="flex items-center justify-end gap-1 sm:gap-2 min-h-[44px]">
             <button
-              className="relative text-gray-700 hover:text-red-600 p-3 sm:p-2 rounded-lg hover:bg-red-50 touch-manipulation"
+              className="relative min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl text-muted hover:text-cta hover:bg-promoBg/50 transition"
               onClick={() => setWishlistOpen((s) => !s)}
               title={t.wishlist}
             >
-              <Heart className="w-5 h-5 sm:w-5 sm:h-5" />
+              <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
                   {wishlist.length}
                 </span>
               )}
             </button>
             <button
-              className="relative text-gray-700 hover:text-red-600 p-3 sm:p-2 rounded-lg hover:bg-red-50 touch-manipulation"
-              onClick={() => setCartOpen((s) => !s)}
+              className="relative min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl text-muted hover:text-cta hover:bg-promoBg/50 transition"
+              onClick={() => setCartOpen(true)}
               title={t.cart}
             >
-              <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
+              <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
                   {totalItems}
                 </span>
               )}
             </button>
           </div>
         </div>
+        <nav className="storefront-nav-row">
+          <Link to="/">{language === 'lt' ? '☀️ Pagrindinis' : '☀️ Home'}</Link>
+          <Link to="/kontaktai">{language === 'lt' ? '💬 Kontaktai' : '💬 Contact'}</Link>
+          <a href="#products">{language === 'lt' ? '💦 Šautuvai' : '💦 Products'}</a>
+        </nav>
       </header>
 
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-b from-red-700 via-red-600 to-emerald-800 py-12 sm:py-16 overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute top-4 left-4 text-white opacity-10">
-          <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-              </div>
-        <div className="absolute top-12 right-16 text-white opacity-10">
-          <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center">
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-              <span className="text-white block mb-2">Padarykite šias Kalėdas</span>
-              <span className="text-yellow-400 block">Nepamirštamas!</span>
-              </h1>
-            
-            {/* Sub-headline */}
-            <p className="text-lg sm:text-xl text-white mb-8 max-w-3xl mx-auto">
-              Aukščiausios kokybės kalėdinės dekoracijos su nuolaida iki 55%. Pristatymas per 10-14 dienų!
-            </p>
-            
-            {/* Call-to-Action Buttons */}
-            <div className="flex justify-center mb-12">
-              <button
-                onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-white text-red-600 px-10 py-5 rounded-full font-bold border-2 border-red-600 hover:bg-red-50 transition-all duration-300 transform hover:scale-105 touch-manipulation min-h-[52px] text-lg flex items-center gap-3 cta-glow cta-sheen cta-pulse"
-              >
-                <Gift className="w-6 h-6" />
-                Peržiūrėti rinkinius
-              </button>
+      {/* Scrolling promo strip – product features (seamless marquee) */}
+      <div className="storefront-promo-strip shrink-0">
+        <div className="storefront-promo-track">
+          {[0, 1, 2, 3].map((copy) => (
+            <div key={copy} className="storefront-promo-set" aria-hidden={copy > 0 ? true : undefined}>
+              <span>💦 Šaudo iki 10 metrų atstumu</span>
+              <span>➔</span>
+              <span>💧 Didelė vandens talpa</span>
+              <span>➔</span>
+              <span>🚀 Pilnai automatinis režimas</span>
+              <span>➔</span>
+              <span>🖐 Stabilus ir patogus laikymas</span>
+              <span>➔</span>
+              <span>🎯 Lengvas taktinio stiliaus dizainas</span>
+              <span>➔</span>
             </div>
-            <p className="text-center text-white/90 font-semibold mb-10">Iki -55% nuolaidos rinkiniams – pasiūlymai ribotam laikui</p>
-            
-            {/* Informational Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              <div className="flex flex-col items-center text-white">
-                <div className="bg-white bg-opacity-20 rounded-full p-4 mb-3">
-                  <Truck className="w-8 h-8" />
-                </div>
-                <p className="font-semibold text-center">Nemokamas pristatymas</p>
-            </div>
-            
-              <div className="flex flex-col items-center text-white">
-                <div className="bg-white bg-opacity-20 rounded-full p-4 mb-3">
-                  <Shield className="w-8 h-8" />
-                  </div>
-                <p className="font-semibold text-center">Saugus mokėjimas</p>
-                  </div>
-              
-              <div className="flex flex-col items-center text-white">
-                <div className="bg-white bg-opacity-20 rounded-full p-4 mb-3">
-                  <Gift className="w-8 h-8" />
-                </div>
-                <p className="font-semibold text-center">30 dienų grąžinimas</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Discount Badge */}
-          <div className="absolute bottom-0 right-0 sm:right-8 mb-4 sm:mb-8">
-            <div className="bg-yellow-400 px-6 py-4 rounded-lg shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform">
-              <div className="text-black text-center">
-                <div className="text-4xl font-bold">-55%</div>
-                <div className="text-sm font-semibold uppercase">Nuolaida</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Fairy lights overlay */}
-        <div className="pointer-events-none absolute inset-0 z-0">
-          <span className="fairy-light" style={{ top: '18%', left: '12%' }}></span>
-          <span className="fairy-light slow" style={{ top: '26%', left: '32%' }}></span>
-          <span className="fairy-light fast" style={{ top: '14%', left: '52%' }}></span>
-          <span className="fairy-light" style={{ top: '30%', left: '74%' }}></span>
-          <span className="fairy-light slow" style={{ top: '42%', left: '86%' }}></span>
-          <span className="fairy-light" style={{ top: '38%', left: '6%' }}></span>
-        </div>
-        {/* Soft gradient seam into the next section */}
-        <div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 z-10"
-          style={{
-            background:
-              'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(22,101,52,0.35) 60%, #166534 100%)',
-          }}
-        />
-      </div>
-
-      
-
-      {/* Christmas Countdown */}
-      <div className="relative text-white py-12 overflow-hidden -mt-px" style={{ background: 'linear-gradient(to bottom, #166534 0%, #065f26 100%)' }}>
-        {/* Top separator line */}
-        <div className="absolute top-0 left-0 right-0 sparkle-line"></div>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          {/* Divider */}
-          <div className="mx-auto mb-6 w-28 sparkle-line"></div>
-          <h2 className="text-4xl font-extrabold mb-2 gold-text">{t.christmasCountdown}</h2>
-          <p className="text-lg mb-8">{t.countdownSubtitle}</p>
-          <div className="flex justify-center space-x-3 sm:space-x-4">
-            <div className="glass-card rounded-2xl p-4 sm:p-5 min-w-[90px] sm:min-w-[110px] countdown-pop">
-              <div className="text-4xl sm:text-5xl font-extrabold countdown-pulse">{timeLeft.days}</div>
-              <div className="text-[10px] sm:text-xs uppercase tracking-wide mt-1">{t.days}</div>
-            </div>
-            <div className="glass-card rounded-2xl p-4 sm:p-5 min-w-[90px] sm:min-w-[110px] countdown-pop">
-              <div className="text-4xl sm:text-5xl font-extrabold countdown-pulse">{timeLeft.hours}</div>
-              <div className="text-[10px] sm:text-xs uppercase tracking-wide mt-1">{t.hours}</div>
-            </div>
-            <div className="glass-card rounded-2xl p-4 sm:p-5 min-w-[90px] sm:min-w-[110px] countdown-pop">
-              <div className="text-4xl sm:text-5xl font-extrabold countdown-pulse">{timeLeft.minutes}</div>
-              <div className="text-[10px] sm:text-xs uppercase tracking-wide mt-1">{t.minutes}</div>
-            </div>
-            <div className="glass-card rounded-2xl p-4 sm:p-5 min-w-[90px] sm:min-w-[110px] countdown-pop">
-              <div className="text-4xl sm:text-5xl font-extrabold countdown-pulse">{timeLeft.seconds}</div>
-              <div className="text-[10px] sm:text-xs uppercase tracking-wide mt-1">{t.seconds}</div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
+
+      {/* Scroll-snap slideshow container – full viewport sections with entrance animations */}
+      <div ref={scrollContainerRef} className="snap-scroll-container">
+        {/* Section 1: Hero – full-screen image slideshow with overlay */}
+        <section
+          ref={(el) => { sectionRefs.current[0] = el; }}
+          className="snap-slide hero-section"
+        >
+          <div className="slide-content w-full h-full">
+            <HeroSlideshow language={language} />
+          </div>
+        </section>
+
+        {/* Section 2: Pillow-style Why – two columns: text left, comparison table right */}
+        <section
+          ref={(el) => { sectionRefs.current[1] = el; }}
+          className="snap-slide pillow-why-section"
+        >
+          <div className="slide-content w-full">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="pillow-why-grid">
+                <div>
+                  <h2 className="pillow-why-headline">
+                    {language === 'lt' ? 'Kodėl Vasaros Kampelis?' : 'Why Vasaros Kampelis?'}
+                  </h2>
+                  <div className="pillow-why-body">
+                    <p>
+                      {language === 'lt'
+                        ? 'Vasaros Kampelis - vieta, kur vasara tampa tikru iššūkiu! 💦🔥'
+                        : 'Vasaros Kampelis – where summer becomes a real challenge! 💦🔥'}
+                    </p>
+                    <p>
+                      {language === 'lt'
+                        ? 'Vandens mūšiai kieme, adrenalinas iki sutemų ir akimirkos, kurias prisiminsite dar ilgai!'
+                        : 'Water battles in the yard, adrenaline until dusk and moments you\'ll remember for a long time!'}
+                    </p>
+                    <p>
+                      {language === 'lt'
+                        ? 'Mūsų modeliai skirti ne paprastam apsitaškymui - jie sukurti tikram veiksmui, stipriam spaudimui ir rimtai konkurencijai tarp draugų!'
+                        : 'Our models aren\'t for casual splashing – they\'re built for real action, strong pressure and serious competition among friends!'}
+                    </p>
+                    <p>
+                      {language === 'lt'
+                        ? <>Mažiau ekranų! 🖥️<br />Daugiau judesio! 🏃‍♂️<br />Daugiau veiksmo! 💪</>
+                        : <>Less screen time! 🖥️<br />More movement! 🏃‍♂️<br />More action! 💪</>}
+                    </p>
+                  </div>
+                </div>
+                <ComparisonTable embedded otherLabel={language === 'lt' ? 'Kiti' : 'Others'} />
+              </div>
+            </div>
+          </div>
+        </section>
 
       {/* Success Message */}
       {successMessage && (
-        <div className="fixed top-20 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+        <div className="fixed top-20 right-4 bg-success text-white px-4 py-2 rounded-lg shadow-lg z-50">
           {successMessage}
         </div>
       )}
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="fixed top-20 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+        <div className="fixed top-20 right-4 bg-cta text-white px-4 py-2 rounded-lg shadow-lg z-50">
           {errorMessage}
         </div>
       )}
 
+        {/* Section 4: Products (recently viewed + recommendations + main grid) */}
+        <section
+          ref={(el) => { sectionRefs.current[2] = el; }}
+          className="snap-slide bg-bg"
+        >
+          <div className="slide-content w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
       {/* Recently Viewed */}
       {recentlyViewed.length > 0 && (
-        <div className="bg-white py-4">
-          <div className="max-w-7xl mx-auto px-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">{t.recentlyViewed}</h3>
+        <div className="bg-surface py-4 rounded-xl border border-border mb-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-lg font-semibold text-text mb-3">{t.recentlyViewed}</h3>
             <div className="flex space-x-3">
                   {recentlyViewed.map(productId => {
                 const product = products.find(p => p.id === productId);
@@ -1269,189 +1342,261 @@ function HomePage() {
         </div>
       )}
 
-      {/* Product Recommendations */}
-      {recommendations.length > 0 && (
-        <div className="bg-gray-50 py-6">
-          <div className="max-w-7xl mx-auto px-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t.recommendations}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {recommendations.map((product) => (
-                <div key={product.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-                  <OptimizedImage
-                    src={product.image}
-                    alt={`${product.name} - Rekomenduojamas produktas`}
-                    className="w-full h-40 object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    width={400}
-                    height={160}
-                  />
-                  <div className="p-4">
-                    <div className="flex items-center mb-1">
-                  {renderStars(product.rating, 'w-3 h-3')}
-                      <span className="ml-1 text-xs text-gray-600">
-                        {product.rating} ({product.reviews})
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-semibold mb-1 text-gray-900 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-lg font-bold text-red-600">
-                      €{product.price}
-                      <span className="text-xs text-gray-400 line-through ml-1">
-                        €{product.originalPrice}
-                      </span>
-                    </p>
-                    <div className="flex space-x-2 mt-2">
-                      <button
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setSelectedImageIndex(0);
-                          setSelectedColor(0);
-                          setSelectedSize(0);
-                        setSelectedSizesByGroup(product.sizeGroups ? product.sizeGroups.map(() => 0) : []);
-                          setQuantity(1);
-                          addToRecentlyViewed(product.id);
-                          setProductModalOpen(true);
-                        }}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-green-600 text-white py-2 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 text-sm"
-                      >
-                        {t.viewProduct}
-                      </button>
-                      <button
-                        onClick={() => addToWishlist(product.id)}
-                        className={`p-2 rounded-lg transition ${
-                          wishlist.includes(product.id)
-                            ? 'bg-red-600 text-white'
-                            : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                        }`}
-                      >
-                        <Heart className={`w-4 h-4 ${wishlist.includes(product.id) ? 'fill-current' : ''}`} />
-                      </button>
-                      <button
-                        onClick={() => shareProduct(product)}
-                        className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                        title={t.shareProduct}
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+      {/* Tikros akimirkos – full-width showcase */}
+      <div className="promo-shorts-section">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="promo-shorts-heading">Tikros akimirkos iš vasaros mūšių</h2>
+          <p className="promo-shorts-sub">Pažiūrėk, kaip atrodo tikras veiksmas su mūsų ginklais! 👀</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10 mt-8">
+            <div className="promo-shorts-card">
+              <video
+                src="/Promo1.mp4"
+                className="w-full h-full object-cover"
+                playsInline
+                muted
+                loop
+                autoPlay
+                controls
+                aria-label="Promo 1"
+              />
+            </div>
+            <div className="promo-shorts-card">
+              <video
+                src="/Promo2.mp4"
+                className="w-full h-full object-cover"
+                playsInline
+                muted
+                loop
+                autoPlay
+                controls
+                aria-label="Promo 2"
+              />
+            </div>
+            <div className="promo-shorts-card">
+              <video
+                src="/Promo3.mp4"
+                className="w-full h-full object-cover"
+                playsInline
+                muted
+                loop
+                autoPlay
+                controls
+                aria-label="Promo 3"
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Products */}
-      <main id="products" className="relative z-20 max-w-7xl mx-auto px-6 py-8 flex-1">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          {t.products}
-        </h2>
+      {/* Products – one big section with inline variant selection */}
+      <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 flex-1">
+        <h2 className="revo-section-title text-center mb-2">{t.products}</h2>
+        <p className="revo-section-sub text-center mb-10 pl-6 pr-1">Tegul prasideda tikras vasaros mūšis! 🚀</p>
         {productsSorted.length === 0 ? (
-          <div className="text-center text-gray-600 py-12">
+          <div className="text-center text-muted py-12">
             Šiuo metu nėra prekių. Pridėkite naujų įrašų – aš paruošiau vietą nuotraukoms ir aprašymams.
           </div>
-        ) : (
-        <>
-        <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3`}>
-          {productsSorted.map((product, index) => (
-            <div
-              key={product.id}
-              className={`cv-auto bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group h-full flex flex-col ${productsSorted.length === 1 ? 'lg:col-span-2' : ''}`}
-              style={{ contain: 'content', contentVisibility: 'auto' }}
-            >
-              <div className={`w-full h-40 sm:h-48 md:h-72 lg:h-80 bg-gray-50 flex items-center justify-center overflow-hidden rounded-2xl`}>
-                  <OptimizedImage
-                  src={product.image}
-                  alt={`${product.name} - Premium Kalėdų dekoracija | Kalėdų Kampelis`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
-                    width={800}
-                    height={600}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                />
-              </div>
-              <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                <div className="flex items-center mb-3">
-                    {renderStars(product.rating, 'w-4 h-4')}
-                  <span className="ml-2 text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
-                    {product.rating} ({product.reviews})
-                  </span>
-                </div>
-                <h3
-                  className={`text-lg font-bold mb-2 text-gray-900 group-hover:text-red-600 transition-colors duration-300 min-h-[3.5rem] leading-tight ${
-                    product.name === 'Pliušinis žaislas' ? 'whitespace-nowrap truncate' : 'line-clamp-2'
-                  }`}
-                >
-                  {product.name}
-                </h3>
-                <div className="flex items-center justify-between mb-2 pr-1">
-                  <div>
-                    <p className="text-2xl font-bold text-red-600 group-hover:text-green-600 transition-colors duration-300">
-                      €{product.price}
-                    </p>
-                    <p className="text-sm font-semibold text-gray-600 line-through">€{product.originalPrice}</p>
+        ) : (() => {
+          const product = productsSorted[0];
+          const variantPrices = product.pricesBySize ?? [product.price];
+          const variantOriginals = product.originalPricesBySize ?? [product.originalPrice];
+          const variantImages = product.imagesBySize ?? [product.images ?? [product.image]];
+          const sizeGroups = product.sizeGroups ?? [];
+          const typeIdx = sectionSizesByGroup[0] ?? 0;
+          const colorIdx = sectionSizesByGroup[1] ?? 0;
+          const combinedIndex = sizeGroups.length >= 2
+            ? (typeIdx * (sizeGroups[1]?.sizes?.length ?? 1) + colorIdx)
+            : typeIdx;
+          const currentPrice = Number(variantPrices[combinedIndex] ?? product.price);
+          const currentOriginal = Number(variantOriginals[combinedIndex] ?? product.originalPrice);
+          const currentVariantImages = variantImages[combinedIndex] ?? variantImages[0] ?? [];
+          const currentImage = resolveImagePath(currentVariantImages[sectionImageIndex] ?? currentVariantImages[0] ?? product.image);
+          const typeName = sizeGroups[0]?.sizes?.[typeIdx]?.name ?? '';
+          const colorName = sizeGroups[1]?.sizes?.[colorIdx]?.name ?? '';
+          const variantName = [typeName, colorName].filter(Boolean).join(' · ');
+          return (
+            <div className="product-section-card w-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 h-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)]">
+                {/* Left: image updates by variant */}
+                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full aspect-[3/4] lg:aspect-[3/4] flex flex-col items-center justify-center p-5 lg:p-6">
+                  {product.isNew && (
+                    <span className="absolute top-3 left-3 bg-success text-white text-xs font-bold px-3 py-1.5 rounded-full z-10">
+                      {t.newBadge}
+                    </span>
+                  )}
+                  <div className="flex-1 w-full flex items-center justify-center">
+                    <OptimizedImage
+                      src={currentImage}
+                      alt={`${product.name} – ${variantName}`}
+                      className="w-full h-full object-contain transition-opacity duration-300"
+                      loading="eager"
+                      decoding="async"
+                      width={600}
+                      height={600}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
                   </div>
-                  <div className="flex space-x-1 shrink-0">
+                  {currentVariantImages.length > 1 && (
+                    <div className="flex gap-2 mt-3 flex-wrap justify-center">
+                      {currentVariantImages.map((url: string, i: number) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSectionImageIndex(i)}
+                          className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
+                            sectionImageIndex === i ? 'border-cta ring-2 ring-cta/30' : 'border-border'
+                          }`}
+                        >
+                          <OptimizedImage src={resolveImagePath(url)} alt="" className="w-full h-full object-cover" width={56} height={56} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Right: variant selector, price, qty, add to cart */}
+                <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center">
+                  <div className="flex items-center gap-2.5 mb-4">
+                    {renderStars(product.rating, 'w-5 h-5')}
+                    <span className="text-base font-medium text-muted">{product.rating} ({product.reviews})</span>
+                  </div>
+                  <h3 className="revo-product-card-title text-2xl sm:text-3xl mb-3">{product.name}</h3>
+                  <p className="text-muted text-base font-medium mb-4">{product.description}</p>
+                  {/* Features */}
+                  <div className="mb-5 space-y-2">
+                    {product.features.map((f: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm text-text font-medium">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Variant selectors */}
+                  {sizeGroups.map((group: { label: string; sizes: { name: string; value: string }[] }, gIndex: number) => (
+                    <div key={gIndex} className="mb-4">
+                      <p className="text-base font-bold text-text mb-3">{group.label}</p>
+                      <div className="flex flex-wrap gap-3">
+                        {group.sizes?.map((v: { name: string; value: string }, idx: number) => (
+                          <button
+                            key={v.value}
+                            type="button"
+                            onClick={() => {
+                              setSectionSizesByGroup(prev => {
+                                const next = [...prev];
+                                next[gIndex] = idx;
+                                return next;
+                              });
+                              setSectionImageIndex(0);
+                            }}
+                            className={`product-section-variant px-5 py-3 rounded-xl text-base font-semibold border-2 border-border text-text ${
+                              (sectionSizesByGroup[gIndex] ?? 0) === idx ? 'active' : 'bg-bg'
+                            }`}
+                          >
+                            {v.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {/* Price */}
+                  <div className="flex items-center gap-4 mb-5">
+                    <span className="text-3xl font-bold text-cta">€{currentPrice.toFixed(2)}</span>
+                    {currentOriginal > currentPrice && (
+                      <>
+                        <span className="text-lg text-muted line-through">€{currentOriginal.toFixed(2)}</span>
+                        <span className="bg-cta text-white text-lg font-bold px-4 py-2 rounded-full shadow-md">-22%</span>
+                      </>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-red-600 mb-4">⏳ Paskubėk, sandėlyje liko tik {typeIdx === 1 ? 16 : 12} vnt!</p>
+                  {/* Quantity + Add to cart */}
+                  <div className="flex flex-wrap items-center gap-4 mb-5">
+                    <div className="flex items-center rounded-xl border-2 border-border overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => setSectionQuantity(Math.max(1, sectionQuantity - 1))}
+                        className="w-12 h-12 flex items-center justify-center bg-bg hover:bg-primary/10 text-text font-bold text-lg"
+                      >
+                        −
+                      </button>
+                      <span className="w-12 h-12 flex items-center justify-center font-bold text-lg text-text border-x border-border">{sectionQuantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSectionQuantity(sectionQuantity + 1)}
+                        className="w-12 h-12 flex items-center justify-center bg-bg hover:bg-primary/10 text-text font-bold text-lg"
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
-                      onClick={() => addToWishlist(product.id)}
-                      className="inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-all duration-300 transform hover:scale-110"
+                      type="button"
+                      onClick={() => {
+                        addItem({
+                          productId: product.id,
+                          name: product.name,
+                          price: currentPrice,
+                          image: currentImage,
+                          quantity: sectionQuantity,
+                          selectedColor: colorName,
+                          selectedSize: typeName,
+                          sizeLabel: sizeGroups[0]?.label ?? 'Tipas'
+                        });
+                        setSectionAddSuccess(true);
+                        setTimeout(() => setSectionAddSuccess(false), 3000);
+                      }}
+                      className="product-section-cta flex-1 min-w-[180px] py-4 px-6 rounded-xl text-white font-bold text-base border-0"
                     >
-                      <Heart className="w-4 h-4" />
-                    </button>
-                    <button className="inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-all duration-300 transform hover:scale-110">
-                      <Share2 className="w-4 h-4" />
+                      {t.addToCart}
                     </button>
                   </div>
-                </div>
-
-                {/* Recent Orders */}
-                <div className="mt-2 text-sm text-gray-800">
-                  <div className="flex items-center space-x-2">
-                    <Users className="w-4 h-4" />
-                    <span className="font-medium">{orderInfos[index % orderInfos.length]?.name} iš {orderInfos[index % orderInfos.length]?.location} užsisakė prieš {orderInfos[index % orderInfos.length]?.time}</span>
+                  {sectionAddSuccess && (
+                    <p className="text-green-600 font-semibold text-sm sm:text-base mb-4">
+                      Pridėta į krepšelį!
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-4 text-sm text-text">
+                    <span className="flex items-center gap-1.5">
+                      <Package className="w-4 h-4 text-primary" />
+                      Greitas Pristatymas
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                      Top pasirinkimas
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Headphones className="w-4 h-4 text-primary" />
+                      24/7 Pagalba
+                    </span>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setSelectedImageIndex(0);
-                    setSelectedColor(0);
-                    setSelectedSize(0);
-                    setSelectedSizesByGroup(product.sizeGroups ? product.sizeGroups.map(() => 0) : []);
-                    setQuantity(1);
-                    addToRecentlyViewed(product.id);
-                    setProductModalOpen(true);
-                  }}
-                  className="mt-auto w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 sm:py-4 px-4 rounded-full font-bold hover:from-red-700 hover:to-green-700 text-base transition-all duration-300 transform hover:scale-105 hover:shadow-lg touch-manipulation min-h-[48px]"
-                >
-                  {t.viewProduct}
-                </button>
               </div>
             </div>
-          ))}
-          </div>
-        </>
-        )}
+          );
+        })()}
       </main>
+          </div>
+        </section>
+
+        {/* Section 5: Reviews */}
+        <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg">
+          <div className="slide-content w-full">
+      <ReviewsSection />
+          </div>
+        </section>
+
+        {/* Section 6: FAQ + Newsletter + Footer – no bottom padding so footer is last */}
+        <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg">
+          <div className="slide-content w-full">
+      <FAQAccordion />
 
       {/* Newsletter */}
-      <section className="relative bg-gradient-to-r from-green-600 to-red-600 text-white py-16 px-6 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
-        <div className="max-w-4xl mx-auto transform translate-x-1 md:translate-x-2">
-          <Mail className="mx-auto mb-4 w-10 h-10" />
-          <h3 className="text-2xl font-bold mb-3">
-            Gaukite Išskirtinius Švenčių Pasiūlymus
+      <section className="relative bg-primary text-white py-8 md:py-10 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
+        <div className="max-w-6xl mx-auto">
+          <Mail className="mx-auto mb-3 w-10 h-10" />
+          <h3 className="text-2xl font-bold mb-2">
+            Gaukite 15% nuolaidą pirmajam užsakymui
           </h3>
-          <p className="text-sm mb-6">
-            Užsiprenumeruokite mūsų naujienlaiškį ir gaukite 15% nuolaidą
-            pirmajam užsakymui!
+          <p className="text-sm mb-4">
+            Užsiprenumeruokite naujienlaiškį – išsiųsime nuolaidos kodą ir naujienas apie vasaros pasiūlymus.
           </p>
           <form
             onSubmit={async (e) => {
@@ -1544,15 +1689,18 @@ function HomePage() {
             />
             {/* Honeypot for additional spam protection */}
             <input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
-            <button disabled={isSubmittingNewsletter} className={`bg-white text-red-600 font-semibold px-6 py-3 rounded-md hover:bg-gray-100 ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            <button disabled={isSubmittingNewsletter} className={`bg-surface text-primaryDark font-semibold px-6 py-3 rounded-md hover:bg-border min-h-[48px] ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
               Prenumeruoti
             </button>
           </form>
+          <p className="mt-3 text-sm text-white/80 text-center max-w-xl mx-auto">
+            Įvesdamas el. paštą sutinku gauti „Vasaros Kampelio“ pasiūlymus ir naujienas.
+          </p>
           {newsletterMsg && (
             <div className={`mt-4 max-w-xl mx-auto rounded-lg border px-4 py-3 text-sm font-semibold shadow ${
               newsletterMsg.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? 'bg-success/20 border-success text-text'
+                : 'bg-promoBg border-promoBorder text-text'
             }`}>
               <div className="flex items-center gap-2 justify-center">
                 {newsletterMsg.type === 'success' ? (
@@ -1566,6 +1714,107 @@ function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Footer – inside section 9; footer color */}
+      <footer className="relative bg-footer text-white overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center md:justify-items-start text-center md:text-left">
+          <div>
+            <h4 className="font-bold text-lg mb-3">{t.shopName}</h4>
+            <p>
+              <Link to="/apie-mus" className="hover:text-white cursor-pointer font-semibold text-white/90">
+                Apie mus
+              </Link>
+            </p>
+            <p className="mt-1">
+              <Link to="/blog" className="hover:text-white cursor-pointer font-semibold text-white/90">
+                Blogas
+              </Link>
+            </p>
+            <p className="mt-1">
+              <Link to="/kontaktai" className="hover:text-white cursor-pointer font-semibold text-white/90">
+                Kontaktai
+              </Link>
+            </p>
+          </div>
+          <div>
+            <h5 className="font-bold mb-3">Teisinė informacija</h5>
+            <ul className="text-sm space-y-2 text-white/80">
+              <li>
+                <Link to="/pristatymo-info" className="hover:text-white cursor-pointer font-semibold">
+                  Pristatymo Info
+                </Link>
+              </li>
+              <li>
+                <Link to="/grazinimai" className="hover:text-white cursor-pointer font-semibold">
+                  Grąžinimai
+                </Link>
+              </li>
+              <li>
+                <Link to="/privatumo-politika" className="hover:text-white cursor-pointer font-semibold">
+                  Privatumo Politika
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-bold mb-3">Kontaktai</h5>
+            <ul className="text-sm space-y-2 text-white/80">
+              <li className="flex items-center gap-3 py-1">
+                <Mail className="w-5 h-5 block shrink-0" />
+                <span className="inline-flex items-center h-5 font-semibold">info@vasaroskampelis.lt</span>
+              </li>
+              <li className="flex items-center gap-3 py-1">
+                <img src="https://cdn.simpleicons.org/facebook/FFFFFF" alt="Facebook" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
+                <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
+                  Vasaros Kampelis
+                </a>
+              </li>
+              <li className="flex items-center gap-3 py-1">
+                <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
+                <a href="https://www.instagram.com/vasaroskampelis/" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
+                  vasaroskampelis
+                </a>
+              </li>
+              <li className="flex items-center gap-3 py-1">
+                <img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
+                <a href="https://www.tiktok.com/@vasaroskampelis" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
+                  vasaroskampelis
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="py-6 text-center text-sm text-white/80">
+          {/* Payment processor logos only */}
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+              alt="Mastercard"
+              className="h-5 object-contain opacity-90"
+              loading="lazy"
+            />
+            <div className="bg-white/10 border border-white/20 px-2 py-1 rounded">
+              <span className="text-white font-bold text-xs">VISA</span>
+            </div>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
+              alt="PayPal"
+              className="h-5 object-contain opacity-90"
+              loading="lazy"
+            />
+          </div>
+          <p className="text-xs text-white/80">© 2026 Vasaros Kampelis. Visos teisės saugomos.</p>
+          <div className="flex items-center justify-center gap-2 mt-2 text-white/80">
+            <Lock className="w-4 h-4" aria-hidden />
+            <span className="text-xs font-semibold">SSL Secure Checkout | 256-bit Encryption</span>
+          </div>
+        </div>
+      </footer>
+          </div>
+        </section>
+      </div>
+
+      <StickyMobileCTA totalItems={totalItems} onCartClick={() => setCartOpen(true)} />
 
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
@@ -1585,17 +1834,17 @@ function HomePage() {
 
               {/* Free Gift Progress */}
               {totalItems > 0 && (
-                <div className="bg-red-50 p-4 rounded-lg mb-6">
-                  <p className="text-sm font-medium mb-2">Jūs esate €{(isFreeShipping ? 0 : Math.max(0, 30 - totalPrice)).toFixed(2)} nuo NEMOKAMO siuntimo!</p>
+                <div className="bg-brand-bg-alt p-4 rounded-lg mb-6">
+                  <p className="text-sm font-medium mb-2">Jūs esate €{(isFreeShipping ? 0 : Math.max(0, 80 - totalPrice)).toFixed(2)} nuo NEMOKAMO siuntimo!</p>
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                     <div 
-                      className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${isFreeShipping ? 100 : Math.min(100, (totalPrice / 30) * 100)}%` }}
+                      className="bg-brand-orange h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${isFreeShipping ? 100 : Math.min(100, (totalPrice / 80) * 100)}%` }}
                     ></div>
                   </div>
                   <div className="flex items-center justify-center">
                     <div className="flex items-center space-x-2">
-                      <Gift className="w-4 h-4 text-red-600" />
+                      <Gift className="w-4 h-4 text-brand-orange" />
                       <span className="text-xs text-gray-600">Nemokamas pristatymas</span>
                     </div>
                   </div>
@@ -1622,7 +1871,7 @@ function HomePage() {
                   <p className="text-gray-500 mb-4">{t.emptyCart}</p>
                   <button
                     onClick={() => setCartOpen(false)}
-                    className="bg-gradient-to-r from-red-600 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-700 hover:to-green-700"
+                    className="bg-brand-orange hover:bg-brand-orange-hover text-white px-4 py-2 rounded-lg text-sm"
                   >
                     {t.continueShopping}
                   </button>
@@ -1649,7 +1898,7 @@ function HomePage() {
                           <p className="text-sm font-semibold text-gray-700">{item.sizeLabel || 'Dydis'}: {item.selectedSize}</p>
                         )}
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xl font-extrabold text-red-600">€{Number(item.price).toFixed(2)}</span>
+                          <span className="text-xl font-extrabold text-brand-orange">€{Number(item.price).toFixed(2)}</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-2">
@@ -1669,7 +1918,7 @@ function HomePage() {
                           </div>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-red-600"
+                            className="text-gray-400 hover:text-brand-orange"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1686,7 +1935,7 @@ function HomePage() {
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{t.orderTotal}:</span>
-                      <span className="text-xl font-bold text-red-600">€{totalPrice.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-brand-orange">€{totalPrice.toFixed(2)}</span>
                     </div>
                     <button 
                       onClick={() => {
@@ -1702,7 +1951,7 @@ function HomePage() {
                         } catch {}
                         setCheckoutOpen(true);
                       }}
-                      className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition"
+                      className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-3 rounded-lg font-semibold transition min-h-[48px]"
                     >
                       {t.checkout} • €{totalPrice.toFixed(2)}
                     </button>
@@ -1725,10 +1974,10 @@ function HomePage() {
                     />
                   </div>
 
-                  {/* Money Back Guarantee */}
+                  {/* SSL Secure */}
                   <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
-                    <Shield className="w-4 h-4" />
-                    <span>100% pinigų grąžinimo garantija</span>
+                    <Lock className="w-4 h-4" />
+                    <span>SSL Secure Checkout | 256-bit Encryption</span>
                   </div>
                 </div>
               )}
@@ -1758,7 +2007,7 @@ function HomePage() {
                   <p className="text-gray-500 mb-4">{language === 'lt' ? 'Jūsų pageidavimų sąrašas tuščias' : 'Your wishlist is empty'}</p>
                   <button
                     onClick={() => setWishlistOpen(false)}
-                    className="bg-gradient-to-r from-red-600 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-700 hover:to-green-700"
+                    className="bg-brand-orange hover:bg-brand-orange-hover text-white px-4 py-2 rounded-lg text-sm"
                   >
                     {t.continueShopping}
                   </button>
@@ -1782,7 +2031,7 @@ function HomePage() {
                         <div className="flex-1">
                           <h3 className="font-medium text-sm">{product.name}</h3>
                           <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-lg font-bold text-red-600">€{product.price}</span>
+                            <span className="text-lg font-bold text-brand-orange">€{product.price}</span>
                             <span className="text-sm text-gray-400 line-through">€{product.originalPrice}</span>
                           </div>
                         </div>
@@ -1797,13 +2046,13 @@ function HomePage() {
                               setWishlistOpen(false);
                               setProductModalOpen(true);
                             }}
-                            className="bg-gradient-to-r from-red-600 to-green-600 text-white px-3 py-1 rounded text-xs font-semibold hover:from-red-700 hover:to-green-700"
+                            className="bg-brand-orange text-white px-3 py-1 rounded text-xs font-semibold hover:bg-brand-orange-hover min-h-[44px] flex items-center justify-center"
                           >
                             {t.viewProduct}
                           </button>
                           <button
                             onClick={() => addToWishlist(productId)}
-                            className="text-gray-400 hover:text-red-600 text-xs"
+                            className="text-gray-400 hover:text-brand-orange text-xs"
                           >
                             {language === 'lt' ? 'Pašalinti' : 'Remove'}
                           </button>
@@ -1820,13 +2069,13 @@ function HomePage() {
 
       {/* Product Detail Modal */}
       {productModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-7xl h-[90vh] overflow-hidden shadow-2xl">
-            <div className="h-full flex flex-col overflow-y-auto p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 product-modal-backdrop">
+          <div className="product-modal-box w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-6 sm:p-8 pb-10">
               {/* Header with badge, rating and close button */}
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                <div className="flex items-center space-x-4">
-                  <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-md">
+              <div className="flex justify-between items-center product-modal-header">
+                <div className="flex items-center flex-wrap gap-3 sm:gap-4">
+                  <span className="product-modal-badge-popular">
                     POPULIARIAUSIAS
                   </span>
                   <div className="flex items-center space-x-2">
@@ -1834,18 +2083,19 @@ function HomePage() {
                       {[...Array(5)].map((_, i) => {
                         const filled = i < Math.round(selectedProduct.rating);
                         return (
-                          <Star key={i} className={`w-4 h-4 ${filled ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                          <Star key={i} className={`w-4 h-4 ${filled ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
                         );
                       })}
                     </div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 font-medium">
                       {selectedProduct.rating} | {selectedProduct.reviews} Klientai
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={() => setProductModalOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="product-modal-close flex items-center justify-center flex-shrink-0"
+                  aria-label="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1854,7 +2104,7 @@ function HomePage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Left Column - Images */}
                 <div>
-                  <div className="mb-3 bg-gray-50 rounded-2xl kk-red-contour kk-contour-inset-lg flex items-center justify-center overflow-hidden min-h-[280px] sm:min-h-[400px]">
+                  <div className="product-modal-image-wrap mb-4 flex items-center justify-center overflow-hidden">
                     {(() => {
                       const imagesList = selectedProduct.imagesBySize
                         ? (selectedProduct.imagesBySize[selectedSize] || selectedProduct.images)
@@ -1866,7 +2116,7 @@ function HomePage() {
                     <OptimizedImage
                       src={mainSrc}
                       alt={`${selectedProduct.name} - Produkto nuotrauka`}
-                      className="w-full h-full object-contain p-4"
+                      className="w-full h-full object-contain p-2 sm:p-3"
                       loading="lazy"
                       decoding="async"
                       sizes="100vw"
@@ -1890,8 +2140,8 @@ function HomePage() {
                             <button
                               key={`${t.group}-${t.idx}-${i}`}
                               onClick={() => { setSelectedSize(t.group); setSelectedImageIndex(t.idx); }}
-                              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg kk-red-contour kk-contour-inset-sm overflow-hidden border-2 bg-gray-50 touch-manipulation ${
-                                (selectedSize === t.group && selectedImageIndex === t.idx) ? 'border-red-500 ring-2 ring-red-300' : 'border-gray-300'
+                              className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                                (selectedSize === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
                             >
@@ -1922,8 +2172,8 @@ function HomePage() {
                             <button
                               key={`${t.group}-${t.idx}-${i}`}
                               onClick={() => { setSelectedColor(t.group); setSelectedImageIndex(t.idx); }}
-                              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg kk-red-contour kk-contour-inset-sm overflow-hidden border-2 bg-gray-50 touch-manipulation ${
-                                (selectedColor === t.group && selectedImageIndex === t.idx) ? 'border-red-500 ring-2 ring-red-300' : 'border-gray-300'
+                              className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                                (selectedColor === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
                             >
@@ -1951,8 +2201,8 @@ function HomePage() {
                         <button
                           key={index}
                             onClick={() => setSelectedImageIndex(index)}
-                          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg kk-red-contour kk-contour-inset-sm overflow-hidden border-2 bg-gray-50 touch-manipulation ${
-                              selectedImageIndex === index ? 'border-red-500 ring-2 ring-red-300' : 'border-gray-300'
+                          className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                              selectedImageIndex === index ? 'active' : ''
                           }`}
                           title={`Variantas ${index + 1}`}
                         >
@@ -1976,65 +2226,59 @@ function HomePage() {
                 {/* Right Column - Product Info */}
                 <div>
                   <div className="mb-2">
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                    <span className="product-modal-new-badge">
                       NAUJIENA: Šių metų būtinai reikalingas švenčių žavesys
                     </span>
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4">{selectedProduct.name}</h1>
+                  <h1 className="product-modal-title">{selectedProduct.name}</h1>
                   
                   {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-center space-x-3">
-                      {(() => {
-                        const variantPrice = (selectedProduct.pricesByColor && selectedProduct.pricesByColor[selectedColor] !== undefined)
-                          ? selectedProduct.pricesByColor[selectedColor]
-                          : (selectedProduct.pricesBySize && selectedProduct.pricesBySize[selectedSize] !== undefined)
-                            ? selectedProduct.pricesBySize[selectedSize]
-                            : selectedProduct.price;
-                        const variantOriginal = (selectedProduct.originalPricesByColor && selectedProduct.originalPricesByColor[selectedColor] !== undefined)
-                          ? selectedProduct.originalPricesByColor[selectedColor]
-                          : (selectedProduct.originalPricesBySize && selectedProduct.originalPricesBySize[selectedSize] !== undefined)
-                            ? selectedProduct.originalPricesBySize[selectedSize]
-                            : selectedProduct.originalPrice;
-                        return (
-                          <>
-                            <span className="text-2xl font-bold text-red-600">€{Number(variantPrice).toFixed(2)}</span>
-                            <span className="text-lg text-gray-400 line-through">€{Number(variantOriginal).toFixed(2)}</span>
-                          </>
-                        );
-                      })()}
-                      <span className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
-                        SUTAUPYKITE {selectedProduct.discount}
-                      </span>
-                    </div>
+                  <div className="product-modal-price-wrap">
+                    {(() => {
+                      const variantPrice = (selectedProduct.pricesByColor && selectedProduct.pricesByColor[selectedColor] !== undefined)
+                        ? selectedProduct.pricesByColor[selectedColor]
+                        : (selectedProduct.pricesBySize && selectedProduct.pricesBySize[selectedSize] !== undefined)
+                          ? selectedProduct.pricesBySize[selectedSize]
+                          : selectedProduct.price;
+                      const variantOriginal = (selectedProduct.originalPricesByColor && selectedProduct.originalPricesByColor[selectedColor] !== undefined)
+                        ? selectedProduct.originalPricesByColor[selectedColor]
+                        : (selectedProduct.originalPricesBySize && selectedProduct.originalPricesBySize[selectedSize] !== undefined)
+                          ? selectedProduct.originalPricesBySize[selectedSize]
+                          : selectedProduct.originalPrice;
+                      return (
+                        <>
+                          <span className="product-modal-price">€{Number(variantPrice).toFixed(2)}</span>
+                          <span className="product-modal-price-old">€{Number(variantOriginal).toFixed(2)}</span>
+                          <span className="product-modal-discount-pill">
+                            SUTAUPYKITE {selectedProduct.discount}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-900 mb-6 font-medium leading-relaxed">{selectedProduct.description}</p>
+                  <p className="product-modal-desc">{selectedProduct.description}</p>
 
                   {/* Features */}
-                  <div className="mb-6">
+                  <div className="product-modal-features">
                     {selectedProduct.features.map((feature: string, index: number) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        <span className="text-gray-900 font-medium">{feature}</span>
+                      <div key={index} className="product-modal-feature-row font-medium">
+                        <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                        <span>{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Color Selection */}
                   <div className="mb-4">
-                    <h3 className="font-bold mb-3 text-base text-gray-900">Spalva</h3>
+                    <h3 className="product-modal-option-label">Spalva</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedProduct.colors.map((color: any, index: number) => (
                         <button
                           key={index}
                           onClick={() => { setSelectedColor(index); if (selectedProduct.imagesByColor) setSelectedImageIndex(0); }}
-                          className={`px-3 py-2 border-2 rounded-lg text-sm font-semibold touch-manipulation min-h-[44px] transition-all ${
-                            selectedColor === index
-                              ? 'border-red-500 bg-red-50 text-red-700 shadow-md'
-                              : 'border-gray-300 hover:border-gray-400 text-gray-800'
-                          }`}
+                          className={`product-modal-option-btn touch-manipulation min-h-[44px] ${selectedColor === index ? 'active' : ''}`}
                         >
                           {color.name}
                         </button>
@@ -2044,7 +2288,7 @@ function HomePage() {
 
                   {/* Size Selection */}
                   <div className="mb-4">
-                    <h3 className="font-bold mb-3 text-base text-gray-900">{selectedProduct.sizeLabel || 'Dydis'}</h3>
+                    <h3 className="product-modal-option-label">{selectedProduct.sizeLabel || 'Dydis'}</h3>
                     {selectedProduct.sizeGroups && selectedProduct.sizeGroups.length > 0 ? (
                       <div className="space-y-3">
                         {selectedProduct.sizeGroups.map((group: any, gIndex: number) => (
@@ -2062,11 +2306,7 @@ function HomePage() {
                                     });
                                     setSelectedImageIndex(0);
                                   }}
-                                  className={`px-3 py-2 border-2 rounded-xl text-sm font-bold touch-manipulation min-h-[40px] min-w-[48px] shrink-0 transition-all ${
-                                    (selectedSizesByGroup[gIndex] ?? 0) === sIndex
-                                      ? 'border-red-500 bg-red-50 text-red-700 shadow-md'
-                                      : 'border-gray-300 hover:border-gray-400 text-gray-800'
-                                  }`}
+                                  className={`product-modal-option-btn touch-manipulation min-h-[40px] min-w-[48px] shrink-0 ${(selectedSizesByGroup[gIndex] ?? 0) === sIndex ? 'active' : ''}`}
                                 >
                                   {size.name}
                                 </button>
@@ -2081,11 +2321,7 @@ function HomePage() {
                           <button
                             key={index}
                             onClick={() => { setSelectedSize(index); setSelectedImageIndex(0); }}
-                            className={`px-5 py-4 border-2 rounded-lg text-base font-bold touch-manipulation min-h-[52px] min-w-[60px] transition-all ${
-                              selectedSize === index
-                                ? 'border-red-500 bg-red-50 text-red-700 shadow-md'
-                                : 'border-gray-300 hover:border-gray-400 text-gray-800'
-                            }`}
+                            className={`product-modal-option-btn touch-manipulation min-h-[52px] min-w-[60px] ${selectedSize === index ? 'active' : ''}`}
                           >
                             {size.name}
                           </button>
@@ -2096,50 +2332,26 @@ function HomePage() {
 
                   {/* Quantity */}
                   <div className="mb-4">
-                    <h3 className="font-bold mb-3 text-base text-gray-900">Kiekis</h3>
-                    <div className="flex items-center space-x-4">
+                    <h3 className="product-modal-option-label">Kiekis</h3>
+                    <div className="product-modal-qty-wrap">
                       <button 
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 text-lg font-bold touch-manipulation"
+                        className="product-modal-qty-btn flex items-center justify-center touch-manipulation"
                       >
-                        -
+                        −
                       </button>
                       <span className="text-xl font-bold w-12 text-center text-gray-900">{quantity}</span>
                       <button 
                         onClick={() => setQuantity(quantity + 1)}
-                        className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 text-lg font-bold touch-manipulation"
+                        className="product-modal-qty-btn flex items-center justify-center touch-manipulation"
                       >
                         +
                       </button>
                     </div>
                   </div>
 
-                  {/* Urgency Timer in Modal */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="flex items-center space-x-2 text-red-800">
-                        <Clock className="w-4 h-4" />
-                        <span className="font-semibold text-sm">Pasiūlymas baigiasi:</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-center">
-                        <div className="text-xl font-bold text-red-600">{urgencyTimer.hours}</div>
-                        <div className="text-xs text-red-500">Valandos</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xl font-bold text-red-600">{urgencyTimer.minutes}</div>
-                        <div className="text-xs text-red-500">Minutės</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xl font-bold text-red-600">{urgencyTimer.seconds}</div>
-                        <div className="text-xs text-red-500">Sekundės</div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Social Proof in Modal */}
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                  <div className="bg-brand-guarantee border border-brand-green/40 rounded-lg p-3 mb-4">
                     <div className="flex items-center space-x-2 text-green-800 mb-2">
                       <Users className="w-4 h-4" />
                       <span className="font-semibold text-sm">Neseniai užsakyta:</span>
@@ -2194,34 +2406,29 @@ function HomePage() {
                       setLoading(false);
                       setTimeout(() => setSuccessMessage(''), 3000);
                     }}
-                    className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 rounded-lg font-bold hover:from-red-700 hover:to-green-700 transition mb-3 disabled:opacity-50"
+                      className="product-modal-cta mb-3 disabled:opacity-50 min-h-[48px] cursor-pointer"
                   >
                     {loading ? (language === 'lt' ? 'Pridedama...' : 'Adding...') : t.addToCart}
                   </button>
 
                   {/* Note */}
-                  <p className="text-sm font-semibold text-gray-900 mb-4 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                  <p className="product-modal-note">
                     Pastaba: Jūs prašėte. Mes papildėme atsargas (vėl). Ribotas kiekis!
                   </p>
 
-                  {/* Delivery Info */}
-                  <p className="text-base font-semibold text-gray-900 mb-6">
-                    Pristatysime per 14 dienų, jei užsakysite dabar
-                  </p>
-
                   {/* Service Guarantees */}
-                  <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Package className="w-6 h-6 text-gray-800" />
-                      <span className="text-sm font-semibold text-gray-900">Lengvas Grąžinimas</span>
+                  <div className="product-modal-guarantees">
+                    <div className="product-modal-guarantee-item">
+                      <Package className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span>Greitas Pristatymas</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Star className="w-6 h-6 text-yellow-400" />
-                      <span className="text-sm font-semibold text-gray-900">Penkių Žvaigždžių</span>
+                    <div className="product-modal-guarantee-item">
+                      <Star className="w-5 h-5 text-amber-400 fill-amber-400 flex-shrink-0" />
+                      <span>Top pasirinkimas</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Headphones className="w-6 h-6 text-gray-800" />
-                      <span className="text-sm font-semibold text-gray-900">24/7 VIP Pagalba</span>
+                    <div className="product-modal-guarantee-item">
+                      <Headphones className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span>24/7 VIP Pagalba</span>
                     </div>
                   </div>
                 </div>
@@ -2234,7 +2441,7 @@ function HomePage() {
       {/* Checkout Modal */}
       {checkoutOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-5xl w-full max-h-[95vh] overflow-y-auto">
+          <div className="bg-surface rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
             <div className="p-4">
               {stripePromise ? (
               <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
@@ -2393,7 +2600,6 @@ function HomePage() {
                   {/* Expose Stripe pay function to parent */}
                   <StripePayBridge
                     payRef={stripePayRef}
-                    amountCents={Math.round((totalPrice + (totalPrice >= 30 ? 0 : 2.99) + (giftWrapping ? 2.99 : 0)) * 100)}
                     customer={{
                       name: checkoutFormData.name,
                       surname: checkoutFormData.surname,
@@ -2401,7 +2607,14 @@ function HomePage() {
                       phone: checkoutFormData.phone,
                       address: `${checkoutFormData.address}, ${checkoutFormData.city} ${checkoutFormData.postalCode}`,
                     }}
-                    itemsSummary={cartItems.map(it => `${it.name} × ${it.quantity} — €${(it.price*it.quantity).toFixed(2)}`).join('\n')}
+                    items={cartItems.map((it: any) => ({
+                      productId: it.productId,
+                      name: it.name,
+                      selectedColor: it.selectedColor ?? '',
+                      selectedSize: it.selectedSize ?? '',
+                      quantity: Number(it.quantity || 1)
+                    }))}
+                    giftWrapping={!!giftWrapping}
                   />
                 </div>
 
@@ -2423,6 +2636,12 @@ function HomePage() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-sm sm:text-base line-clamp-1">{item.name}</h4>
                           <p className="text-xs sm:text-sm font-semibold text-gray-700">Kiekis: {item.quantity}</p>
+                          {item.selectedColor && (
+                            <p className="text-xs text-gray-600 font-semibold">Spalva: {item.selectedColor}</p>
+                          )}
+                          {item.selectedSize && (
+                            <p className="text-xs text-gray-600 font-semibold">Šautuvo tipas: {(item.selectedSize as string).split(', ')[0] || item.selectedSize}</p>
+                          )}
                           <p className="font-bold text-red-600 text-sm sm:text-base">€{(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                       </div>
@@ -2437,7 +2656,7 @@ function HomePage() {
                     </div>
                     <div className="flex justify-between text-sm sm:text-base font-semibold">
                       <span>{t.shipping}</span>
-                      <span className={isFreeShipping ? "text-green-600" : "text-gray-600"}>
+                      <span className={isFreeShipping ? "text-brand-green" : "text-gray-600"}>
                         {isFreeShipping ? (language === 'lt' ? 'Nemokamas' : 'Free') : '€2.99'}
                       </span>
                     </div>
@@ -2464,13 +2683,13 @@ function HomePage() {
                       <h3 className="text-base font-semibold">Apmokėti per PayPal</h3>
                     </div>
                     <div className="space-y-1 mb-2">
-                      <p className="text-xs text-gray-700 font-semibold">
+                      <p className="text-xs text-gray-700 font-bold">
                         📨 Mokėdami per PayPal, įrašykite savo kontaktinę informaciją čia, kad galėtume susisiekti dėl užsakymo!
                       </p>
-                      <p className="text-xs text-gray-500 font-semibold">
+                      <p className="text-xs text-gray-700 font-bold">
                         (PayPal kartais neperduoda visų duomenų, todėl jūsų pagalba padeda mums greičiau išsiųsti prekę 🎁)
                       </p>
-                      <p className="text-xs text-gray-700 font-semibold">
+                      <p className="text-xs text-gray-700 font-bold">
                         💛 Atsiskaitydami per PayPal, taikomas nedidelis apdorojimo mokestis (apie 2.5 %). Jis padeda padengti PayPal mokesčius ir užtikrina, kad galėtume išlaikyti mažas kainas visiems 🎄
                       </p>
                     </div>
@@ -2524,23 +2743,26 @@ function HomePage() {
                         if (!payResult.ok) {
                           // Fallback to Stripe Checkout (hosted) when Elements fails/blocked
                           try {
-                            const amountCents = orderCents;
                             const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random()*1000)}`;
-                            if ((import.meta as any).env?.DEV) console.log('[Checkout] Creating Checkout Session...', amountCents);
+                            if ((import.meta as any).env?.DEV) console.log('[Checkout] Creating Checkout Session...');
                             const csResp = await fetch('/api/create-checkout-session', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                amount: amountCents,
                                 name: checkoutFormData.name,
                                 surname: checkoutFormData.surname,
                                 email: checkoutFormData.email,
                                 phone: checkoutFormData.phone,
                                 address: `${checkoutFormData.address}, ${checkoutFormData.city} ${checkoutFormData.postalCode}`,
-                                items: cartItems.map(it => `${it.name} × ${it.quantity} — €${(it.price*it.quantity).toFixed(2)}`).join('\n'),
+                                items: cartItems.map((it: any) => ({
+                                  productId: it.productId,
+                                  name: it.name,
+                                  selectedColor: it.selectedColor ?? '',
+                                  selectedSize: it.selectedSize ?? '',
+                                  quantity: Number(it.quantity || 1)
+                                })),
                                 orderId: orderNumber,
-                                successUrl: `${window.location.origin}/?status=paid` ,
-                                cancelUrl: window.location.href
+                                giftWrapping: !!giftWrapping
                               })
                             });
                             if ((import.meta as any).env?.DEV) console.log('[Checkout] Checkout Session response status:', csResp.status);
@@ -2649,7 +2871,7 @@ function HomePage() {
                       }
                     }}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-2 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-2 rounded-lg font-semibold transition mb-3 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
                   >
                     {loading ? t.processing : t.placeOrder}
                   </button>
@@ -2677,7 +2899,7 @@ function HomePage() {
 
                   {/* SSL Security Badge */}
                   <div className="flex items-center justify-center space-x-2 mb-4 bg-gray-100 rounded-lg py-2">
-                    <Lock className="w-4 h-4 text-green-600" />
+                    <Lock className="w-4 h-4 text-brand-green" />
                     <span className="text-xs text-gray-700 font-semibold">256-bit SSL Secure Checkout</span>
                   </div>
 
@@ -2690,7 +2912,7 @@ function HomePage() {
               </Elements>
               ) : (
                 <div className="text-center">
-                  <p className="text-sm text-red-600 font-semibold">
+                  <p className="text-sm text-brand-urgency font-semibold">
                     Kortelių mokėjimai laikinai nepasiekiami (neteisingas Stripe raktas).
                   </p>
                 </div>
@@ -2700,44 +2922,6 @@ function HomePage() {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 ios-safe-area">
-          <div className="grid grid-cols-3 h-16">
-            <button 
-              onClick={() => setCartOpen(false)}
-              className="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-red-600 transition-colors"
-            >
-              <div className="text-2xl">🏠</div>
-              <span className="text-xs">Pagrindinis</span>
-            </button>
-            <button 
-              onClick={() => setCartOpen(true)}
-              className="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-red-600 transition-colors relative"
-            >
-              <div className="text-2xl">🛒</div>
-              <span className="text-xs">Krepšelis</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-            <button 
-              onClick={() => setWishlistOpen(true)}
-              className="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-red-600 transition-colors relative"
-            >
-              <div className="text-2xl">❤️</div>
-              <span className="text-xs">Mėgstami</span>
-              {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {wishlist.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Thank You Modal */}
       <ThankYouModal
@@ -2747,103 +2931,6 @@ function HomePage() {
         email={completedOrderEmail}
       />
 
-      {/* Footer */}
-      <footer className="relative bg-slate-900 text-white overflow-hidden">
-        {showSnow ? <Snowfall position="absolute" zIndex={0} /> : null}
-        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10 justify-items-center md:justify-items-start text-center md:text-left transform translate-x-1 md:translate-x-2">
-          <div>
-            <h4 className="font-bold text-lg mb-3">{t.shopName}</h4>
-            <p className="text-sm text-gray-300 mb-3">
-              {language === 'lt' ? 'Jūsų patikima Kalėdų dekoracijų parduotuvė.' : 'Your trusted Christmas decorations store.'}
-            </p>
-            <p>
-              <Link to="/apie-mus" className="hover:text-white cursor-pointer">
-                Apie mus
-              </Link>
-            </p>
-            <p className="mt-1">
-              <Link to="/blog" className="hover:text-white cursor-pointer">
-                Blogas
-              </Link>
-            </p>
-            <p className="mt-1">
-              <Link to="/duk" className="hover:text-white cursor-pointer">
-                DUK
-              </Link>
-            </p>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Teisinė informacija</h5>
-            <ul className="text-sm space-y-2 text-gray-300">
-              <li>
-                <Link to="/pristatymo-info" className="hover:text-white cursor-pointer">
-                  Pristatymo Info
-                </Link>
-              </li>
-              <li>
-                <Link to="/grazinimai" className="hover:text-white cursor-pointer">
-                  Grąžinimai
-                </Link>
-              </li>
-              <li>
-                <Link to="/privatumo-politika" className="hover:text-white cursor-pointer">
-                  Privatumo Politika
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Kontaktai</h5>
-            <ul className="text-sm space-y-2 text-gray-300">
-              <li className="flex items-center gap-3 py-1">
-                <Mail className="w-5 h-5 block shrink-0" />
-                <span className="inline-flex items-center h-5">kaleddovanos@gmail.com</span>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/facebook/FFFFFF" alt="Facebook" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="https://www.facebook.com/profile.php?id=61583105739917" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5">
-                  Kalėdų Kampelis
-                </a>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="https://www.instagram.com/kaledukampelis" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5">
-                  kaledukampelis
-                </a>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="https://www.tiktok.com/@kaledukampelis" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5">
-                  kaledukampelis
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-slate-800 py-4 text-center text-sm text-gray-400">
-          © 2025 Kalėdų Kampelis. Visos teisės saugomos. Sukurta su meile šventėms ❤️
-          <div className="flex justify-center gap-4 mt-3 opacity-80">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
-              className="h-5"
-              alt="Mastercard"
-            />
-            <div className="bg-white border border-gray-300 px-2 py-1 rounded">
-              <span className="text-blue-600 font-bold text-xs">VISA</span>
-            </div>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-              className="h-5"
-              alt="PayPal"
-            />
-          </div>
-          <div className="flex items-center justify-center space-x-2 mt-3 text-gray-400">
-            <Lock className="w-4 h-4" />
-            <span className="text-xs">SSL Secure Checkout | 256-bit Encryption</span>
-          </div>
-        </div>
-      </footer>
-      
       {/* Cookie Consent Banner */}
       {showCookie ? <CookieConsent /> : null}
     </div>
@@ -2856,10 +2943,10 @@ function HomePage() {
 export default function App() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-red-50">
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
         <div className="text-center">
           <div className="text-6xl animate-bounce mb-4">🎄</div>
-          <div className="text-xl font-bold text-red-600">Kalėdų Kampelis</div>
+          <div className="text-xl font-bold text-brand-blue-deep">Vasaros Kampelis</div>
           <div className="text-gray-600 mt-2">Kraunama...</div>
         </div>
       </div>
@@ -2868,15 +2955,18 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/p/:id" element={<HomePage />} />
         <Route path="/apie-mus" element={<ApieMus />} />
-        <Route path="/duk" element={<DUK />} />
         <Route path="/blog" element={<BlogIndex />} />
-        <Route path="/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose" element={<BlogPostKaleda />} />
-        <Route path="/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025" element={<BlogPostDovanos2025 />} />
-        <Route path="/blog/kaip-puosti-namus-kaledoms-mazame-bute" element={<BlogPostMazameBute />} />
-        <Route path="/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema" element={<BlogPost10Budu />} />
-        <Route path="/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos" element={<BlogPostBeStreso />} />
+        <Route path="/blog/kaip-sukurti-vasaros-nuotaika-namuose" element={<BlogPostVasaraNamuose />} />
+        <Route path="/blog/vasaros-pasiulymai-ir-idejos-2025" element={<BlogPostVasarosPasiulymai2025 />} />
+        <Route path="/blog/kaip-puosti-kiema-vandens-zaidimams" element={<BlogPostKiemasVandens />} />
+        <Route path="/blog/10-paprastu-budu-megautis-vasara-lauke" element={<BlogPost10BuduVasara />} />
+        <Route path="/blog/kaip-pasiruosti-vasarai-be-streso" element={<BlogPostVasaraBeStreso />} />
+        <Route path="/blog/vandens-musiu-organizavimas" element={<BlogPostVandensMusiai />} />
+        <Route path="/blog/kaip-issirinkti-vandens-blasteri" element={<BlogPostKaipIssirinktiBlasteri />} />
+        <Route path="/blog/pikniko-idejos-vasarai" element={<BlogPostPiknikoIdejos />} />
         <Route path="/pristatymo-info" element={<PristatymoInfo />} />
         <Route path="/grazinimai" element={<Grazinimai />} />
+        <Route path="/kontaktai" element={<Kontaktai />} />
         <Route path="/privatumo-politika" element={<PrivatumoPolitika />} />
       </Routes>
     </Suspense>
@@ -2889,75 +2979,120 @@ const BlogIndex = () => (
     <div className="space-y-6 text-gray-800">
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
-          <Link to="/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose" className="text-red-600 hover:underline">
-            🎄 Kaip Sukurti Tikrą Kalėdų Nuotaiką Namuose
+          <Link to="/blog/kaip-sukurti-vasaros-nuotaika-namuose" className="text-brand-orange hover:underline">
+            ☀️ Kaip Sukurti Vasaros Nuotaiką Namuose
           </Link>
         </h2>
         <p className="text-gray-700">
-          Dekoracijos, idėjos ir jaukumas – paprasti žingsniai, kaip namuose sukurti šventinę magiją.
+          Dekoracijos, idėjos ir jaukumas – paprasti žingsniai, kaip namuose ir kieme sukurti vasaros magiją.
         </p>
         <div className="mt-3">
-          <Link to="/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose" className="text-blue-600 hover:underline">
+          <Link to="/blog/kaip-sukurti-vasaros-nuotaika-namuose" className="text-blue-600 hover:underline">
             Skaityti →
           </Link>
         </div>
       </article>
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
-          <Link to="/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025" className="text-red-600 hover:underline">
-            🎁 Kalėdinių Dovanų Idėjos ir Šventinio Interjero Tendencijos 2025 Metams
+          <Link to="/blog/vasaros-pasiulymai-ir-idejos-2025" className="text-brand-orange hover:underline">
+            🏖️ Vasaros Pasiūlymai ir Idėjos 2025 Metams
           </Link>
         </h2>
         <p className="text-gray-700">
-          Naujausios 2025 m. Kalėdų tendencijos: dovanų idėjos ir šventinis interjeras be streso – nuo natūralių akcentų iki žiemos pasakos.
+          Naujausios 2025 m. vasaros tendencijos: vandens žaidimai, kiemo puošimas ir vasaros pasiūlymai – nuo blasterių iki šeimyninių idėjų.
         </p>
         <div className="mt-3">
-          <Link to="/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025" className="text-blue-600 hover:underline">
+          <Link to="/blog/vasaros-pasiulymai-ir-idejos-2025" className="text-blue-600 hover:underline">
             Skaityti →
           </Link>
         </div>
       </article>
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
-          <Link to="/blog/kaip-puosti-namus-kaledoms-mazame-bute" className="text-red-600 hover:underline">
-            🕯 Kaip Puošti Namus Kalėdoms Mažame Bute: Idėjos ir Patarimai
+          <Link to="/blog/kaip-puosti-kiema-vandens-zaidimams" className="text-brand-orange hover:underline">
+            💦 Kaip Puošti Kiemą Vandens Žaidimams: Idėjos ir Patarimai
           </Link>
         </h2>
         <p className="text-gray-700">
-          Mažos erdvės, didelis jaukumas – mini eglutės, LED girliandos, tekstilė ir vertikalūs akcentai be pertekliaus.
+          Mažas kiemas ar didelis – vandens blasteriai, baseinai, vandens balionai ir saulėgrąžos – idėjos be pertekliaus.
         </p>
         <div className="mt-3">
-          <Link to="/blog/kaip-puosti-namus-kaledoms-mazame-bute" className="text-blue-600 hover:underline">
+          <Link to="/blog/kaip-puosti-kiema-vandens-zaidimams" className="text-blue-600 hover:underline">
             Skaityti →
           </Link>
         </div>
       </article>
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
-          <Link to="/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema" className="text-red-600 hover:underline">
-            🎄 10 Paprastų Būdų Padaryti Namus Jaukesnius Žiemą
+          <Link to="/blog/10-paprastu-budu-megautis-vasara-lauke" className="text-brand-orange hover:underline">
+            🌴 10 Paprastų Būdų Mėgautis Vasarą Lauke
           </Link>
         </h2>
         <p className="text-gray-700">
-          Greiti „jaukumo“ laimėjimai: žvakės, kilimai, pagalvėlės, švieselės, gamtos akcentai ir žiemiška muzika.
+          Greiti „vasarėjimo“ laimėjimai: vandens mūšiai, piknikai, šeimyniniai žaidimai, ledai ir vasaros muzika.
         </p>
         <div className="mt-3">
-          <Link to="/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema" className="text-blue-600 hover:underline">
+          <Link to="/blog/10-paprastu-budu-megautis-vasara-lauke" className="text-blue-600 hover:underline">
             Skaityti →
           </Link>
         </div>
       </article>
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
-          <Link to="/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos" className="text-red-600 hover:underline">
-            🎅 Kaip Pasiruošti Kalėdoms Be Streso: Planavimas, Dekoracijos ir Dovanos
+          <Link to="/blog/kaip-pasiruosti-vasarai-be-streso" className="text-brand-orange hover:underline">
+            🍉 Kaip Pasiruošti Vasarai Be Streso: Planavimas ir Pasiūlymai
           </Link>
         </h2>
         <p className="text-gray-700">
-          Žingsnis po žingsnio planas: pasiruošimas lapkritį, puošimas gruodžio pradžioje, dovanų pakavimas ir paskutinės detalės.
+          Žingsnis po žingsnio planas: pasiruošimas pavasarį, kiemo puošimas gegužę, vandens žaidimų rinkinys ir vasaros dovanos.
         </p>
         <div className="mt-3">
-          <Link to="/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos" className="text-blue-600 hover:underline">
+          <Link to="/blog/kaip-pasiruosti-vasarai-be-streso" className="text-blue-600 hover:underline">
+            Skaityti →
+          </Link>
+        </div>
+      </article>
+      <article className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-2xl font-bold mb-2">
+          <Link to="/blog/vandens-musiu-organizavimas" className="text-brand-orange hover:underline">
+            🎯 Vandens Mūšių Organizavimas: Kaip Surengti Nepamirštamą Vasaros Dieną
+          </Link>
+        </h2>
+        <p className="text-gray-700">
+          Žingsnis po žingsnio: komandos, taisyklės, blasteriai ir saugumas – viskas, ko reikia, kad visi mėgautųsi.
+        </p>
+        <div className="mt-3">
+          <Link to="/blog/vandens-musiu-organizavimas" className="text-blue-600 hover:underline">
+            Skaityti →
+          </Link>
+        </div>
+      </article>
+      <article className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-2xl font-bold mb-2">
+          <Link to="/blog/kaip-issirinkti-vandens-blasteri" className="text-brand-orange hover:underline">
+            🔫 Kaip Išsirinkti Tinkamą Vandens Blasterį Savo Šeimai
+          </Link>
+        </h2>
+        <p className="text-gray-700">
+          Dydis, talpa, automatinis ar rankinis – trumpas vadovas, kad rastumėte idealų blasterį vaikams ir suaugusiems.
+        </p>
+        <div className="mt-3">
+          <Link to="/blog/kaip-issirinkti-vandens-blasteri" className="text-blue-600 hover:underline">
+            Skaityti →
+          </Link>
+        </div>
+      </article>
+      <article className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-2xl font-bold mb-2">
+          <Link to="/blog/pikniko-idejos-vasarai" className="text-brand-orange hover:underline">
+            🧺 Pikniko Idėjos Vasarai: Ko Nepasimiršti
+          </Link>
+        </h2>
+        <p className="text-gray-700">
+          Krepšiai, maistas, gėrimai ir vandens žaidimai – sąrašas ir patarimai, kad piknikas būtų tobulas.
+        </p>
+        <div className="mt-3">
+          <Link to="/blog/pikniko-idejos-vasarai" className="text-blue-600 hover:underline">
             Skaityti →
           </Link>
         </div>
@@ -2966,178 +3101,258 @@ const BlogIndex = () => (
   </PageWrapper>
 );
 
-const BlogPostKaleda = () => (
-  <PageWrapper title="Kaip Sukurti Tikrą Kalėdų Nuotaiką Namuose">
+const BlogPostVasaraNamuose = () => (
+  <PageWrapper title="Kaip Sukurti Vasaros Nuotaiką Namuose">
     <article className="prose prose-lg max-w-none">
-      <p>Kai lauke pasirodo pirmosios snaigės, o miestus apgaubia šventinė šviesa, visi pradedame svajoti apie jaukius, šiltais kvapais ir švieselėmis alsuojančius namus. Kalėdų metas – tai ne tik dovanos, bet ir jausmas, kurį kuriame savo aplinkoje. Šiame straipsnyje pasidalinsime, kaip lengvai ir kūrybiškai susikurti tikrą Kalėdų nuotaiką namuose – nuo dekoracijų iki mažų detalių, kurios paverčia erdvę stebuklinga.</p>
+      <p>Kai lauke šviečia saulė ir visur žydi gėlės, norisi namus ir kiemą paversti tikru vasaros kampeliu. Vasara – tai ne tik atostogos, bet ir jausmas, kurį kuriame savo aplinkoje. Šiame straipsnyje pasidalinsime, kaip lengvai ir kūrybiškai susikurti vasaros nuotaiką namuose – nuo kiemo dekoracijų iki vandens žaidimų ir mažų detalių, kurios paverčia erdvę linksma ir šilta.</p>
 
-      <h3>✨ 1. Pradėkite nuo Kalėdinės Tematikos</h3>
-      <p>Pirmas žingsnis – pasirinkti Kalėdinės dekoracijos stilių. Štai kelios kryptys, kurios šiemet itin madingos:</p>
+      <h3>☀️ 1. Pradėkite nuo Vasaros Tematikos</h3>
+      <p>Pirmas žingsnis – pasirinkti vasaros dekoracijos stilių. Štai kelios kryptys:</p>
       <ul>
-        <li>Klasikinis raudonos, žalios ir aukso derinys – amžinas pasirinkimas, kuriantis šilumą ir tradiciją.</li>
-        <li>Skandinaviškas minimalizmas – baltos, smėlio ir sidabro tonai, natūrali mediena, lininiai audiniai.</li>
-        <li>Modernus kalėdinis stilius – juoda, pilka, metaliniai akcentai su LED girliandomis ir geometrinėmis formomis.</li>
+        <li>Jūrinis stilius – mėlyna, balta, smėlio tonai, vėjų malūnai, vandens akcentai.</li>
+        <li>Tropikinis – žalia, geltona, palmių motyvai, šiaudiniai baldai, gėlės.</li>
+        <li>Šeimyninis ir linksmas – spalvingi vandens blasteriai, baseinai, ledai ir vasaros žaidimai.</li>
       </ul>
-      <p>Nepriklausomai nuo pasirinkto stiliaus, stenkitės išlaikyti vientisumą – tegul kiekviena detalė dera prie bendros nuotaikos.</p>
+      <p>Nepriklausomai nuo pasirinkto stiliaus, stenkitės išlaikyti vientisumą – tegul kiekviena detalė kviečia mėgautis vasara.</p>
 
-      <h3>🕯 2. Sukurkite Jaukų Apšvietimą</h3>
-      <p>Šviesa yra viena svarbiausių Kalėdų atmosferos dalių. Rinkitės LED girliandas, žvakides, švytinčius Kalėdų namelius ir stalo žibintus. Apšvietimas neturi būti ryškus – šiltos baltos ar gelsvos spalvos lemputės sukuria ramų, švelnų švytėjimą, kuris kviečia ilsėtis ir mėgautis akimirka.</p>
-      <p><em>🔎 kalėdinės girliandos, LED žvakidės, šventinis apšvietimas, jaukūs Kalėdų namai.</em></p>
+      <h3>💦 2. Vandens Žaidimai – Vasaros Širdis</h3>
+      <p>Vandens mūšiai ir blasteriai – tai būtent tai, kas padaro vasarą nepamirštamą. Rinkitės kokybiškus vandens pistoletus, automatinius blasterius ir vandens balionus. Apšilimas neturi būti per didelis – saulė ir vandens žaidimai suteikia pakankamai judesio ir juoko visai šeimai.</p>
+      <p><em>🔎 vandens žaidimai, vandens blasteriai, vasaros žaidimai kieme, Vasaros Kampelis.</em></p>
 
-      <h3>🎁 3. Dekoruokite Stalą ir Svetainę</h3>
-      <p>Kalėdinis stalas – jūsų švenčių centras. Naudokite kalėdinius stalo takelius, puokštes su eglių šakelėmis, auksinius ar raudonus akcentus. Ant sofos paskleiskite minkštus pledus ir kalėdinius pagalvėlių užvalkalus.</p>
-      <p><em>🔎 kalėdinės stalo dekoracijos, šventinis stalas, kalėdiniai pledai, pagalvėlės su elniais.</em></p>
+      <h3>🏖️ 3. Dekoruokite Kiemą ir Terasą</h3>
+      <p>Vasaros stalas – jūsų poilsio centras. Naudokite šiaudinus stalo takelius, puokštes su saulėgrąžomis, mėlynus ar geltonus akcentus. Ant kėdžių paskleiskite šviesius antklodės ir pagalvėles su vasaros raštais.</p>
+      <p><em>🔎 kiemo dekoracijos, vasaros stalas, terasa, saulėgrąžos.</em></p>
 
-      <h3>🌲 4. Nepamirškite Kvapų</h3>
-      <p>Kvapas turi magišką galią sukurti prisiminimus. Įsigykite kalėdinių kvapų žvakių ar difuzorių su cinamono, vanilės, pušies ar apelsinų natomis.</p>
+      <h3>🌴 4. Nepamirškite Šešėlio ir Gėrimų</h3>
+      <p>Šiluma reikalauja šešėlio ir gaivinančių gėrimų. Įsigykite skėtį ar markizę, ledinę arbata, vandenį su citrina ir mintimis – mažos detalės, didelė malonė.</p>
 
       <h3>🏠 5. Mažos Dekoracijos – Didelis Efektas</h3>
       <ul>
-        <li>Kalėdiniai nameliai su švieselėmis ant palangės;</li>
-        <li>Mini eglutės ar vainikai ant durų;</li>
-        <li>Kilimas su žiemišku raštu svetainėje;</li>
-        <li>Kalėdiniai megztiniai šeimos nuotraukai ar vakarui prie židinio.</li>
+        <li>Vandens baseinai ir blasteriai ant terasos;</li>
+        <li>Gėlių puokštės ant stalo;</li>
+        <li>Kilimėlis su vasaros raštu prie durų;</li>
+        <li>Vasaros žaidimų rinkinys šeimyniniam vakarui.</li>
       </ul>
-      <p><em>🔎 kalėdiniai nameliai, šventiniai vainikai, žiemiški kilimai, kalėdiniai megztiniai.</em></p>
+      <p><em>🔎 vasaros dekoracijos, kiemo idėjos, vandens žaidimai namams.</em></p>
 
-      <h3>💡 6. Sukurkite Tradiciją</h3>
-      <p>Kalėdos – tai apie šeimą, šviesą ir prisiminimus. Sukurkite savo šeimos ritualą: kepkite imbierinius sausainius, kartu puoškit eglutę ar rašykite linkėjimus artimiesiems.</p>
+      <h3>💡 6. Sukurkite Vasaros Tradiciją</h3>
+      <p>Vasara – tai apie šeimą, saulę ir prisiminimus. Sukurkite savo ritualą: vandens mūšiai po pietų, ledai vakare ar piknikas savaitgalį.</p>
 
-      <h3>🎅 7. Kur Rasti Kalėdinę Įkvėpimą</h3>
+      <h3>🍉 7. Kur Rasti Vasaros Įkvėpimą</h3>
       <ul>
-        <li>Kalėdiniai nameliai ir girliandos namams;</li>
-        <li>Jaukūs megztiniai ir pledai;</li>
-        <li>Dovanų idėjos visai šeimai;</li>
-        <li>Stalo dekoracijos ir šventiniai akcentai.</li>
+        <li>Vandens blasteriai ir žaidimai kieme;</li>
+        <li>Jaukūs kiemo baldai ir dekoracijos;</li>
+        <li>Dovanų idėjos vasarai;</li>
+        <li>Stalo dekoracijos ir vasaros akcentai.</li>
       </ul>
 
       <h3>🌟 Apibendrinimas</h3>
-      <p>Sukurti šventinę nuotaiką nereikia daug – svarbiausia meilė detalėms ir noras dalintis džiaugsmu. Kalėdų Kampelis padeda tai padaryti lengvai: nuo šiltų dekoracijų iki dovanų idėjų, kurios sušildo širdį.</p>
-      <p>Tegul šios Kalėdos būna kupinos šviesos, kvapų ir šypsenų – juk būtent iš to ir gimsta tikras Kalėdų stebuklas. 🎄</p>
+      <p>Sukurti vasaros nuotaiką nereikia daug – svarbiausia meilė detalėms ir noras dalintis džiaugsmu. Vasaros Kampelis padeda tai padaryti lengvai: nuo vandens žaidimų iki idėjų, kurios paverčia kiemą linksma vieta. Tegul ši vasara būna kupina saulės, vandens ir šypsenų. ☀️</p>
     </article>
   </PageWrapper>
 );
 
-const BlogPostDovanos2025 = () => (
-  <PageWrapper title="Kalėdinių Dovanų Idėjos ir Šventinio Interjero Tendencijos 2025 Metams">
+const BlogPostVasarosPasiulymai2025 = () => (
+  <PageWrapper title="Vasaros Pasiūlymai ir Idėjos 2025 Metams">
     <article className="prose prose-lg max-w-none">
-      <p>Artėjant žiemos šventėms, vis dažniau kyla klausimas – ką padovanoti artimiesiems ir kaip papuošti namus, kad juose vyrautų tikras Kalėdų jaukumas? Šiemet Kalėdos kviečia mus grįžti prie natūralumo, šviesos ir širdies šilumos. Šiame straipsnyje dalinamės naujausiomis Kalėdų 2025 tendencijomis, dovanų idėjomis ir būdais, kaip sukurti šventinį interjerą be streso.</p>
+      <p>Artėjant vasarai, vis dažniau kyla klausimas – ką padaryti su šeima lauke ir kaip papuošti kiemą, kad jame vyrautų tikras vasaros džiaugsmas? Šiemet vasara kviečia grįžti prie natūralumo, saulės ir vandens. Šiame straipsnyje dalinamės naujausiomis 2025 vasaros tendencijomis, pasiūlymais ir būdais, kaip sukurti vasaros kampelį be streso.</p>
 
-      <h3>🎄 1. 2025-ųjų Kalėdų Stiliaus Kryptys</h3>
+      <h3>☀️ 1. 2025-ųjų Vasaros Stiliaus Kryptys</h3>
       <p>Kiekvienais metais atsiranda naujų akcentų, tačiau šį sezoną išsiskiria trys aiškios kryptys:</p>
       <ul>
-        <li><strong>Natūralus ir tvarus stilius</strong> – dekoracijos iš medžio, lino, vilnos, švelnios žemės spalvos ir rankų darbo detalės.</li>
-        <li><strong>Žiemos pasaka</strong> – baltos, pilkos, sidabrinės spalvos, švytinčios girliandos, stiklo dekoracijos ir ledo efektai.</li>
-        <li><strong>Šventinis prabangus blizgesys</strong> – auksiniai ir bordo tonai, aksomas, metaliniai akcentai ir spindesys.</li>
+        <li><strong>Natūralus ir tvarus stilius</strong> – mediniai baldai, lino audiniai, gėlės, saulėgrąžos ir rankų darbo detalės.</li>
+        <li><strong>Vandens pasaka</strong> – blasteriai, baseinai, vandens balionai, šeimyniniai žaidimai ir šalti gėrimai.</li>
+        <li><strong>Linksmas šeimyninis stilius</strong> – spalvingi vandens pistoletai, piknikai, ledai ir vasaros muzika.</li>
       </ul>
-      <p><em>🔎 kalėdinės tendencijos 2025, šventinis interjeras, kalėdinės dekoracijos idėjos.</em></p>
+      <p><em>🔎 vasaros tendencijos 2025, kiemo puošimas, vandens žaidimai, Vasaros Kampelis.</em></p>
 
-      <h3>🎁 2. Dovanų Idėjos Jam, Jai ir Vaikams</h3>
-      <p>Renkant dovanas, svarbiausia ne kaina, o dėmesys ir šiluma. Štai keli patikrinti variantai:</p>
+      <h3>🏖️ 2. Pasiūlymai Jam, Jai ir Vaikams</h3>
+      <p>Renkant vasaros dovanas ar pasiūlymus, svarbiausia – džiaugsmas ir judėjimas. Štai keli patikrinti variantai:</p>
       <ul>
-        <li><strong>Jai:</strong> jaukus kalėdinis megztinis, kvapni žvakė su vanilės ar cinamono aromatu, stilingas puodelis žiemos rytams.</li>
-        <li><strong>Jam:</strong> šilta vilnonė kepurė, minimalistinis šalikų rinkinys, personalizuota dovanų dėžutė.</li>
-        <li><strong>Vaikams:</strong> šviečiantys kalėdiniai nameliai, spalvingos LED girliandos ar žaismingos eglutės dekoracijos.</li>
+        <li><strong>Jai:</strong> gražus skėtis, vandens blasteris, šiaudinis krepšys piknikui.</li>
+        <li><strong>Jam:</strong> automatinis vandens blasteris, šaldytuvas gėrimams, sportinė kepurė.</li>
+        <li><strong>Vaikams:</strong> vandens pistoletai, vandens balionai, šeimyniniai žaidimai kieme.</li>
       </ul>
-      <p><em>🔎 kalėdinės dovanos vyrams, kalėdinės dovanos moterims, kalėdinės dovanos vaikams, kalėdinės dovanos idėjos.</em></p>
+      <p><em>🔎 vasaros dovanos, vandens žaidimai vaikams, kiemo idėjos, vasaros pasiūlymai.</em></p>
 
-      <h3>🕯 3. Šventinė Nuotaika Per Kvapus ir Šviesą</h3>
-      <p>Kvapai ir šviesa yra nematomi, bet itin svarbūs Kalėdų pojūčiui. Naudokite šventinius difuzorius, cinamono ar pušies kvapo žvakes bei šiltos šviesos girliandas. Šiemet populiaru derinti natūralius kvapus su subtiliais LED akcentais – modernu ir jauku.</p>
-      <p><em>🔎 kalėdinės žvakės, šventiniai kvapai, LED dekoracijos, kalėdinis apšvietimas.</em></p>
+      <h3>💦 3. Vasaros Nuotaika Per Vandens Žaidimus ir Saulę</h3>
+      <p>Vandens žaidimai ir saulė – tai būtent tai, kas kuria vasaros pojūtį. Naudokite kokybiškus blasterius, vandens baseinus ir šeimyninius žaidimus. Šiemet populiaru derinti automatinius režimus su paprastais vandens balionais – linksma ir saugu.</p>
+      <p><em>🔎 vandens blasteriai, vasaros žaidimai, automatiniai režimai, kiemo pasiūlymai.</em></p>
 
-      <h3>🌟 4. Eglutės Puošimo Idėjos</h3>
-      <p>2025 metų eglučių puošimo tendencijos – minimalizmas ir natūralumas. Rinkitės medinius, veltinio ar rankų darbo ornamentus, popierines snaiges, šiaudines žvaigždes, baltus kaspinus ir varinių tonų girliandas.</p>
-      <p><em>🔎 eglutės puošimo idėjos, kalėdiniai žaisliukai, šiaudinės dekoracijos.</em></p>
+      <h3>🌟 4. Kiemo Puošimo Idėjos</h3>
+      <p>2025 metų kiemų tendencijos – paprastumas ir linksmybės. Rinkitės gėles, saulėgrąžas, šiaudinus baldus, spalvingas pagalvėles ir vandens žaidimų zoną.</p>
+      <p><em>🔎 kiemo puošimas, vasaros dekoracijos, gėlės, vandens zona.</em></p>
 
-      <h3>🛍 5. Kaip Sutaupyti ir Vis tiek Sukurti Magiją</h3>
-      <p>Nebūtina išleisti daug, kad namai atrodytų įspūdingai. Užtenka kelių kokybiškų detalių – ryškesnės girliandos, kelių jaukių pagalvėlių ir kilimo su žiemišku raštu. Svarbiausia – suderintas stilius ir emocija.</p>
-      <p>Viską vienoje vietoje rasite Kalėdų Kampelyje – nuo šventinių dekoracijų ir megztinių iki dovanų idėjų visai šeimai.</p>
-      <p><em>🔎 šventinės prekės internetu, kalėdinės dovanos internetu, kalėdinis dekoras.</em></p>
+      <h3>🛍 5. Kaip Sutaupyti ir Vis tiek Mėgautis Vasara</h3>
+      <p>Nebūtina išleisti daug, kad kiemas atrodytų nuostabiai. Užtenka kelių kokybiškų detalių – vandens blasterių, kelių jaukių kėdžių ir gėlių. Svarbiausia – suderintas stilius ir emocija.</p>
+      <p>Viską vienoje vietoje rasite Vasaros Kampelyje – nuo vandens žaidimų ir blasterių iki idėjų visai šeimai.</p>
+      <p><em>🔎 vasaros prekės internetu, vandens žaidimai internetu, vasaros dekoras.</em></p>
 
       <h3>💫 6. Mažos Detalės, Kurios Keičia Viską</h3>
       <ul>
-        <li>Šventinis kilimėlis prie įėjimo;</li>
-        <li>Šviesesnės užuolaidos – daugiau šviesos ir šilumos;</li>
-        <li>Kalėdiniai nameliai ant palangės;</li>
-        <li>Kalėdinis vainikas ant durų.</li>
+        <li>Vandens baseinas prie terasos;</li>
+        <li>Šviesesnės antklodės – daugiau saulės ir oro;</li>
+        <li>Gėlių puokštės ant stalo;</li>
+        <li>Vandens blasteriai ant lentynos.</li>
       </ul>
-      <p><em>🔎 kalėdinis vainikas, šventinis kilimas, kalėdiniai nameliai, žiemos interjeras.</em></p>
+      <p><em>🔎 vasaros detalės, kiemo idėjos, vandens žaidimai, vasaros interjeras.</em></p>
 
-      <h3>❤️ 7. Dalinkitės Šviesa ir Gerumu</h3>
-      <p>Tikros Kalėdos – tai dalijimasis gerumu, šypsenomis ir dėmesiu. Padovanokite ką nors rankų darbo, išsiųskite atviruką ar apkabinkite seniai matytą žmogų – maži gestai kuria didelius jausmus.</p>
+      <h3>❤️ 7. Dalinkitės Saulė ir Džiaugsmu</h3>
+      <p>Tikra vasara – tai dalijimasis džiaugsmu, vandens mūšiais ir šypsenomis. Pakvieskite kaimynus į vandens mūšį, pasidalinkite ledais ar tiesiog mėgaukitės kartu – maži gestai kuria didelius prisiminimus.</p>
 
-      <h3>🎄 Apibendrinimas</h3>
-      <p>Šventinis laikotarpis – metas sustoti, įkvėpti žiemos oro ir pasimėgauti jaukumu. Kalėdų Kampelis pasirūpino, kad rastumėte viską vienoje vietoje – nuo kalėdinių dovanų iki šventinio dekoro. Tegul šios Kalėdos būna kupinos džiaugsmo, kūrybos ir tikro šventinio stebuklo! 🌟</p>
+      <h3>☀️ Apibendrinimas</h3>
+      <p>Vasaros laikotarpis – metas sustoti, įkvėpti šviesos ir pasimėgauti lauku. Vasaros Kampelis pasirūpino, kad rastumėte viską vienoje vietoje – nuo vandens žaidimų iki kiemo idėjų. Tegul ši vasara būna kupina džiaugsmo, vandens ir tikro vasaros stebuklo! 🌴</p>
     </article>
   </PageWrapper>
 );
 
-const BlogPostMazameBute = () => (
-  <PageWrapper title="Kaip Puošti Namus Kalėdoms Mažame Bute: Idėjos ir Patarimai">
+const BlogPostKiemasVandens = () => (
+  <PageWrapper title="Kaip Puošti Kiemą Vandens Žaidimams: Idėjos ir Patarimai">
     <article className="prose prose-lg max-w-none">
-      <p>Gyvenate mažame bute, bet norite Kalėdų magijos? Nebūtina turėti didelės erdvės, kad sukurtumėte jaukumą ir šventinę atmosferą. Štai keli praktiški būdai, kaip papuošti mažą būstą Kalėdoms neapkraunant jo daiktais.</p>
-      <h3>✨ 1. Rinkitės Mažas, Bet Išraiškingas Dekoracijas</h3>
-      <p>Užuot pirkę didelę eglę, išbandykite miniatiūrines eglutes ar šviečiančius Kalėdų namelius. Ant sienų kabinkite LED girliandas – jos neužima vietos, bet suteikia magišką švytėjimą.</p>
-      <h3>🛋 2. Naudokite Tekstilę</h3>
-      <p>Kalėdiniai pagalvėlių užvalkalai, pledai ir stalo takeliai akimirksniu keičia nuotaiką. Svarbiausia – spalvų derinys: raudona, žalia, balta arba aukso tonai.</p>
-      <h3>🌿 3. Puoškite Vertikaliai</h3>
-      <p>Jei trūksta vietos, dekoruokite lentynas, duris ar sienas. Kabinkite vainikus, mini eglių šakas, naudokite lipdukus ar magnetines dekoracijas.</p>
-      <h3>🎁 4. Nepamirškite Kvapų ir Muzikos</h3>
-      <p>Įjunkite kalėdinę muziką, uždekite cinamono ar apelsinų žvakes – mažos detalės kuria didelį efektą.</p>
-      <p><em>🔎 kalėdinės dekoracijos butui, mažos erdvės puošimas, mini eglutės, kalėdinės girliandos.</em></p>
+      <p>Turite mažą kiemą ar terasą, bet norite vasaros magijos? Nebūtina turėti didelės erdvės, kad sukurtumėte linksmumą ir vandens žaidimų atmosferą. Štai keli praktiški būdai, kaip papuošti kiemą vandens žaidimams neapkraunant jo daiktais.</p>
+      <h3>💦 1. Rinkitės Kompaktiškus, Bet Veiksmingus Vandens Žaidimus</h3>
+      <p>Užuot tikėdamiesi didelio baseino, išbandykite vandens blasterius, vandens balionus ir mažus baseinus. Ant terasos pastatykite vandens pistoletų stovą – jis neužima daug vietos, bet suteikia tikrą vasaros jausmą.</p>
+      <h3>🏖️ 2. Naudokite Tekstilę ir Šešėlį</h3>
+      <p>Vasaros pagalvėlės, šiaudiniai kilimėliai ir skėtis akimirksniu keičia nuotaiką. Svarbiausia – spalvų derinys: mėlyna, geltona, balta arba žalia.</p>
+      <h3>🌿 3. Puoškite Gėlėmis ir Augalais</h3>
+      <p>Jei trūksta vietos, dekoruokite langus gėlėmis, pastatykite saulėgrąžas, naudokite pakabinamas puokštes – gamta suteikia šešėlį ir grožį.</p>
+      <h3>🍉 4. Nepamirškite Gaivinančių Gėrimų ir Ledų</h3>
+      <p>Įjunkite vasaros muziką, paruoškite ledinę arbatą ar vandenį su citrina – mažos detalės kuria didelį efektą.</p>
+      <p><em>🔎 vasaros dekoracijos kiemui, mažas kiemas, vandens blasteriai, vasaros žaidimai.</em></p>
     </article>
   </PageWrapper>
 );
 
-const BlogPost10Budu = () => (
-  <PageWrapper title="10 Paprastų Būdų Padaryti Namus Jaukesnius Žiemą">
+const BlogPost10BuduVasara = () => (
+  <PageWrapper title="10 Paprastų Būdų Mėgautis Vasarą Lauke">
     <article className="prose prose-lg max-w-none">
-      <p>Žiema – metas, kai norisi šilumos, šviesos ir jaukumo. Net jei už lango sninga, jūsų namai gali tapti šilumos oaze. Štai 10 paprastų, bet veiksmingų patarimų:</p>
+      <p>Vasara – metas, kai norisi saulės, vandens ir linksmybių. Net jei kiemas nedidelis, jūsų vasaros dienos gali tapti nepamirštamos. Štai 10 paprastų, bet veiksmingų patarimų:</p>
       <ul>
-        <li>Uždekite žvakes kasdien – rinkitės natūralius kvapus: vanilę, mišką, apelsiną.</li>
-        <li>Pakabinkite girliandas ne tik per Kalėdas, bet visai žiemai.</li>
-        <li>Naudokite storus kilimus – jie šildo ir sugeria garsus.</li>
-        <li>Pakeiskite pagalvėles į minkštus, žiemiškus tonus.</li>
-        <li>Papildykite apšvietimą – mažos lemputės ant spintų ar lentynų.</li>
-        <li>Papuoškite langus snaigėmis ar šviesos projekcija.</li>
-        <li>Laikykite šiltą pledą po ranka – tiek svetainėje, tiek miegamajame.</li>
-        <li>Įveskite gamtos akcentus: eglių šakos, džiovintos apelsinų riekelės, spyglių vainikai.</li>
-        <li>Kepkite imbierinius sausainius – kvapas = jaukumas.</li>
-        <li>Įjunkite šventinę muziką arba židinio garsus.</li>
+        <li>Organizuokite vandens mūšius – rinkitės kokybiškus blasterius ir vandens balionus.</li>
+        <li>Pastatykite vandens žaidimų zoną ne tik atostogoms, bet visai vasarai.</li>
+        <li>Naudokite šiaudinus kilimus – jie lengvi ir tinka terasai.</li>
+        <li>Pakeiskite pagalvėles į šviesias, vasarines spalvas.</li>
+        <li>Papildykite kiemą gėlėmis – saulėgrąžos, bazilikas, mėtas.</li>
+        <li>Papuoškite stalą gaivinančiais gėrimais ir vaisiais.</li>
+        <li>Laikykite vandens pistoletus po ranka – tiek vaikams, tiek suaugusiems.</li>
+        <li>Įveskite gamtos akcentus: gėlės, žolelės, vandens fontanėlės.</li>
+        <li>Paruoškite ledinę arbatą ar smoothie – gaivina ir sveikina.</li>
+        <li>Įjunkite vasaros muziką arba gamtos garsus.</li>
       </ul>
-      <p><em>🔎 žiemos jaukumas, šventinis interjeras, kalėdiniai kvapai, žiemos dekoracijos.</em></p>
+      <p><em>🔎 vasaros jaukumas, kiemo idėjos, vandens žaidimai, vasaros dekoracijos.</em></p>
     </article>
   </PageWrapper>
 );
 
-const BlogPostBeStreso = () => (
-  <PageWrapper title="Kaip Pasiruošti Kalėdoms Be Streso: Planavimas, Dekoracijos ir Dovanos">
+const BlogPostVasaraBeStreso = () => (
+  <PageWrapper title="Kaip Pasiruošti Vasarai Be Streso: Planavimas ir Pasiūlymai">
     <article className="prose prose-lg max-w-none">
-      <p>Kiekvienais metais daugelis sako „kitais metais pasiruošiu anksčiau“. Šiemet tikrai pavyks – tiesiog vadovaukitės šiuo žingsnis po žingsnio planu:</p>
-      <h3>📅 1. Pasiruošimas (Lapkritis)</h3>
+      <p>Kiekvienais metais daugelis sako „kitais metais pasiruošiu vasarai anksčiau“. Šiemet tikrai pavyks – tiesiog vadovaukitės šiuo žingsnis po žingsnio planu:</p>
+      <h3>📅 1. Pasiruošimas (Pavasaris)</h3>
       <ul>
-        <li>Sudarykite dovanų sąrašą.</li>
-        <li>Patikrinkite, ką turite iš praėjusių metų.</li>
-        <li>Užsisakykite kalėdines dekoracijas iš anksto – lapkričio vidurys yra tobulas metas.</li>
+        <li>Sudarykite vasaros pasiūlymų ir dovanų sąrašą.</li>
+        <li>Patikrinkite, ką turite iš praėjusios vasaros – blasterius, baseinus.</li>
+        <li>Užsisakykite vandens žaidimus iš anksto – gegužės pradžia yra tobula.</li>
       </ul>
-      <h3>🎁 2. Puošimas (Gruodžio pradžia)</h3>
+      <h3>🏖️ 2. Kiemo puošimas (Gegužė)</h3>
       <ul>
-        <li>Pradėkite nuo pagrindinio kampelio – eglės ar stalo.</li>
-        <li>Naudokite šiltas spalvas ir LED girliandas.</li>
-        <li>Nepamirškite kalėdinių namelių, jie suteikia magijos pojūtį.</li>
+        <li>Pradėkite nuo pagrindinio kampelio – stalo ar terasos.</li>
+        <li>Naudokite šviesias spalvas ir gėles.</li>
+        <li>Nepamirškite vandens blasterių – jie suteikia magijos pojūtį.</li>
       </ul>
-      <h3>💌 3. Dovanų pakavimas (Gruodžio vidurys)</h3>
+      <h3>💦 3. Vandens žaidimų rinkinys (Birželis)</h3>
       <ul>
-        <li>Naudokite kraft popierių, virveles ir džiovintus augalus – atrodo ekologiškai ir prabangiai.</li>
-        <li>Kiekvienai dovanai pridėkite rankų darbo atviruką.</li>
+        <li>Naudokite kokybiškus blasterius, vandens balionus ir saugią zoną.</li>
+        <li>Kiekvienam šeimos nariui – tinkamas vandens pistoletas ar žaidimas.</li>
       </ul>
-      <h3>🍪 4. Paskutinės detalės</h3>
+      <h3>🍉 4. Paskutinės detalės</h3>
       <ul>
-        <li>Iš anksto pasiruoškite stalą ir indus.</li>
-        <li>Uždekite žvakes ir įjunkite kalėdinę muziką.</li>
-        <li>Atsipalaiduokite – Kalėdos turi būti džiaugsmas, ne vargas.</li>
+        <li>Iš anksto paruoškite gaivinančius gėrimus ir vaisius.</li>
+        <li>Įjunkite vasaros muziką ir mėgaukitės saule.</li>
+        <li>Atsipalaiduokite – vasara turi būti džiaugsmas, ne vargas.</li>
       </ul>
-      <p><em>🔎 kaip pasiruošti Kalėdoms, kalėdinis planas, dovanų pakavimas, šventinis pasiruošimas.</em></p>
+      <p><em>🔎 kaip pasiruošti vasarai, vasaros planas, vandens žaidimai, vasaros pasiruošimas.</em></p>
+    </article>
+  </PageWrapper>
+);
+
+const BlogPostVandensMusiai = () => (
+  <PageWrapper title="Vandens Mūšių Organizavimas: Kaip Surengti Nepamirštamą Vasaros Dieną">
+    <article className="prose prose-lg max-w-none">
+      <p>Vandens mūšis kieme ar parke – vienas geriausių būdų praleisti vasaros dieną su šeima ir draugais. Kad visi mėgautųsi ir niekas neįsiveltų į konfliktus, reikia šiek tiek planavimo. Šiame straipsnyje – žingsnis po žingsnio, kaip surengti saugų ir linksmą vandens mūšio vakarą.</p>
+
+      <h3>🎯 1. Vieta ir Laikas</h3>
+      <p>Pasirinkite vietą, kur yra prieiga prie vandens (čiaupas, baseinas ar kibirai) ir kur saulė neperkais per stipriai – idealiai po pietų ar prie vakaro. Jei kiemas mažas, pakaks terasos; jei didesnis – ženkliname „bazę“ ir „priešo“ pusę.</p>
+
+      <h3>👥 2. Komandos ir Taisyklės</h3>
+      <p>Padalinkite žmones į dvi (ar kelias) komandas. Sutarkite paprastas taisykles: nešauti į veidą, sustoti, kai signalas „truko“, ir laikytis zonų. Vaikams – aiškiai pasakykite, kad tik žaidimas ir visi draugai.</p>
+
+      <h3>💦 3. Blasteriai ir Įranga</h3>
+      <p>Užtikrinkite, kad kiekvienas turėtų prieigą prie vandens pistoletų ar blasterių – vienodai ginkluoti komandos = sąžiningas žaidimas. Papildomai: vandens balionai, kibirai „bazėms“ ir švarūs rankšluosčiai, jei reikia.</p>
+      <p><em>🔎 vandens mūšiai, vandens blasteriai, vasaros žaidimai, Vasaros Kampelis.</em></p>
+
+      <h3>🛡️ 4. Saugumas</h3>
+      <p>Vandens žaidimai turi būti tik vandeniu – jokių kietų daiktų. Stebėkite, kad mažesni vaikai nebūtų nublokšti srautu ar per daug įsitempę. Šešėlis, vandens gėrimai ir pertraukos – būtinos.</p>
+
+      <h3>🏆 5. Apdovanojimai ir Atminimas</h3>
+      <p>Po žaidimo – ledai ar gaivinančios užkandos, o „nugalėtojų“ komandai galite įteikti smulkius prizus (pvz., dar vieną vandens pistoletą ar saldumyną). Nuotraukos ir video liks kaip puikūs vasaros prisiminimai.</p>
+
+      <h3>🌟 Apibendrinimas</h3>
+      <p>Gerai organizuotas vandens mūšis – tai paprasta, prieinama ir labai linksma vasaros idėja. Vasaros Kampelyje rasite kokybiškų blasterių ir žaidimų, kad jūsų diena būtų tikrai nepamirštama. ☀️💦</p>
+    </article>
+  </PageWrapper>
+);
+
+const BlogPostKaipIssirinktiBlasteri = () => (
+  <PageWrapper title="Kaip Išsirinkti Tinkamą Vandens Blasterį Savo Šeimai">
+    <article className="prose prose-lg max-w-none">
+      <p>Vandens blasteriai skiriasi dydžiu, talpa, tipu (rankinis ar automatinis) ir amžiaus rekomendacijomis. Kad rastumėte idealų variantą sau ir vaikams – štai trumpas vadovas.</p>
+
+      <h3>🔫 1. Dydis ir Svoris</h3>
+      <p>Mažiems vaikams (iki ~6 m.) rinkitės lengvus, paprastus pistoletus su maža talpa – kad galėtų laikyti ir pumpuoti vieną ranka. Didesniems vaikams ir suaugusiems tinka didesni blasteriai su rezervuaru ant nugaros – ilgesnis žaidimas be dažno pildymo.</p>
+
+      <h3>💧 2. Talpa ir Pildymas</h3>
+      <p>Maža talpa (300–500 ml) – dažnas pildymas, bet lengvesnis ginklas. Didelė talpa (1–2 l ir daugiau) – mažiau pertraukų, bet sunkesnis. Kompromisas – vidutinė talpa ir paprastas pildymas iš čiaupo ar kibiro.</p>
+
+      <h3>⚡ 3. Rankinis vs Automatinis</h3>
+      <p><strong>Rankinis</strong> – reikia pumpuoti ar tempti svirtį; dažniausiai pigesni ir patikimi. <strong>Automatinis</strong> – nuspaudus triggerį šaudo srautu; patogiau mažesniems vaikams ir intensyvesniam žaidimui. Pasirinkite pagal amžių ir norimą žaidimo tempą.</p>
+      <p><em>🔎 vandens blasteriai, vandens pistoletai, vasaros žaidimai vaikams, Vasaros Kampelis.</em></p>
+
+      <h3>👶 4. Amžiaus Rekomendacijos</h3>
+      <p>3–5 m. – labai maži, paprasti pistoletai. 6–10 m. – vidutinio dydžio blasteriai, galima automatinis. 11+ ir suaugusieji – didesni, talpesni modeliai, tinkantys komandiniams mūšiams.</p>
+
+      <h3>🛒 5. Kur Pirkti ir Ko Klausiti</h3>
+      <p>Pirkite iš patikimų parduotuvės – kokybė ir saugumas svarbūs. Klauskite apie medžiagų kokybę, ar nėra aštrių kraštų, ir ar yra atitikties ženkliai. Vasaros Kampelyje rasite įvairių blasterių – nuo paprastų iki pilnai automatikos – visai šeimai.</p>
+
+      <h3>🌟 Apibendrinimas</h3>
+      <p>Tinkamas blasteris = saugus ir linksmas žaidimas. Rinkitės pagal amžių, dydį ir norimą stilių – ir vasaros mūšiai taps tikrai nepamirštami. 💦☀️</p>
+    </article>
+  </PageWrapper>
+);
+
+const BlogPostPiknikoIdejos = () => (
+  <PageWrapper title="Pikniko Idėjos Vasarai: Ko Nepasimiršti">
+    <article className="prose prose-lg max-w-none">
+      <p>Piknikas parke, ežero pakrantėje ar savo kieme – puiki vasaros idėja. Kad nieko nepritrūktų ir visi būtų laimingi, štai sąrašas ir patarimai.</p>
+
+      <h3>🧺 1. Krepšiai ir Indai</h3>
+      <p>Naudokite nešiojamą krepšį ar termo krepšį – jame tilps maistas, gėrimai ir nedideli daiktai. Dėkite maistą į dėžutes ar konteinerius, kad nesubyrėtų ir liktų švaru. Nepamirškite šaukštų, šakų ir rankšluosčių.</p>
+
+      <h3>🥪 2. Maistas</h3>
+      <p>Paprasti ir tvirti variantai: sumuštiniai, vaisiai (obuoliai, bananas, uogos), sausainiukai, kepta duona. Venkite greitai gendantų produktų karštomis dienomis. Gaivinančios užkandos – arbata su ledais, vanduo su citrina ar mėta.</p>
+
+      <h3>💧 3. Gėrimai ir Vanduo</h3>
+      <p>Vanduo – būtinausia. Papildomai – sulčių, ledinės arbatos ar smoothie termose. Laikykite gėrimus šaldytuve ar su ledo gabaliukais, ypač jei piknikas ilgesnis.</p>
+      <p><em>🔎 pikniko idėjos, vasaros piknikas, vandens žaidimai, Vasaros Kampelis.</em></p>
+
+      <h3>☀️ 4. Saulės Apsauga ir Komfortas</h3>
+      <p>Skėtis ar kepurė, saulės kremas ir antklodė ant žolės – standartas. Jei vaikai – papildomai šešėlis ir gaivinančios pertraukos. Antklodė gali būti ir vieta, kur sustoti po vandens žaidimų.</p>
+
+      <h3>💦 5. Vandens Žaidimai Piknike</h3>
+      <p>Piknikas + vandens blasteriai = tobula kombinacija. Pasiimkite nedidelius vandens pistoletus ar balionus – vaikai ir suaugusieji gali žaisti net šalia antklodės. Tik stebėkite, kad maistas ir telefonai būtų saugioje vietoje.</p>
+
+      <h3>🌟 Apibendrinimas</h3>
+      <p>Gerai paruoštas piknikas – mažas darbas, didelė malonė. Pridėkite vandens žaidimų iš Vasaros Kampelio – ir diena bus pilna juoko bei atostogų jausmo. 🧺☀️</p>
     </article>
   </PageWrapper>
 );

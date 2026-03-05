@@ -8,7 +8,7 @@ interface ExitIntentPopupProps {
 
 export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => {
   const [showPopup, setShowPopup] = useState(false);
-  const [discountCode, setDiscountCode] = useState('KALEDOS15');
+  const [discountCode, setDiscountCode] = useState('SUMMER15');
 
   useEffect(() => {
     let hasShown = localStorage.getItem('exitIntentShown');
@@ -53,25 +53,25 @@ export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => 
             </button>
 
             <div className="text-center mb-6">
-              <div className="text-6xl mb-4">🎁</div>
+              <div className="text-5xl mb-4">☀️</div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Palaukite! Neiškeliaukite tuščiomis rankomis!
+                Palaukite! Gaukite nuolaidą
               </h2>
               <p className="text-gray-600">
-                Gaukite <span className="font-bold text-red-600">15% nuolaidą</span> pirmajam užsakymui
+                Gaukite <span className="font-bold text-brand-orange">15% nuolaidą</span> pirmajam užsakymui
               </p>
             </div>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="bg-brand-bg-alt border border-brand-blue/30 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <Percent className="w-5 h-5 text-red-600" />
-                <span className="font-bold text-red-800">Jūsų nuolaidos kodas:</span>
+                <Percent className="w-5 h-5 text-brand-orange" />
+                <span className="font-bold text-gray-800">Jūsų nuolaidos kodas:</span>
               </div>
-              <div className="bg-white border-2 border-dashed border-red-300 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-red-600 mb-1">{discountCode}</div>
+              <div className="bg-white border-2 border-dashed border-brand-blue/50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-brand-orange mb-1">{discountCode}</div>
                 <button
                   onClick={copyDiscountCode}
-                  className="text-sm text-red-600 hover:text-red-700 underline"
+                  className="text-sm text-brand-orange hover:text-brand-orange-hover underline"
                 >
                   Kopijuoti kodą
                 </button>
@@ -80,26 +80,22 @@ export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => 
 
             <div className="space-y-3 mb-6">
               <div className="flex items-center space-x-3 text-sm text-gray-600">
-                <Gift className="w-4 h-4 text-green-600" />
-                <span>Nemokamas pristatymas užsakymams virš €30</span>
+                <Gift className="w-4 h-4 text-brand-green" />
+                <span>Nemokamas pristatymas užsakymams virš €80</span>
               </div>
               <div className="flex items-center space-x-3 text-sm text-gray-600">
-                <Clock className="w-4 h-4 text-blue-600" />
-                <span>Greitas pristatymas per 2-5 darbo dienas</span>
-              </div>
-              <div className="flex items-center space-x-3 text-sm text-gray-600">
-                <span className="w-4 h-4 text-yellow-600">🔒</span>
-                <span>100% saugus mokėjimas</span>
+                <Clock className="w-4 h-4 text-brand-blue" />
+                <span>Greitas pristatymas</span>
               </div>
             </div>
 
             <div className="space-y-3">
-              <button className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition">
+              <button className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-3 rounded-lg font-semibold transition min-h-[48px]">
                 Naudoti nuolaidos kodą
               </button>
               <button
                 onClick={handleClose}
-                className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
+                className="w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition min-h-[48px]"
               >
                 Ačiū, bet ne
               </button>

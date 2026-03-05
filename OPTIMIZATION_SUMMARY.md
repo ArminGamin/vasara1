@@ -1,6 +1,6 @@
 # Website Optimization Summary
 
-This document outlines the optimizations implemented for the Christmas Shop website according to your specifications.
+This document outlines the optimizations implemented for the Vasaros Kampelis website according to your specifications.
 
 ## ✅ Completed Optimizations
 

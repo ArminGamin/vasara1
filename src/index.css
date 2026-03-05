@@ -27,37 +27,22 @@ body {
   font-display: swap;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
-  /* Improve touch scrolling */
   -webkit-overflow-scrolling: touch;
+  background-color: #F5FBFF; /* fallback; overridden by styles.css var(--color-bg) */
 }
 
-/* Snowfall animation (respects reduced motion) */
-@keyframes kk-snow-fall {
-  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); }
-  100% { transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(360deg); }
-}
+/* Summer theme – no snowfall; splash-friendly palette */
+/* Removed: kk-snow-fall, snowflake, gold-text, fairy-light, sparkle-line (gold), kk-red-contour */
 
-.snowflake {
-  position: absolute;
-  top: -10vh;
-  color: #ffffff;
-  text-shadow: 0 0 5px rgba(255,255,255,0.75);
-  animation-name: kk-snow-fall;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  will-change: transform;
-  transform: translateZ(0);
-  contain: layout paint style;
+/* Google Translate – hide top banner, compact dropdown */
+#google_translate_element .goog-te-banner-frame,
+.skiptranslate {
+  display: none !important;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .snowflake { animation: none; display: none; }
+body.topbar .skiptranslate {
+  display: none !important;
 }
-
-/* Pause all flakes when not visible */
-.snow-paused .snowflake { animation-play-state: paused !important; }
 
 /* Optimize images */
 img {
@@ -69,6 +54,19 @@ img {
   -moz-user-drag: none;
   -o-user-drag: none;
   user-drag: none;
+}
+
+/* Accessible focus rings – buttons and CTAs */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-surface, #fff), 0 0 0 5px var(--color-primary, #0EA5E9);
+}
+.bg-cta:focus-visible,
+button.bg-cta:focus-visible,
+a.bg-cta:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-surface, #fff), 0 0 0 5px var(--color-cta, #FF7A00);
 }
 
 /* Mobile-specific optimizations */
@@ -124,16 +122,6 @@ img {
     margin-bottom: 1rem;
   }
   
-  /* Better mobile navigation */
-  .mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid #e5e7eb;
-    z-index: 50;
-  }
 }
 
 /* Touch gesture optimizations */
@@ -354,15 +342,15 @@ button, a, .transition {
   border-radius: 1rem;
 }
 
-/* Gradient text */
+/* Gradient text – summer blue/green */
 .gradient-text {
-  background: linear-gradient(135deg, #ef4444, #22c55e);
+  background: linear-gradient(135deg, #00BFFF, #39FF14);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Countdown visual accents */
+/* Countdown / urgency visual accents */
 @keyframes kk-glow-pulse {
   0% { box-shadow: 0 0 0 rgba(255,255,255,0.0); }
   100% { box-shadow: 0 0 12px rgba(255,255,255,0.2); }
@@ -381,73 +369,51 @@ button, a, .transition {
   animation: kk-pop-in 500ms ease-out both;
 }
 
-/* Gold festive heading */
+/* Summer heading accent */
 .gold-text {
-  background: linear-gradient(180deg, #fff7bf 0%, #ffd54a 50%, #f5b400 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 8px rgba(255, 215, 0, 0.25);
+  color: #111827;
+  font-weight: 800;
 }
 
-/* Fairy light particles */
+/* Splash accent particles (optional use) */
 @keyframes kk-twinkle {
-  0% { opacity: 0.6; transform: translateY(0) scale(0.95); filter: drop-shadow(0 0 2px rgba(255, 230, 140, 0.6)); }
-  100% { opacity: 1; transform: translateY(-1px) scale(1.05); filter: drop-shadow(0 0 6px rgba(255, 230, 140, 0.9)); }
+  0% { opacity: 0.6; transform: translateY(0) scale(0.95); }
+  100% { opacity: 1; transform: translateY(-2px) scale(1.05); }
 }
 
 .fairy-light {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(255,250,210,1) 0%, rgba(255,220,120,0.95) 40%, rgba(255,200,80,0.0) 70%);
-  box-shadow: 0 0 10px 4px rgba(255, 215, 120, 0.45);
+  background: radial-gradient(circle, #39FF14 0%, rgba(57,255,20,0.4) 70%);
   animation: kk-twinkle 1.6s ease-in-out infinite alternate;
 }
 
 .fairy-light.slow { animation-duration: 2.2s; }
 .fairy-light.fast { animation-duration: 1.2s; }
 
-/* Premium glass card for countdown */
+/* Premium glass card (summer blue tint) */
 .glass-card {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  background: linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 100%);
-  border: 1px solid rgba(255,255,255,0.35);
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(255,255,255,0.15),
-    inset 0 0 12px rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, rgba(0,191,255,0.15) 0%, rgba(0,119,255,0.08) 100%);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
 
-/* Sparkling divider line */
-@keyframes kk-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
+/* Divider line – summer blue */
 .sparkle-line {
   height: 2px;
-  background: linear-gradient(90deg,
-    rgba(250,204,21,0.15) 0%,
-    rgba(250,204,21,0.85) 10%,
-    rgba(250,204,21,0.15) 20%,
-    rgba(250,204,21,0.15) 80%,
-    rgba(250,204,21,0.85) 90%,
-    rgba(250,204,21,0.15) 100%);
-  background-size: 200% 100%;
-  animation: kk-shimmer 2.8s linear infinite;
+  background: linear-gradient(90deg, transparent 0%, #00BFFF 50%, transparent 100%);
   border-radius: 9999px;
-  box-shadow: 0 0 12px rgba(250,204,21,0.45);
 }
 
-/* Hero CTA enhancements */
+/* Hero CTA – orange primary */
 @keyframes kk-cta-glow {
-  0%   { box-shadow: 0 8px 24px rgba(220, 38, 38, 0.25), 0 0 0 rgba(220,38,38,0); }
-  50%  { box-shadow: 0 12px 36px rgba(220, 38, 38, 0.35), 0 0 12px rgba(220,38,38,0.25); }
-  100% { box-shadow: 0 8px 24px rgba(220, 38, 38, 0.25), 0 0 0 rgba(220,38,38,0); }
+  0%   { box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3), 0 0 0 rgba(255,106,0,0); }
+  50%  { box-shadow: 0 12px 36px rgba(255, 106, 0, 0.4), 0 0 12px rgba(255,106,0,0.25); }
+  100% { box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3), 0 0 0 rgba(255,106,0,0); }
 }
 
 .cta-glow {
@@ -480,14 +446,13 @@ button, a, .transition {
   100% { left: 130%; }
 }
 
-/* Subtle outward pulse ring */
 .cta-pulse { position: relative; }
 .cta-pulse::before {
   content: "";
   position: absolute;
   inset: -6px;
   border-radius: inherit;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.35);
   animation: kk-pulse-ring 2s ease-out infinite;
 }
 
@@ -506,10 +471,10 @@ button, a, .transition {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.10) 100%);
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.08) 100%);
 }
 
-/* Subtle red animated contour around product images */
+/* Summer blue contour (optional product accent) */
 .kk-red-contour { position: relative; --kk-contour-radius: inherit; --kk-contour-width: 2px; --kk-contour-inset: 0px; }
 .kk-red-contour::after {
   content: "";
@@ -517,29 +482,9 @@ button, a, .transition {
   inset: var(--kk-contour-inset);
   pointer-events: none;
   border-radius: var(--kk-contour-radius);
-  border: var(--kk-contour-width) solid rgba(220, 38, 38, 0.35);
-  box-shadow: 0 0 10px rgba(220, 38, 38, 0.15), 0 0 0 1px rgba(220, 38, 38, 0.18) inset;
-  animation: kk-red-contour 3s ease-in-out infinite;
+  border: var(--kk-contour-width) solid rgba(0, 191, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.15);
 }
-
-@keyframes kk-red-contour {
-  0%, 100% {
-    border-color: rgba(220, 38, 38, 0.32);
-    box-shadow: 0 0 8px rgba(220, 38, 38, 0.12), 0 0 0 1px rgba(220, 38, 38, 0.16) inset;
-  }
-  50% {
-    border-color: rgba(220, 38, 38, 0.55);
-    box-shadow: 0 0 16px rgba(220, 38, 38, 0.22), 0 0 0 2px rgba(220, 38, 38, 0.22) inset;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .kk-red-contour::after { animation: none; }
-}
-
-/* Helpers to tune inset per container */
 .kk-contour-inset-sm { --kk-contour-inset: 4px; }
 .kk-contour-inset-md { --kk-contour-inset: 8px; }
 .kk-contour-inset-lg { --kk-contour-inset: 12px; }
-
-/* (animated contour styles removed on request) */

@@ -1,8 +1,43 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// Remove data: preload links (bad for performance - Vite injects these after transform, so we use closeBundle)
+import fs from 'fs';
+import path from 'path';
+
+function removeDataPreloadAndPreloadMain() {
+  return {
+    name: 'remove-data-preload-and-preload-main',
+    closeBundle() {
+      const indexPath = path.join(process.cwd(), 'dist', 'index.html');
+      if (!fs.existsSync(indexPath)) return;
+      let html = fs.readFileSync(indexPath, 'utf8');
+
+      // 1. Remove data: preload (bad for performance)
+      html = html.replace(/<link[^>]*rel="preload"[^>]*href="data:[^"]*"[^>]*\/?>\s*/gi, '');
+
+      // 2. Preload main entry (index-*.js) for faster discovery - add before script tag if not already present
+      const mainScriptMatch = html.match(/<script[^>]*\ssrc="(\/assets\/index-[^"]+\.js)"[^>]*>/i);
+      if (mainScriptMatch) {
+        const mainSrc = mainScriptMatch[1];
+        const escapedSrc = mainSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const hasPreload = new RegExp(`rel="modulepreload"[^>]*href="${escapedSrc}"|href="${escapedSrc}"[^>]*rel="modulepreload"`, 'i').test(html);
+        if (!hasPreload) {
+          html = html.replace(
+            new RegExp(`(<script[^>]*\\ssrc="${escapedSrc}"[^>]*>)`, 'i'),
+            `<link rel="modulepreload" href="${mainSrc}">\n    $1`
+          );
+          console.log('[build] Added modulepreload for main entry');
+        }
+      }
+
+      fs.writeFileSync(indexPath, html);
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), removeDataPreloadAndPreloadMain()],
   base: "/",
   server: {
     headers: {

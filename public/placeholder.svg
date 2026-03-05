@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="#F1F5F9"/>
+  <path d="M200 120c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 65c-14 0-25-11-25-25s11-25 25-25 25 11 25 25-11 25-25 25z" fill="#94A3B8"/>
+  <path d="M120 200l60-60 40 40 60-80 40 60v40H120v-60z" fill="#CBD5E1"/>
+  <text x="200" y="260" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#64748B">Splash Zone</text>
+</svg>

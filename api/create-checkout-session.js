@@ -1,7 +1,9 @@
 import Stripe from "stripe";
+const { computeOrderTotal } = require("./price-table");
 
 const secretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(secretKey || "");
+const ALLOWED_ORIGINS = ["https://vasaroskampelis.com", "http://localhost:5173", "http://localhost:3000"];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,7 +17,6 @@ export default async function handler(req, res) {
   }
 
   const {
-    amount, // in cents
     name,
     surname,
     email,
@@ -23,14 +24,30 @@ export default async function handler(req, res) {
     address,
     items,
     orderId,
-    successUrl,
-    cancelUrl,
+    giftWrapping,
   } = req.body || {};
 
-  if (!amount || typeof amount !== 'number') {
+  const computed = computeOrderTotal(items, !!giftWrapping);
+  if (!computed.itemsValid || computed.amountCents < 1) {
+    res.status(400).json({ error: 'Invalid items or amount' });
+    return;
+  }
+
+  const amountCents = computed.amountCents;
+  const MIN_CENTS = 1;
+  const MAX_CENTS = 1_000_000; // 10,000 EUR
+  if (amountCents < MIN_CENTS || amountCents > MAX_CENTS) {
     res.status(400).json({ error: 'Invalid amount' });
     return;
   }
+  // Never use client-provided URLs - open redirect risk. Always use request origin or allowlisted domain.
+  const baseOrigin = ALLOWED_ORIGINS.includes(req.headers.origin) ? req.headers.origin : 'https://vasaroskampelis.com';
+  const finalSuccessUrl = `${baseOrigin}/?status=paid`;
+  const finalCancelUrl = baseOrigin;
+
+  const itemsDisplay = Array.isArray(items)
+    ? items.map((it) => `${it.name || 'Prekė'} × ${it.quantity || 1}`).join(', ')
+    : 'Užsakymas';
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -40,14 +57,14 @@ export default async function handler(req, res) {
         {
           price_data: {
             currency: 'eur',
-            product_data: { name: items?.split('\n')[0] || 'Užsakymas' },
-            unit_amount: amount,
+            product_data: { name: itemsDisplay },
+            unit_amount: amountCents,
           },
           quantity: 1,
         },
       ],
-      success_url: successUrl || `${req.headers.origin || 'https://kaledukampelis.com'}/?status=paid`,
-      cancel_url: cancelUrl || `${req.headers.origin || 'https://kaledukampelis.com'}/?status=cancelled`,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       customer_email: email,
       phone_number_collection: { enabled: true },
       shipping_address_collection: { allowed_countries: ['LT', 'LV', 'EE'] },
@@ -58,7 +75,7 @@ export default async function handler(req, res) {
           email: email || '',
           phone: phone || '',
           address: address || '',
-          items: items || '',
+          items: itemsDisplay || '',
           order_id: orderId || '',
         },
       },

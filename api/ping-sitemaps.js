@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const indexUrl = `https://kaledukampelis.com/sitemap_index.xml`;
+    const indexUrl = `https://vasaroskampelis.com/sitemap_index.xml`;
     const google = `https://www.google.com/ping?sitemap=${encodeURIComponent(indexUrl)}`;
     const bing = `https://www.bing.com/ping?sitemap=${encodeURIComponent(indexUrl)}`;
     const [g, b] = await Promise.allSettled([fetch(google), fetch(bing)]);

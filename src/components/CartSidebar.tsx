@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShoppingCart, Clock, Gift, Shield, Trash2 } from 'lucide-react';
+import { X, ShoppingCart, Clock, Gift, Lock, Trash2 } from 'lucide-react';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -32,9 +32,6 @@ export const CartSidebar = React.memo(({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-radial-gradient(10px 10px at 78% 64%, rgba(16,185,129,0.10) 20%, transparent 21%),\
-radial-gradient(8px 8px at 55% 85%, rgba(37,99,235,0.08) 20%, transparent 21%),\
-linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl overflow-y-auto relative">
         {/* Decorative background only for empty cart */}
         {totalItems === 0 && (
@@ -57,30 +54,26 @@ linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
 
           {totalItems > 0 && (
             <>
-              <div className="bg-red-50 p-4 rounded-lg mb-6">
+              <div className="bg-brand-bg-alt p-4 rounded-lg mb-6">
                 <p className="text-sm font-medium mb-2">
-                  Jūs esate €{Math.max(0, 30 - totalPrice).toFixed(2)} nuo NEMOKAMO dovanos!
+                  Jūs esate €{Math.max(0, 80 - totalPrice).toFixed(2)} nuo NEMOKAMO pristatymo!
                 </p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                  <div 
-                    className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, (totalPrice / 30) * 100)}%` }}
+                  <div
+                    className="bg-brand-orange h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, (totalPrice / 80) * 100)}%` }}
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <Gift className="w-4 h-4 text-red-600" />
-                    <span className="text-xs text-gray-600">Nemokama dovana</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Gift className="w-4 h-4 text-red-600" />
-                    <span className="text-xs text-gray-600">Nemokamas pristatymas</span>
+                    <Gift className="w-4 h-4 text-brand-orange" />
+                    <span className="text-xs text-gray-600">Nemokamas pristatymas nuo €80</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-6">
-                <div className="flex items-center space-x-2 text-orange-800">
+              <div className="bg-brand-bg-alt border border-brand-urgency/40 p-4 rounded-lg mb-6">
+                <div className="flex items-center space-x-2 text-brand-urgency">
                   <Clock className="w-4 h-4" />
                   <span className="font-semibold text-sm">Pasiūlymas baigiasi:</span>
                   <span className="font-bold">
@@ -97,7 +90,7 @@ linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
               <p className="text-gray-500 mb-4">{t.emptyCart}</p>
               <button
                 onClick={onClose}
-                className="bg-gradient-to-r from-red-600 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-700 hover:to-green-700"
+                className="bg-brand-orange hover:bg-brand-orange-hover text-white px-4 py-2 rounded-lg text-sm min-h-[48px]"
               >
                 {t.continueShopping}
               </button>
@@ -110,16 +103,16 @@ linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
                     <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" loading="lazy" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm">{item.name}</h3>
-                      {item.selectedColor && <p className="text-xs text-gray-500">Spalva: {item.selectedColor}</p>}
-                      {item.selectedSize && <p className="text-xs text-gray-500">{item.sizeLabel || 'Dydis'}: {item.selectedSize}</p>}
-                      <span className="text-lg font-bold text-red-600">€{item.price}</span>
+                      {item.selectedColor && <p className="text-xs text-gray-500 font-semibold">Spalva: {item.selectedColor}</p>}
+                      {item.selectedSize && <p className="text-xs text-gray-500 font-semibold">{item.sizeLabel || 'Dydis'}: {item.selectedSize}</p>}
+                      <span className="text-lg font-bold text-brand-orange">€{item.price}</span>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
                           <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm hover:bg-gray-300">-</button>
                           <span className="text-sm font-medium">{item.quantity}</span>
                           <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm hover:bg-gray-300">+</button>
                         </div>
-                        <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-600">
+                        <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-brand-orange">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -132,10 +125,10 @@ linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">{t.orderTotal}:</span>
-                    <span className="text-xl font-bold text-red-600">€{totalPrice.toFixed(2)}</span>
+                    <span className="text-xl font-bold text-brand-orange">€{totalPrice.toFixed(2)}</span>
                   </div>
-                  <button onClick={onCheckout} className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition">
-                    {t.checkout} • €{(totalPrice + (totalPrice >= 30 ? 0 : 2.99) + (giftWrapping ? 2.99 : 0)).toFixed(2)}
+                  <button onClick={onCheckout} className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-3 rounded-lg font-semibold transition min-h-[48px]">
+                    {t.checkout} • €{(totalPrice + (totalPrice >= 80 ? 0 : 2.99) + (giftWrapping ? 2.99 : 0)).toFixed(2)}
                   </button>
                 </div>
 
@@ -148,8 +141,8 @@ linear-gradient(to top, rgba(254,242,242,1) 0%, rgba(255,255,255,0) 65%)',
                 </div>
 
                 <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
-                  <Shield className="w-4 h-4" />
-                  <span>100% pinigų grąžinimo garantija</span>
+                  <Lock className="w-4 h-4" />
+                  <span>SSL Secure Checkout | 256-bit Encryption</span>
                 </div>
               </div>
             </>
