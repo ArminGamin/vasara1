@@ -27,6 +27,10 @@ const files = {
 
 for (const [name, data] of Object.entries(files)) {
   const p = path.join(PUBLIC, name);
+  if (fs.existsSync(p) && fs.statSync(p).size > 200) {
+    console.log('Skipped (exists):', name);
+    continue;
+  }
   fs.writeFileSync(p, data);
   console.log('Created:', name);
 }
