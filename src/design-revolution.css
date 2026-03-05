@@ -987,6 +987,8 @@
 }
 .product-section-card .product-section-image {
   background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+  min-width: 0;
+  overflow: hidden;
 }
 .product-section-card .product-section-variant {
   transition: all 0.2s ease;

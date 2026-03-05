@@ -1415,20 +1415,20 @@ function HomePage() {
           const colorName = sizeGroups[1]?.sizes?.[colorIdx]?.name ?? '';
           const variantName = [typeName, colorName].filter(Boolean).join(' · ');
           return (
-            <div className="product-section-card w-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 h-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)]">
+            <div className="product-section-card w-full max-w-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 h-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] w-full">
                 {/* Left: image updates by variant */}
-                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full aspect-[3/4] lg:aspect-[3/4] flex flex-col items-center justify-center p-5 lg:p-6">
+                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full w-full min-w-0 max-w-full flex flex-col items-center justify-center p-5 lg:p-6 overflow-hidden">
                   {product.isNew && (
                     <span className="absolute top-3 left-3 bg-success text-white text-xs font-bold px-3 py-1.5 rounded-full z-10">
                       {t.newBadge}
                     </span>
                   )}
-                  <div className="flex-1 w-full flex items-center justify-center">
+                  <div className="flex-1 w-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden">
                     <OptimizedImage
                       src={currentImage}
                       alt={`${product.name} – ${variantName}`}
-                      className="w-full h-full object-contain transition-opacity duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300"
                       loading="eager"
                       decoding="async"
                       width={600}
@@ -1454,7 +1454,7 @@ function HomePage() {
                   )}
                 </div>
                 {/* Right: variant selector, price, qty, add to cart */}
-                <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center">
+                <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center min-w-0">
                   <div className="flex items-center gap-2.5 mb-4">
                     {renderStars(product.rating, 'w-5 h-5')}
                     <span className="text-base font-medium text-muted">{product.rating} ({product.reviews})</span>
@@ -1548,11 +1548,13 @@ function HomePage() {
                       {t.addToCart}
                     </button>
                   </div>
-                  {sectionAddSuccess && (
-                    <p className="text-green-600 font-semibold text-sm sm:text-base mb-4">
-                      Pridėta į krepšelį!
-                    </p>
-                  )}
+                  <div className="min-h-[1.75rem] mb-4">
+                    {sectionAddSuccess && (
+                      <p className="text-green-600 font-semibold text-sm sm:text-base">
+                        Pridėta į krepšelį!
+                      </p>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-4 text-sm text-text">
                     <span className="flex items-center gap-1.5">
                       <Package className="w-4 h-4 text-primary" />
