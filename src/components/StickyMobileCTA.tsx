@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 
 interface StickyMobileCTAProps {
@@ -8,20 +8,23 @@ interface StickyMobileCTAProps {
 
 export function StickyMobileCTA({ totalItems, onCartClick }: StickyMobileCTAProps) {
   const [visible, setVisible] = useState(false);
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
-      const hero = document.getElementById('products');
-      if (hero) {
-        const rect = hero.getBoundingClientRect();
-        setScrolledPastHero(rect.top < window.innerHeight * 0.5);
-      }
-      setVisible(window.scrollY > 200 && window.innerWidth <= 768);
+      if (rafRef.current != null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        const show = window.scrollY > 200 && window.innerWidth <= 768;
+        setVisible(show);
+      });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   if (!visible) return null;

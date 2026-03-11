@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
+import { LazyVideo } from "./components/LazyVideo";
 import { ThankYouModal } from "./components/ThankYouModal";
 // Loaded on idle via simple state gating below to avoid layout thrash
 import { useCartStore } from "./store/cartStore";
@@ -434,25 +435,7 @@ function HomePage() {
     cvv: ''
   });
   
-  // Preload 'Kalėdinis Megztinis' images on idle for faster first-view on mobile
-  useEffect(() => {
-    const preload = () => {
-      ['/products/megztiniai/red.png','/products/megztiniai/green.png','/products/megztiniai/navy.png'].forEach(src => {
-        const img = new Image();
-        (img as any).loading = 'eager';
-        img.decoding = 'async';
-        img.src = src;
-      });
-    };
-    const w: any = typeof window !== 'undefined' ? window : null;
-    if (w && 'requestIdleCallback' in w) {
-      w.requestIdleCallback(preload, { timeout: 1500 });
-    } else {
-      setTimeout(preload, 800);
-    }
-  }, []);
-
-  // Light-weight, network-aware prefetch of first image for all products to improve perceived speed
+  // Light-weight, network-aware prefetch of first image for products (limited to first 3)
   useEffect(() => {
     if (!products || products.length === 0) return;
     const nav: any = (typeof navigator !== 'undefined') ? (navigator as any) : null;
@@ -461,7 +444,7 @@ function HomePage() {
     if (/(^|\\b)2g(\\b|$)/i.test(String(type))) return; // avoid on very slow networks
 
     const sources: string[] = products
-      .slice(0, 5)
+      .slice(0, 3)
       .map((p: any) => p?.image || (p?.images && p.images[0]) || '')
       .filter(Boolean);
 
@@ -480,9 +463,9 @@ function HomePage() {
 
     const w: any = typeof window !== 'undefined' ? window : null;
     if (w && 'requestIdleCallback' in w) {
-      w.requestIdleCallback(burst, { timeout: 2000 });
+      w.requestIdleCallback(burst, { timeout: 3000 });
     } else {
-      setTimeout(burst, 600);
+      setTimeout(burst, 1200);
     }
   }, [products]);
   // Urgency and scarcity features
@@ -1358,40 +1341,37 @@ function HomePage() {
           <p className="promo-shorts-sub">Pažiūrėk, kaip atrodo tikras veiksmas su mūsų ginklais! 👀</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10 mt-8">
             <div className="promo-shorts-card">
-              <video
+              <LazyVideo
                 src="/Promo1.mp4"
                 className="w-full h-full object-cover"
                 playsInline
                 muted
                 loop
                 autoPlay
-                preload="metadata"
                 controls
                 aria-label="Promo 1"
               />
             </div>
             <div className="promo-shorts-card">
-              <video
+              <LazyVideo
                 src="/Promo2.mp4"
                 className="w-full h-full object-cover"
                 playsInline
                 muted
                 loop
                 autoPlay
-                preload="metadata"
                 controls
                 aria-label="Promo 2"
               />
             </div>
             <div className="promo-shorts-card">
-              <video
+              <LazyVideo
                 src="/Promo3.mp4"
                 className="w-full h-full object-cover"
                 playsInline
                 muted
                 loop
                 autoPlay
-                preload="metadata"
                 controls
                 aria-label="Promo 3"
               />

@@ -95,12 +95,11 @@ const productsXml = `<?xml version="1.0" encoding="UTF-8"?>
     .join('\n')}
 </urlset>`;
 
-// sitemap-images.xml
+// sitemap-images.xml – only images used by the site (no megztiniai – not in product catalog)
 const images = [
-  { loc: `${SITE_ORIGIN}/logo.png?v=3`, title: 'Kalėdų Kampelis logotipas' },
-  { loc: `${SITE_ORIGIN}/products/megztiniai/red.png`, title: 'Kalėdinis megztinis — raudonas' },
-  { loc: `${SITE_ORIGIN}/products/megztiniai/green.png`, title: 'Kalėdinis megztinis — žalias' },
-  { loc: `${SITE_ORIGIN}/products/megztiniai/navy.png`, title: 'Kalėdinis megztinis — tamsiai mėlynas' },
+  { loc: `${SITE_ORIGIN}/logo.png`, title: 'Vasaros Kampelis logotipas' },
+  { loc: `${SITE_ORIGIN}/hero-pink-ar.webp`, title: 'Vandens šautuvas – rožinis' },
+  { loc: `${SITE_ORIGIN}/hero-blue-ar.webp`, title: 'Vandens šautuvas – mėlynas' },
 ];
 const imagesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

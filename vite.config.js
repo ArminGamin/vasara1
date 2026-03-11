@@ -16,7 +16,14 @@ function removeDataPreloadAndPreloadMain() {
       // 1. Remove data: preload (bad for performance)
       html = html.replace(/<link[^>]*rel="preload"[^>]*href="data:[^"]*"[^>]*\/?>\s*/gi, '');
 
-      // 2. Preload main entry (index-*.js) for faster discovery - add before script tag if not already present
+      // 2. Make main CSS non-blocking: media="print" onload="this.media='all'" defers render-block
+      html = html.replace(
+        /<link([^>]*)\srel="stylesheet"([^>]*)\shref="(\/assets\/[^"]+\.css)"([^>]*)\/?>/gi,
+        (_, before, mid, href, after) => 
+          `<link${before} rel="stylesheet"${mid} href="${href}" media="print" onload="this.media='all'"${after}>`
+      );
+
+      // 3. Preload main entry (index-*.js) for faster discovery - add before script tag if not already present
       const mainScriptMatch = html.match(/<script[^>]*\ssrc="(\/assets\/index-[^"]+\.js)"[^>]*>/i);
       if (mainScriptMatch) {
         const mainSrc = mainScriptMatch[1];
