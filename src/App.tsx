@@ -24,7 +24,6 @@ import {
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
 import { LazyVideo } from "./components/LazyVideo";
-import { ThankYouModal } from "./components/ThankYouModal";
 // Loaded on idle via simple state gating below to avoid layout thrash
 import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
@@ -42,6 +41,7 @@ const WhyChooseUs = lazy(() => import("./components/WhyChooseUs").then((m) => ({
 const FAQAccordion = lazy(() => import("./components/FAQAccordion").then((m) => ({ default: m.FAQAccordion })));
 const EmailCapturePopup = lazy(() => import("./components/EmailCapturePopup").then((m) => ({ default: m.EmailCapturePopup })));
 const StickyMobileCTA = lazy(() => import("./components/StickyMobileCTA").then((m) => ({ default: m.StickyMobileCTA })));
+const ThankYouModal = lazy(() => import("./components/ThankYouModal").then((m) => ({ default: m.ThankYouModal })));
 
 const STRIPE_PK = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
@@ -115,6 +115,15 @@ function StripePayBridge({
 // Lazy load non-critical components for code splitting
 const ProductComparison = lazy(() => import("./components/ProductComparison").then(module => ({ default: module.ProductComparison })));
 
+function heroSrcSet(base: string) {
+  const b = base.replace(/\.webp$/, '');
+  return `${b}-480w.webp 480w, ${b}-768w.webp 768w, ${b}-1024w.webp 1024w, ${base} 1920w`;
+}
+function productSrcSet(path: string) {
+  if (!path || path.startsWith('http') || !/\.webp$/i.test(path)) return undefined;
+  const b = path.replace(/\.webp$/, '');
+  return `${b}-306w.webp 306w, ${b}-612w.webp 612w, ${path} 1024w`;
+}
 const HERO_IMAGES = [
   { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
   { src: '/hero-blue-ar.webp', alt: 'Elektrinis vandens šautuvas – mėlynas' },
@@ -145,6 +154,8 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
           <img
             key={i}
             src={img.src}
+            srcSet={heroSrcSet(img.src)}
+            sizes="100vw"
             alt={img.alt}
             className={`hero-carousel-img ${i === idx ? 'active' : ''}`}
             loading={i === 0 ? 'eager' : 'lazy'}
@@ -183,7 +194,7 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
 
 // Info Pages Components
 const PristatymoInfo = () => (
-  <PageWrapper title="Pristatymo informacija">
+  <PageWrapper title="Pristatymo informacija" description="Pristatymas į visą Lietuvą per 8–12 darbo dienų. Nemokamas pristatymas nuo 80€. Užsakymams iki 80€ – 2,99€.">
     <p className="text-brand-muted font-medium">
       Įprastai užsakymą pristatome per 8–12 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau. Užsakymams virš 80€ - nemokamas pristatymas.
     </p>
@@ -191,7 +202,7 @@ const PristatymoInfo = () => (
 );
 
 const Grazinimai = () => (
-  <PageWrapper title="Grąžinimai">
+  <PageWrapper title="Grąžinimai" description="Grąžinimų politika. Visi pardavimai galutiniai. Susisiekite prieš pirkdami – mielai padėsime.">
     <div className="text-brand-muted space-y-4 font-medium">
       <p>
         Norime, kad būtumėte visiškai patenkinti savo pirkiniu! Atkreipkite dėmesį, kad visi pardavimai yra galutiniai, todėl grąžinti ar pakeisti prekių negalime. Raginame atidžiai peržiūrėti prekės aprašymą ir nuotraukas prieš pateikiant užsakymą. Jei turite klausimų arba reikia pagalbos renkantis tinkamą prekę, mūsų komanda mielai jums padės - <Link to="/kontaktai" className="text-brand-blue-deep underline">susisiekite</Link> dar prieš pirkdami! 🤝
@@ -219,7 +230,7 @@ const PrivatumoPolitika = () => (
 );
 
 const ApieMus = () => (
-  <PageWrapper title="Apie mus">
+  <PageWrapper title="Apie mus" description="Vasaros Kampelis – vandens šautuvai ir blasteriai vasaros žaidimams. Patikimi, saugūs, tvirti. Nemokamas pristatymas nuo 80€.">
     <div className="text-gray-800 space-y-4 text-lg font-medium">
       <h2 className="text-2xl font-bold">Apie mus</h2>
       <p>
@@ -282,7 +293,7 @@ const ApieMus = () => (
 );
 
 const Kontaktai = () => (
-  <PageWrapper title="Kontaktai">
+  <PageWrapper title="Kontaktai" description="Susisiekite su Vasaros Kampeliu. El. paštas info@vasaroskampelis.com. Atsakome per 24 valandas.">
     <div className="text-brand-muted space-y-6">
       <h2 className="text-xl font-bold text-brand-blue-deep">Susisiekite su mumis</h2>
       <p className="font-medium">Klausimams apie užsakymus, pristatymą ar prekes - rašykite.</p>
@@ -308,14 +319,31 @@ const Kontaktai = () => (
     </div>
   </PageWrapper>
 );
+const SITE_NAME = 'Vasaros Kampelis';
+const DEFAULT_DESC = 'Galingi vandens šautuvai ir blasteriai iki 10m šūvio. Mėlyna ir rožinė spalva. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 8–12 d.';
+
 const PageWrapper = ({
   title,
+  description,
   children,
 }: {
   title: string;
+  description?: string;
   children: React.ReactNode;
 }) => {
   const navigate = useNavigate();
+  useEffect(() => {
+    document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && description) {
+      metaDesc.setAttribute('content', description);
+    }
+    return () => {
+      document.title = `${SITE_NAME} | Vandens šautuvai ir vasaros žaidimai Lietuvoje`;
+      const m = document.querySelector('meta[name="description"]');
+      if (m) m.setAttribute('content', DEFAULT_DESC);
+    };
+  }, [title, description]);
   return (
     <div className="min-h-screen flex flex-col">
       <div className="bg-brand-blue-deep text-white py-3 text-center text-lg font-bold">
@@ -337,6 +365,11 @@ const PageWrapper = ({
 // --- Main Shop Page ---
 function HomePage() {
   const location = useLocation();
+  useEffect(() => {
+    document.title = `${SITE_NAME} | Vandens šautuvai ir vasaros žaidimai Lietuvoje`;
+    const m = document.querySelector('meta[name="description"]');
+    if (m) m.setAttribute('content', DEFAULT_DESC);
+  }, []);
   const { items: cartItems, totalItems, totalPrice, addItem, removeItem, updateQuantity, clearCart } = useCartStore();
   const { products, setProducts } = useProductStore();
   const [cartOpen, setCartOpen] = useState(false);
@@ -1198,7 +1231,7 @@ function HomePage() {
             </button>
           </div>
         </div>
-        <nav className="storefront-nav-row">
+        <nav className="storefront-nav-row" aria-label={language === 'lt' ? 'Pagrindinė navigacija' : 'Main navigation'}>
           <Link to="/">{language === 'lt' ? '☀️ Pagrindinis' : '☀️ Home'}</Link>
           <Link to="/kontaktai">{language === 'lt' ? '💬 Kontaktai' : '💬 Contact'}</Link>
           <a href="#products">{language === 'lt' ? '💦 Šautuvai' : '💦 Products'}</a>
@@ -1312,6 +1345,7 @@ function HomePage() {
                   <div key={productId} className="w-16 h-16 rounded-lg overflow-hidden">
                     <OptimizedImage
                       src={product.image}
+                      srcSet={productSrcSet(product.image)}
                       alt={`${product.name} - Neseniai žiūrėtas produktas`}
                       className="w-full h-full object-cover cursor-pointer"
                       loading="lazy"
@@ -1419,6 +1453,7 @@ function HomePage() {
                   <div className="flex-1 w-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden">
                     <OptimizedImage
                       src={currentImage}
+                      srcSet={productSrcSet(currentImage)}
                       alt={`${product.name} – ${variantName}`}
                       className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300"
                       loading="eager"
@@ -1439,7 +1474,7 @@ function HomePage() {
                             sectionImageIndex === i ? 'border-cta ring-2 ring-cta/30' : 'border-border'
                           }`}
                         >
-                          <OptimizedImage src={resolveImagePath(url)} alt="" className="w-full h-full object-cover" width={56} height={56} />
+                          <OptimizedImage src={resolveImagePath(url)} srcSet={productSrcSet(url)} alt="" className="w-full h-full object-cover" width={56} height={56} sizes="56px" />
                         </button>
                       ))}
                     </div>
@@ -2012,16 +2047,17 @@ function HomePage() {
                     const product = products.find(p => p.id === productId);
                     return product ? (
                       <div key={productId} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <OptimizedImage
-                          src={product.image}
-                          alt={`${product.name} - Pageidavimų sąraše`}
-                          className="w-20 h-20 object-cover rounded"
-                          loading="lazy"
-                          decoding="async"
-                          width={80}
-                          height={80}
-                          sizes="80px"
-                        />
+                    <OptimizedImage
+                      src={product.image}
+                      srcSet={productSrcSet(product.image)}
+                      alt={`${product.name} - Pageidavimų sąraše`}
+                      className="w-20 h-20 object-cover rounded"
+                      loading="lazy"
+                      decoding="async"
+                      width={80}
+                      height={80}
+                      sizes="80px"
+                    />
                         <div className="flex-1">
                           <h3 className="font-medium text-sm">{product.name}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -2109,11 +2145,12 @@ function HomePage() {
                       return (
                     <OptimizedImage
                       src={mainSrc}
+                      srcSet={productSrcSet(mainSrc)}
                       alt={`${selectedProduct.name} - Produkto nuotrauka`}
                       className="w-full h-full object-contain p-2 sm:p-3"
                       loading="lazy"
                       decoding="async"
-                      sizes="100vw"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       fetchPriority="auto"
                     />
                       );
@@ -2141,6 +2178,7 @@ function HomePage() {
                             >
                               <OptimizedImage
                                 src={resolveImagePath(t.url)}
+                                srcSet={productSrcSet(t.url)}
                                 alt={`${selectedProduct.name} - Nuotrauka`}
                                 className="w-full h-full object-contain p-1"
                                 loading="lazy"
@@ -2173,6 +2211,7 @@ function HomePage() {
                             >
                               <OptimizedImage
                                 src={resolveImagePath(t.url)}
+                                srcSet={productSrcSet(t.url)}
                                 alt={`${selectedProduct.name} - Nuotrauka`}
                                 className="w-full h-full object-contain p-1"
                                 loading="lazy"
@@ -2202,6 +2241,7 @@ function HomePage() {
                         >
                           <OptimizedImage
                             src={resolveImagePath(img)}
+                            srcSet={productSrcSet(img)}
                             alt={`${selectedProduct.name} - Nuotrauka ${index + 1}`}
                             className="w-full h-full object-contain p-1"
                             loading="lazy"
@@ -2917,13 +2957,17 @@ function HomePage() {
       )}
 
 
-      {/* Thank You Modal */}
-      <ThankYouModal
-        isOpen={thankYouModalOpen}
-        onClose={() => setThankYouModalOpen(false)}
-        orderNumber={completedOrderNumber}
-        email={completedOrderEmail}
-      />
+      {/* Thank You Modal – lazy loaded, only shown after checkout */}
+      {thankYouModalOpen ? (
+        <Suspense fallback={null}>
+          <ThankYouModal
+            isOpen={thankYouModalOpen}
+            onClose={() => setThankYouModalOpen(false)}
+            orderNumber={completedOrderNumber}
+            email={completedOrderEmail}
+          />
+        </Suspense>
+      ) : null}
 
       {/* Cookie Consent Banner */}
       {showCookie ? <Suspense fallback={null}><CookieConsent /></Suspense> : null}
@@ -2969,7 +3013,7 @@ export default function App() {
 
 // --- Blog pages ---
 const BlogIndex = () => (
-  <PageWrapper title="Blogas">
+  <PageWrapper title="Blogas" description="Vasaros patarimai, kiemo puošimo idėjos, vandens žaidimų organizavimas. Straipsniai apie vasarą, vandens blasterius ir šeimyninius žaidimus.">
     <div className="space-y-6 text-gray-800">
       <article className="bg-white rounded-xl shadow p-5">
         <h2 className="text-2xl font-bold mb-2">
@@ -3096,7 +3140,7 @@ const BlogIndex = () => (
 );
 
 const BlogPostVasaraNamuose = () => (
-  <PageWrapper title="Kaip Sukurti Vasaros Nuotaiką Namuose">
+  <PageWrapper title="Kaip Sukurti Vasaros Nuotaiką Namuose" description="Dekoracijos, idėjos ir jaukumas – paprasti žingsniai, kaip namuose ir kieme sukurti vasaros magiją. Vandens žaidimai, kiemo puošimas.">
     <article className="prose prose-lg max-w-none">
       <p>Kai lauke šviečia saulė ir visur žydi gėlės, norisi namus ir kiemą paversti tikru vasaros kampeliu. Vasara – tai ne tik atostogos, bet ir jausmas, kurį kuriame savo aplinkoje. Šiame straipsnyje pasidalinsime, kaip lengvai ir kūrybiškai susikurti vasaros nuotaiką namuose – nuo kiemo dekoracijų iki vandens žaidimų ir mažų detalių, kurios paverčia erdvę linksma ir šilta.</p>
 
@@ -3147,7 +3191,7 @@ const BlogPostVasaraNamuose = () => (
 );
 
 const BlogPostVasarosPasiulymai2025 = () => (
-  <PageWrapper title="Vasaros Pasiūlymai ir Idėjos 2025 Metams">
+  <PageWrapper title="Vasaros Pasiūlymai ir Idėjos 2025 Metams" description="2025 vasaros tendencijos: vandens žaidimai, kiemo puošimas, vasaros dovanos. Naujausios idėjos ir pasiūlymai.">
     <article className="prose prose-lg max-w-none">
       <p>Artėjant vasarai, vis dažniau kyla klausimas – ką padaryti su šeima lauke ir kaip papuošti kiemą, kad jame vyrautų tikras vasaros džiaugsmas? Šiemet vasara kviečia grįžti prie natūralumo, saulės ir vandens. Šiame straipsnyje dalinamės naujausiomis 2025 vasaros tendencijomis, pasiūlymais ir būdais, kaip sukurti vasaros kampelį be streso.</p>
 
@@ -3298,7 +3342,7 @@ const BlogPostVandensMusiai = () => (
 );
 
 const BlogPostKaipIssirinktiBlasteri = () => (
-  <PageWrapper title="Kaip Išsirinkti Tinkamą Vandens Blasterį Savo Šeimai">
+  <PageWrapper title="Kaip Išsirinkti Tinkamą Vandens Blasterį Savo Šeimai" description="Vadovas: dydis, talpa, rankinis vs automatinis, amžiaus rekomendacijos. Kaip rinktis vandens blasterį vaikams ir suaugusiems.">
     <article className="prose prose-lg max-w-none">
       <p>Vandens blasteriai skiriasi dydžiu, talpa, tipu (rankinis ar automatinis) ir amžiaus rekomendacijomis. Kad rastumėte idealų variantą sau ir vaikams – štai trumpas vadovas.</p>
 

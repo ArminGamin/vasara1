@@ -1,16 +1,11 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://vasaroskampelis.com/sitemap.xml
+# Sitemaps
 Sitemap: https://vasaroskampelis.com/sitemap_index.xml
+Sitemap: https://vasaroskampelis.com/sitemap.xml
 
-# Optimize crawling
-Crawl-delay: 1
-
-# Block unnecessary paths
-Disallow: /node_modules/
-Disallow: /src/
-Disallow: /.git/
-Disallow: /dist/
+# Block API and internal paths (not typically served, but safe)
+Disallow: /api/
 
 

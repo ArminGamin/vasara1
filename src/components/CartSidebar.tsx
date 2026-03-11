@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, ShoppingCart, Clock, Gift, Lock, Trash2 } from 'lucide-react';
+import OptimizedImage from './OptimizedImage';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -100,7 +101,7 @@ export const CartSidebar = React.memo(({
               <div className="space-y-4 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" loading="lazy" decoding="async" />
+                    <OptimizedImage src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" loading="lazy" decoding="async" width={64} height={64} sizes="64px" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm">{item.name}</h3>
                       {item.selectedColor && <p className="text-xs text-gray-500 font-semibold">Spalva: {item.selectedColor}</p>}

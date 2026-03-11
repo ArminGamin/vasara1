@@ -1,4 +1,5 @@
 // Generate .webp and .avif variants for local product images in /public/products/**
+// Also generates responsive srcset variants for hero and product images in /public/
 // Requires: sharp (installed in devDependencies)
 import fs from 'fs';
 import path from 'path';
@@ -6,6 +7,12 @@ import sharp from 'sharp';
 
 const ROOT = process.cwd();
 const PRODUCTS_DIR = path.join(ROOT, 'public', 'products');
+const PUBLIC_DIR = path.join(ROOT, 'public');
+
+// Hero: 480w, 768w, 1024w for mobile/tablet/desktop
+const HERO_WIDTHS = [480, 768, 1024];
+// Product thumbnails: 306w (card), 612w (detail)
+const PRODUCT_WIDTHS = [306, 612];
 
 async function ensureVariant(srcPath, formatExt) {
   const dir = path.dirname(srcPath);
@@ -13,11 +20,10 @@ async function ensureVariant(srcPath, formatExt) {
   const out = path.join(dir, `${base}.${formatExt}`);
   if (fs.existsSync(out)) return;
   try {
-    // Resize/compress to reasonable bounds for web; keep hero slightly larger
     const isHero = /megztiniai\/red\.(png|jpe?g)$/i.test(srcPath);
     const maxWidth = isHero ? 1600 : 1200;
     const maxHeight = isHero ? 1200 : 900;
-    const quality = formatExt === 'webp' ? 80 : 55; // avif can be lower quality visually similar
+    const quality = formatExt === 'webp' ? 80 : 55;
 
     const pipeline = sharp(srcPath).resize({ width: maxWidth, height: maxHeight, fit: 'inside', withoutEnlargement: true });
     await pipeline.toFormat(formatExt === 'webp' ? 'webp' : 'avif', { quality }).toFile(out);
@@ -27,8 +33,29 @@ async function ensureVariant(srcPath, formatExt) {
   }
 }
 
+async function generateResponsiveVariant(srcPath, widthW) {
+  const dir = path.dirname(srcPath);
+  const base = path.basename(srcPath, path.extname(srcPath));
+  const ext = path.extname(srcPath);
+  const out = path.join(dir, `${base}-${widthW}w${ext}`);
+  if (fs.existsSync(out)) return;
+  try {
+    await sharp(srcPath)
+      .resize({ width: widthW, fit: 'inside', withoutEnlargement: true })
+      .toFormat(ext === '.webp' ? 'webp' : ext === '.avif' ? 'avif' : 'webp', { quality: 80 })
+      .toFile(out);
+    console.log('Generated', out.replace(ROOT, ''));
+  } catch (e) {
+    console.warn('Skip responsive variant', srcPath, widthW, e?.message || e);
+  }
+}
+
 function isRaster(file) {
   return /\.(png|jpg|jpeg)$/i.test(file);
+}
+
+function isWebp(file) {
+  return /\.webp$/i.test(file);
 }
 
 async function walk(dir) {
@@ -38,20 +65,44 @@ async function walk(dir) {
     if (ent.isDirectory()) {
       await walk(p);
     } else if (ent.isFile() && isRaster(ent.name)) {
-      // Always generate WebP/AVIF neighbors for each raster image
       await ensureVariant(p, 'webp');
       await ensureVariant(p, 'avif');
     }
   }
 }
 
-if (fs.existsSync(PRODUCTS_DIR)) {
-  walk(PRODUCTS_DIR).catch((e) => {
-    console.error('Image variant generation failed:', e);
-    process.exit(0); // do not fail the build
-  });
-} else {
-  console.log('No /public/products directory found; skipping image variants.');
+async function processHeroAndProductImages() {
+  if (!fs.existsSync(PUBLIC_DIR)) return;
+  const files = fs.readdirSync(PUBLIC_DIR);
+  for (const file of files) {
+    const p = path.join(PUBLIC_DIR, file);
+    if (!fs.statSync(p).isFile()) continue;
+    if (/^hero-.+\.webp$/i.test(file)) {
+      for (const w of HERO_WIDTHS) {
+        await generateResponsiveVariant(p, w);
+      }
+    } else if (isWebp(file) && /^(blue|pink|bluepistol|pinkpistol)\d+\.webp$/i.test(file)) {
+      for (const w of PRODUCT_WIDTHS) {
+        await generateResponsiveVariant(p, w);
+      }
+    }
+  }
 }
+
+async function main() {
+  const tasks = [];
+  if (fs.existsSync(PRODUCTS_DIR)) {
+    tasks.push(walk(PRODUCTS_DIR));
+  } else {
+    console.log('No /public/products directory found; skipping product variants.');
+  }
+  tasks.push(processHeroAndProductImages());
+  await Promise.all(tasks).catch((e) => {
+    console.error('Image variant generation failed:', e);
+    process.exit(0);
+  });
+}
+
+main();
 
 

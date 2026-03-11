@@ -74,7 +74,7 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        passes: 3
+        passes: 2
       },
       mangle: {
         safari10: true

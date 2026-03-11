@@ -49,20 +49,23 @@ const indexXml = `<?xml version="1.0" encoding="UTF-8"?>
   </sitemap>
 </sitemapindex>`;
 
-// sitemap-pages.xml
+// sitemap-pages.xml – priority: 1.0=home, 0.9=key pages, 0.8=blog index, 0.7=blog posts
 const pages = [
-  '/',
-  '/apie-mus',
-  '/duk',
-  '/pristatymo-info',
-  '/grazinimai',
-  '/privatumo-politika',
-  '/blog',
-  '/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose',
-  '/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025',
-  '/blog/kaip-puosti-namus-kaledoms-mazame-bute',
-  '/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema',
-  '/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos',
+  { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/apie-mus', priority: '0.9', changefreq: 'monthly' },
+  { path: '/pristatymo-info', priority: '0.9', changefreq: 'monthly' },
+  { path: '/grazinimai', priority: '0.9', changefreq: 'monthly' },
+  { path: '/kontaktai', priority: '0.9', changefreq: 'monthly' },
+  { path: '/privatumo-politika', priority: '0.7', changefreq: 'yearly' },
+  { path: '/blog', priority: '0.8', changefreq: 'weekly' },
+  { path: '/blog/kaip-sukurti-vasaros-nuotaika-namuose', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vasaros-pasiulymai-ir-idejos-2025', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/kaip-puosti-kiema-vandens-zaidimams', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/10-paprastu-budu-megautis-vasara-lauke', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/kaip-pasiruosti-vasarai-be-streso', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vandens-musiu-organizavimas', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/kaip-issirinkti-vandens-blasteri', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/pikniko-idejos-vasarai', priority: '0.7', changefreq: 'monthly' },
 ];
 const pagesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -71,10 +74,12 @@ const pagesXml = `<?xml version="1.0" encoding="UTF-8"?>
     .map(
       (p) => `
   <url>
-    <loc>${SITE_ORIGIN}${p}</loc>
+    <loc>${SITE_ORIGIN}${p.path}</loc>
     <lastmod>${today}</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="${SITE_ORIGIN}${p}"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_ORIGIN}${p}"/>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="${SITE_ORIGIN}${p.path}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_ORIGIN}${p.path}"/>
   </url>`
     )
     .join('\n')}
@@ -90,16 +95,21 @@ const productsXml = `<?xml version="1.0" encoding="UTF-8"?>
   <url>
     <loc>${SITE_ORIGIN}/p/${id}</loc>
     <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>`
     )
     .join('\n')}
 </urlset>`;
 
-// sitemap-images.xml – only images used by the site (no megztiniai – not in product catalog)
+// sitemap-images.xml – only images used by the site
 const images = [
   { loc: `${SITE_ORIGIN}/logo.png`, title: 'Vasaros Kampelis logotipas' },
   { loc: `${SITE_ORIGIN}/hero-pink-ar.webp`, title: 'Vandens šautuvas – rožinis' },
   { loc: `${SITE_ORIGIN}/hero-blue-ar.webp`, title: 'Vandens šautuvas – mėlynas' },
+  { loc: `${SITE_ORIGIN}/hero-pink-glock.webp`, title: 'Vandens pistoletas – rožinis' },
+  { loc: `${SITE_ORIGIN}/hero-blue-glock.webp`, title: 'Vandens pistoletas – mėlynas' },
+  { loc: `${SITE_ORIGIN}/blue1.webp`, title: 'Vandens šautuvas mėlyna spalva' },
 ];
 const imagesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -120,6 +130,7 @@ const imagesXml = `<?xml version="1.0" encoding="UTF-8"?>
 </urlset>`;
 
 writeFile(path.join(PUBLIC_DIR, 'sitemap_index.xml'), indexXml);
+writeFile(path.join(PUBLIC_DIR, 'sitemap.xml'), indexXml); // sitemap.xml = index for crawlers
 writeFile(path.join(PUBLIC_DIR, 'sitemap-pages.xml'), pagesXml);
 writeFile(path.join(PUBLIC_DIR, 'sitemap-products.xml'), productsXml);
 writeFile(path.join(PUBLIC_DIR, 'sitemap-images.xml'), imagesXml);

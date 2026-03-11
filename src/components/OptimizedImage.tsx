@@ -16,6 +16,12 @@ type Props = {
 
 const PLACEHOLDER_IMAGE = "/placeholder.svg";
 
+function productSrcSet(path: string): string | undefined {
+  if (!path || path.startsWith("http") || !/\.webp$/i.test(path)) return undefined;
+  const b = path.replace(/\.webp$/i, "");
+  return `${b}-306w.webp 306w, ${b}-612w.webp 612w, ${path} 1024w`;
+}
+
 // Renders a <picture> with AVIF/WebP where safely supported.
 // On load error, falls back to placeholder image to avoid broken icon.
 const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className, width, height, loading = "lazy", decoding = "async", sizes, srcSet, fetchPriority, onClick }: Props) {
@@ -25,6 +31,7 @@ const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className,
   const fpAttr = fetchPriority ? { fetchpriority: fetchPriority as any } : {};
   const isUnsplash = /images\.unsplash\.com/.test(src);
   const isLocalProduct = /^\/products\/.+\.(png|jpe?g)$/i.test(src);
+  const effectiveSrcSet = srcSet ?? productSrcSet(src);
 
   if (isUnsplash) {
     const url = new URL(src);
@@ -38,7 +45,7 @@ const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className,
       <picture>
         <source srcSet={avifSrc} type="image/avif" />
         <source srcSet={webpSrc} type="image/webp" />
-        <img src={src} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} sizes={sizes} srcSet={srcSet} onError={handleError} {...fpAttr} onClick={onClick} />
+        <img src={src} alt={alt} className={className} width={width as any} height={height as any} loading={loading} decoding={decoding} sizes={sizes} srcSet={effectiveSrcSet} onError={handleError} {...fpAttr} onClick={onClick} />
       </picture>
     );
   }
@@ -69,7 +76,7 @@ const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className,
         loading={loading}
         decoding={decoding}
         sizes={sizes}
-        srcSet={srcSet}
+        srcSet={effectiveSrcSet}
         {...fpAttr}
         onError={handleLocalError}
         onClick={onClick}
@@ -87,7 +94,7 @@ const OptimizedImage = React.memo(function OptimizedImage({ src, alt, className,
       loading={loading}
       decoding={decoding}
       sizes={sizes}
-      srcSet={srcSet}
+      srcSet={effectiveSrcSet}
       {...fpAttr}
       onError={handleError}
       onClick={onClick}

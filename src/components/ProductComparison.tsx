@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Star, Check, X as XIcon } from 'lucide-react';
 import { Product } from '../store/productStore';
+import OptimizedImage from './OptimizedImage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductComparisonProps {
@@ -74,12 +75,15 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
                         </button>
                         
                         <div className="mb-4">
-                          <img
+                          <OptimizedImage
                             src={product.image}
                             alt={product.name}
                             className="w-24 h-24 object-cover rounded-lg mx-auto mb-2"
                             loading="lazy"
                             decoding="async"
+                            width={96}
+                            height={96}
+                            sizes="96px"
                           />
                           <h3 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-2">
                             {product.name}

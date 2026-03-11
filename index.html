@@ -5,32 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
-    <title>Vasaros Kampelis | Vandens šautuvai ir vasaros žaidimai</title>
-    <meta name="title" content="Vasaros Kampelis | Vandens šautuvai ir vasaros žaidimai" />
-    <meta name="description" content="Galingi vandens šautuvai vasaros žaidimams. Patikimi, saugūs, tvirti. Nemokamas pristatymas nuo 80€. 30 dienų grąžinimo garantija." />
+    <title>Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje</title>
+    <meta name="title" content="Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje" />
+    <meta name="description" content="Galingi vandens šautuvai ir blasteriai iki 10m šūvio. Mėlyna ir rožinė spalva. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 8–12 d. Pirkti internetu – Vasaros Kampelis." />
     <meta name="author" content="Vasaros Kampelis" />
+    <meta name="keywords" content="vandens šautuvai, vandens blasteriai, vandens pistoletai, vasaros žaidimai, vandens mūšiai, kiemo žaidimai, vasaros dovanos, Lietuva" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow" />
     <meta name="google" content="nositelinkssearchbox" />
     <meta http-equiv="content-language" content="lt" />
+    <meta name="geo.region" content="LT" />
+    <meta name="geo.placename" content="Vilnius" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vasaroskampelis.com/" />
-    <meta property="og:title" content="Vasaros Kampelis – Vandens šautuvai ir vasaros žaidimai" />
-    <meta property="og:description" content="Galingi vandens šautuvai vasarai. Nemokamas pristatymas nuo 80€. 30 dienų garantija." />
+    <meta property="og:title" content="Vasaros Kampelis – Vandens šautuvai ir blasteriai Lietuvoje" />
+    <meta property="og:description" content="Galingi vandens šautuvai iki 10m. Mėlyna ir rožinė. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą." />
     <meta property="og:image" content="https://vasaroskampelis.com/og-summer.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Vasaros Kampelis – Vandens šautuvai ir vasaros žaidimai" />
     <meta property="og:site_name" content="Vasaros Kampelis" />
     <meta property="og:locale" content="lt_LT" />
+    <meta property="og:locale:alternate" content="en_US" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://vasaroskampelis.com/" />
-    <meta property="twitter:title" content="Vasaros Kampelis – Vandens šautuvai ir vasaros žaidimai" />
-    <meta property="twitter:description" content="Galingi vandens šautuvai vasarai. Nemokamas pristatymas nuo 80€." />
+    <meta property="twitter:title" content="Vasaros Kampelis – Vandens šautuvai ir blasteriai Lietuvoje" />
+    <meta property="twitter:description" content="Galingi vandens šautuvai iki 10m. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą." />
     <meta property="twitter:image" content="https://vasaroskampelis.com/og-summer.png" />
+    <meta property="twitter:image:alt" content="Vasaros Kampelis – Vandens šautuvai ir vasaros žaidimai" />
     
     <!-- Additional SEO -->
     <link rel="canonical" href="https://vasaroskampelis.com/" />
@@ -43,24 +50,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Vasaros Kampelis" />
     
-    <!-- Enhanced Performance -->
-    <link rel="preconnect" href="https://ae-pic-a1.aliexpress-media.com" />
+    <!-- Enhanced Performance: ≤4 preconnects (fonts + Stripe); rest dns-prefetch -->
     <link rel="dns-prefetch" href="https://ae-pic-a1.aliexpress-media.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://js.stripe.com" crossorigin />
+    <link rel="preconnect" href="https://r.stripe.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.paypal.com" />
+    <link rel="dns-prefetch" href="https://api-m.paypal.com" />
     <!-- Google Fonts: async load to avoid render-blocking (was 430ms) -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" /></noscript>
-    <link rel="preconnect" href="https://js.stripe.com" crossorigin />
-    <link rel="preconnect" href="https://r.stripe.com" crossorigin />
-    <link rel="preconnect" href="https://www.paypal.com" crossorigin />
-    <link rel="preconnect" href="https://api-m.paypal.com" crossorigin />
-    <link rel="dns-prefetch" href="https://www.paypal.com" />
-    <link rel="dns-prefetch" href="https://api-m.paypal.com" />
     <!-- Removed dev-only preloads for production build -->
     
     <!-- LCP: hero image discoverable from initial document -->
-    <link rel="preload" as="image" href="/hero-pink-ar.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/hero-pink-ar.webp" type="image/webp" fetchpriority="high" imagesrcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w" imagesizes="100vw" />
     
     <!-- Google Translate - lazy-loaded when EU language selected -->
     <script>
@@ -125,6 +129,8 @@
       .text-center { text-align: center; }
       .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
       .font-medium { font-weight: 500; }
+      .skip-link { position: absolute; top: -100px; left: 0; padding: 0.5rem 1rem; background: #0077FF; color: #fff; z-index: 10000; transition: top 0.2s; }
+      .skip-link:focus { top: 0; }
     </style>
     
     <!-- Favicon - Multiple formats for better browser/Google compatibility -->
@@ -164,7 +170,7 @@
       })();
     </script>
     
-    <!-- JSON-LD: Site Graph (Organization, WebSite, Product, Breadcrumbs) -->
+    <!-- JSON-LD: Site Graph (Organization, WebSite, Product, ItemList, Breadcrumbs, FAQ) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -174,6 +180,9 @@
           "@id": "https://vasaroskampelis.com/#organization",
           "name": "Vasaros Kampelis",
           "url": "https://vasaroskampelis.com/",
+          "logo": "https://vasaroskampelis.com/logo.png",
+          "image": "https://vasaroskampelis.com/og-summer.png",
+          "description": "Vandens šautuvai ir blasteriai vasaros žaidimams. Pristatymas į visą Lietuvą. Nemokamas pristatymas nuo 80€.",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "Vilniaus g. 10",
@@ -182,7 +191,14 @@
             "addressRegion": "Vilniaus m.",
             "addressCountry": "LT"
           },
-          "logo": "https://vasaroskampelis.com/logo.png",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@vasaroskampelis.com",
+            "contactType": "customer service",
+            "availableLanguage": ["Lithuanian", "English"],
+            "areaServed": "LT",
+            "responseTime": "P1D"
+          },
           "sameAs": [
             "https://www.instagram.com/vasaroskampelis/",
             "https://www.tiktok.com/@vasaroskampelis"
@@ -193,37 +209,47 @@
           "@id": "https://vasaroskampelis.com/#website",
           "url": "https://vasaroskampelis.com/",
           "name": "Vasaros Kampelis",
+          "description": "Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje. Nemokamas pristatymas nuo 80€.",
           "inLanguage": ["lt-LT", "en"],
-          "publisher": { "@id": "https://vasaroskampelis.com/#organization" }
+          "publisher": { "@id": "https://vasaroskampelis.com/#organization" },
+          "potentialAction": {
+            "@type": "ReadAction",
+            "target": "https://vasaroskampelis.com/#products"
+          }
         },
         {
           "@type": "Product",
-          "@id": "https://vasaroskampelis.com/#product-splash-blaster",
-          "name": "Splash Blaster Pro",
-          "description": "Premium water blaster for summer fun. Durable, powerful, safe for outdoor play.",
-          "image": ["https://vasaroskampelis.com/logo.png"],
+          "@id": "https://vasaroskampelis.com/#product-vandens-sautuvai",
+          "name": "Vandens šautuvai – Vasaros Kampelis",
+          "description": "Galingas vandens šautuvas, su kuriuo valdysi visą kiemą. Didelė vandens talpa, ergonomiška forma, aukšta surinkimo kokybė. Mėlyna ir rožinė spalva. Automatas ir pistoletas.",
+          "image": ["https://vasaroskampelis.com/blue1.webp", "https://vasaroskampelis.com/hero-pink-ar.webp"],
           "brand": { "@type": "Brand", "name": "Vasaros Kampelis" },
+          "category": "Vandens šautuvai",
           "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "reviewCount": "42",
+            "ratingValue": "4.9",
+            "reviewCount": "51",
             "bestRating": "5",
             "worstRating": "1"
           },
           "offers": {
-            "@type": "Offer",
-            "price": "29",
+            "@type": "AggregateOffer",
+            "lowPrice": "9.99",
+            "highPrice": "35.99",
             "priceCurrency": "EUR",
             "availability": "https://schema.org/InStock",
             "priceValidUntil": "2026-12-31",
+            "offerCount": "4",
+            "url": "https://vasaroskampelis.com/",
             "shippingDetails": {
               "@type": "OfferShippingDetails",
               "shippingRate": { "@type": "MonetaryAmount", "value": "2.99", "currency": "EUR" },
+              "freeShippingThreshold": { "@type": "MonetaryAmount", "value": "80", "currency": "EUR" },
               "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "LT" },
               "deliveryTime": {
                 "@type": "ShippingDeliveryTime",
                 "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2, "unitCode": "d" },
-                "transitTime": { "@type": "QuantitativeValue", "minValue": 5, "maxValue": 10, "unitCode": "d" }
+                "transitTime": { "@type": "QuantitativeValue", "minValue": 5, "maxValue": 12, "unitCode": "d" }
               }
             },
             "hasMerchantReturnPolicy": {
@@ -235,9 +261,20 @@
               "returnFees": "https://schema.org/FreeReturn",
               "refundType": "https://schema.org/FullRefund",
               "returnPolicyUrl": "https://vasaroskampelis.com/grazinimai"
-            },
-            "url": "https://vasaroskampelis.com/"
+            }
           }
+        },
+        {
+          "@type": "ItemList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "item": { "@id": "https://vasaroskampelis.com/#product-vandens-sautuvai" }
+            }
+          ],
+          "numberOfItems": 1,
+          "name": "Vandens šautuvai ir blasteriai"
         },
         {
           "@type": "BreadcrumbList",
@@ -298,6 +335,30 @@
                 "@type": "Answer",
                 "text": "Galite rašyti mums el. paštu info@vasaroskampelis.com arba per Facebook ir Instagram žinutes. Atsakome per 24 valandas."
               }
+            },
+            {
+              "@type": "Question",
+              "name": "Kiek šaudo vandens šautuvai?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mūsų vandens šautuvai šaudo iki 10 metrų. Tinkami vandens mūšiams kieme, parke ar vasaros stovykloje."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Kokios spalvos yra vandens šautuvai?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Siūlome mėlyną ir rožinę spalvą. Galite rinktis tarp automatinio šautuvo ir pistoletų."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Ar vandens šautuvai tinka vaikams?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Taip, vandens šautuvai yra saugūs, be aštrių kraštų. Tinka šeimyniniams žaidimams. Rekomenduojame vandens mūšiams kieme ar parke."
+              }
             }
           ]
         }
@@ -306,13 +367,13 @@
     </script>
   </head>
   <body>
-    
+    <a href="#products" class="skip-link">Pereiti prie produktų</a>
     <noscript><img height="1" width="1" style="display:none" alt="Facebook sekimo pikselis"
     src="https://www.facebook.com/tr?id=1135180922149957&ev=PageView&noscript=1"
     /></noscript>
     <div id="root"></div>
     <!-- LCP: static hero on top until React mounts – avoids 5.3s element render delay from JS -->
-    <img class="lcp-hero-placeholder" src="/hero-pink-ar.webp" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="async" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
+    <img class="lcp-hero-placeholder" src="/hero-pink-ar.webp" srcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w, /hero-pink-ar.webp 1920w" sizes="100vw" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="async" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
