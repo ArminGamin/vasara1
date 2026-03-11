@@ -23,7 +23,7 @@ function removeDataPreloadAndPreloadMain() {
           `<link${before} rel="stylesheet"${mid} href="${href}" media="print" onload="this.media='all'"${after}>`
       );
 
-      // 3. Preload main entry (index-*.js) for faster discovery - add before script tag if not already present
+      // 3. Preload main entry (index-*.js) and add fetchpriority=high for LCP
       const mainScriptMatch = html.match(/<script[^>]*\ssrc="(\/assets\/index-[^"]+\.js)"[^>]*>/i);
       if (mainScriptMatch) {
         const mainSrc = mainScriptMatch[1];
@@ -36,6 +36,11 @@ function removeDataPreloadAndPreloadMain() {
           );
           console.log('[build] Added modulepreload for main entry');
         }
+        // Add fetchpriority="high" to main script for LCP
+        html = html.replace(
+          new RegExp(`(<script[^>]*\\ssrc="${escapedSrc}")([^>]*>)`, 'i'),
+          (_, open, close) => open + (close.includes('fetchpriority') ? '' : ' fetchpriority="high"') + close
+        );
       }
 
       fs.writeFileSync(indexPath, html);

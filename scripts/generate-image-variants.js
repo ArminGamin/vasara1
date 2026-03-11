@@ -11,8 +11,8 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 
 // Hero: 480w, 768w, 1024w for mobile/tablet/desktop
 const HERO_WIDTHS = [480, 768, 1024];
-// Product thumbnails: 306w (card), 612w (detail)
-const PRODUCT_WIDTHS = [306, 612];
+// Product: 306w (thumb/card), 512w (medium), 612w (detail), 1024w (large)
+const PRODUCT_WIDTHS = [306, 512, 612, 1024];
 
 async function ensureVariant(srcPath, formatExt) {
   const dir = path.dirname(srcPath);
@@ -42,7 +42,7 @@ async function generateResponsiveVariant(srcPath, widthW) {
   try {
     await sharp(srcPath)
       .resize({ width: widthW, fit: 'inside', withoutEnlargement: true })
-      .toFormat(ext === '.webp' ? 'webp' : ext === '.avif' ? 'avif' : 'webp', { quality: 80 })
+      .toFormat(ext === '.webp' ? 'webp' : ext === '.avif' ? 'avif' : 'webp', { quality: 75 })
       .toFile(out);
     console.log('Generated', out.replace(ROOT, ''));
   } catch (e) {

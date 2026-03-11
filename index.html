@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <!-- LCP: hero preload first – start fetch before other resources -->
+    <link rel="preload" as="image" href="/hero-pink-ar.webp" type="image/webp" fetchpriority="high" imagesrcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w" imagesizes="100vw" />
     <!-- Primary Meta Tags -->
     <title>Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje</title>
     <meta name="title" content="Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje" />
@@ -58,14 +59,9 @@
     <link rel="preconnect" href="https://r.stripe.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.paypal.com" />
     <link rel="dns-prefetch" href="https://api-m.paypal.com" />
-    <!-- Google Fonts: async load to avoid render-blocking (was 430ms) -->
+    <!-- Google Fonts: async load to avoid render-blocking -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" /></noscript>
-    <!-- Removed dev-only preloads for production build -->
-    
-    <!-- LCP: hero image discoverable from initial document -->
-    <link rel="preload" as="image" href="/hero-pink-ar.webp" type="image/webp" fetchpriority="high" imagesrcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w" imagesizes="100vw" />
-    
     <!-- Google Translate - lazy-loaded when EU language selected -->
     <script>
       window.googleTranslateElementInit = function() {
@@ -147,224 +143,6 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- Removed legacy lazy JSON-LD blocks in favor of consolidated @graph below -->
-
-    <!-- FAQ Schema moved into main @graph for rich results -->
-
-    <script>
-      (function lazyInjectJsonLd(){
-        var inject = function(){
-          var nodes = document.querySelectorAll('script[data-lazy-json]');
-          nodes.forEach(function(n){
-            var s = document.createElement('script');
-            s.type = 'application/ld+json';
-            s.text = n.textContent || '';
-            n.parentNode && n.parentNode.replaceChild(s, n);
-          });
-        };
-        if (window.requestIdleCallback) {
-          requestIdleCallback(inject, { timeout: 2000 });
-        } else {
-          setTimeout(inject, 1500);
-        }
-      })();
-    </script>
-    
-    <!-- JSON-LD: Site Graph (Organization, WebSite, Product, ItemList, Breadcrumbs, FAQ) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "@id": "https://vasaroskampelis.com/#organization",
-          "name": "Vasaros Kampelis",
-          "url": "https://vasaroskampelis.com/",
-          "logo": "https://vasaroskampelis.com/logo.png",
-          "image": "https://vasaroskampelis.com/og-summer.png",
-          "description": "Vandens šautuvai ir blasteriai vasaros žaidimams. Pristatymas į visą Lietuvą. Nemokamas pristatymas nuo 80€.",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Vilniaus g. 10",
-            "postalCode": "LT-01100",
-            "addressLocality": "Vilnius",
-            "addressRegion": "Vilniaus m.",
-            "addressCountry": "LT"
-          },
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "email": "info@vasaroskampelis.com",
-            "contactType": "customer service",
-            "availableLanguage": ["Lithuanian", "English"],
-            "areaServed": "LT",
-            "responseTime": "P1D"
-          },
-          "sameAs": [
-            "https://www.instagram.com/vasaroskampelis/",
-            "https://www.tiktok.com/@vasaroskampelis"
-          ]
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://vasaroskampelis.com/#website",
-          "url": "https://vasaroskampelis.com/",
-          "name": "Vasaros Kampelis",
-          "description": "Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje. Nemokamas pristatymas nuo 80€.",
-          "inLanguage": ["lt-LT", "en"],
-          "publisher": { "@id": "https://vasaroskampelis.com/#organization" },
-          "potentialAction": {
-            "@type": "ReadAction",
-            "target": "https://vasaroskampelis.com/#products"
-          }
-        },
-        {
-          "@type": "Product",
-          "@id": "https://vasaroskampelis.com/#product-vandens-sautuvai",
-          "name": "Vandens šautuvai – Vasaros Kampelis",
-          "description": "Galingas vandens šautuvas, su kuriuo valdysi visą kiemą. Didelė vandens talpa, ergonomiška forma, aukšta surinkimo kokybė. Mėlyna ir rožinė spalva. Automatas ir pistoletas.",
-          "image": ["https://vasaroskampelis.com/blue1.webp", "https://vasaroskampelis.com/hero-pink-ar.webp"],
-          "brand": { "@type": "Brand", "name": "Vasaros Kampelis" },
-          "category": "Vandens šautuvai",
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.9",
-            "reviewCount": "51",
-            "bestRating": "5",
-            "worstRating": "1"
-          },
-          "offers": {
-            "@type": "AggregateOffer",
-            "lowPrice": "9.99",
-            "highPrice": "35.99",
-            "priceCurrency": "EUR",
-            "availability": "https://schema.org/InStock",
-            "priceValidUntil": "2026-12-31",
-            "offerCount": "4",
-            "url": "https://vasaroskampelis.com/",
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": { "@type": "MonetaryAmount", "value": "2.99", "currency": "EUR" },
-              "freeShippingThreshold": { "@type": "MonetaryAmount", "value": "80", "currency": "EUR" },
-              "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "LT" },
-              "deliveryTime": {
-                "@type": "ShippingDeliveryTime",
-                "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2, "unitCode": "d" },
-                "transitTime": { "@type": "QuantitativeValue", "minValue": 5, "maxValue": 12, "unitCode": "d" }
-              }
-            },
-            "hasMerchantReturnPolicy": {
-              "@type": "MerchantReturnPolicy",
-              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-              "merchantReturnDays": 30,
-              "applicableCountry": "LT",
-              "returnMethod": "https://schema.org/ReturnByMail",
-              "returnFees": "https://schema.org/FreeReturn",
-              "refundType": "https://schema.org/FullRefund",
-              "returnPolicyUrl": "https://vasaroskampelis.com/grazinimai"
-            }
-          }
-        },
-        {
-          "@type": "ItemList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "item": { "@id": "https://vasaroskampelis.com/#product-vandens-sautuvai" }
-            }
-          ],
-          "numberOfItems": 1,
-          "name": "Vandens šautuvai ir blasteriai"
-        },
-        {
-          "@type": "BreadcrumbList",
-          "@id": "https://vasaroskampelis.com/#breadcrumbs",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Pagrindinis", "item": "https://vasaroskampelis.com/" },
-            { "@type": "ListItem", "position": 2, "name": "Produktai", "item": "https://vasaroskampelis.com/#products" }
-          ]
-        },
-        {
-          "@type": "FAQPage",
-          "@id": "https://vasaroskampelis.com/#faq",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Ar pristatote į visą Lietuvą?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Taip, užsakymus pristatome į visus Lietuvos miestus ir miestelius. Užsakymams virš 80€ pristatymas yra nemokamas."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Kiek laiko trunka pristatymas?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Pristatymas paprastai trunka 8–12 darbo dienas, priklausomai nuo užsakymo kiekio. Didesnių užsakymų metu pristatymas gali užtrukti šiek tiek ilgiau."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Ar turite fizinę parduotuvę?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Šiuo metu dirbame tik internetu, tačiau siūlome greitą pristatymą visoje Lietuvoje ir saugų pirkimą internetu."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Kaip sužinoti, ar prekė yra sandėlyje?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Produktų puslapiuose nurodoma atsargų būsena. Jei matote žymą „Turime sandėlyje“, prekę galite užsisakyti iš karto."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Ar taikote nuolaidas arba akcijas?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Taip! Reguliariai siūlome nuolaidas pasirinktiems produktams. Sekite mūsų naujienas arba prisijunkite prie naujienlaiškio."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Kaip susisiekti, jei turiu klausimų?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Galite rašyti mums el. paštu info@vasaroskampelis.com arba per Facebook ir Instagram žinutes. Atsakome per 24 valandas."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Kiek šaudo vandens šautuvai?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Mūsų vandens šautuvai šaudo iki 10 metrų. Tinkami vandens mūšiams kieme, parke ar vasaros stovykloje."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Kokios spalvos yra vandens šautuvai?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Siūlome mėlyną ir rožinę spalvą. Galite rinktis tarp automatinio šautuvo ir pistoletų."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Ar vandens šautuvai tinka vaikams?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Taip, vandens šautuvai yra saugūs, be aštrių kraštų. Tinka šeimyniniams žaidimams. Rekomenduojame vandens mūšiams kieme ar parke."
-              }
-            }
-          ]
-        }
-      ]
-    }
-    </script>
   </head>
   <body>
     <a href="#products" class="skip-link">Pereiti prie produktų</a>
@@ -373,7 +151,11 @@
     /></noscript>
     <div id="root"></div>
     <!-- LCP: static hero on top until React mounts – avoids 5.3s element render delay from JS -->
-    <img class="lcp-hero-placeholder" src="/hero-pink-ar.webp" srcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w, /hero-pink-ar.webp 1920w" sizes="100vw" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="async" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
+    <img class="lcp-hero-placeholder" src="/hero-pink-ar.webp" srcset="/hero-pink-ar-480w.webp 480w, /hero-pink-ar-768w.webp 768w, /hero-pink-ar-1024w.webp 1024w, /hero-pink-ar.webp 1920w" sizes="100vw" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="async" width="768" height="1024" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
     <script type="module" src="/src/main.tsx"></script>
+    <!-- JSON-LD at body end to avoid blocking LCP parse -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://vasaroskampelis.com/#organization","name":"Vasaros Kampelis","url":"https://vasaroskampelis.com/","logo":"https://vasaroskampelis.com/logo.png","image":"https://vasaroskampelis.com/og-summer.png","description":"Vandens šautuvai ir blasteriai vasaros žaidimams. Pristatymas į visą Lietuvą. Nemokamas pristatymas nuo 80€.","address":{"@type":"PostalAddress","streetAddress":"Vilniaus g. 10","postalCode":"LT-01100","addressLocality":"Vilnius","addressRegion":"Vilniaus m.","addressCountry":"LT"},"contactPoint":{"@type":"ContactPoint","email":"info@vasaroskampelis.com","contactType":"customer service","availableLanguage":["Lithuanian","English"],"areaServed":"LT","responseTime":"P1D"},"sameAs":["https://www.instagram.com/vasaroskampelis/","https://www.tiktok.com/@vasaroskampelis"]},{"@type":"WebSite","@id":"https://vasaroskampelis.com/#website","url":"https://vasaroskampelis.com/","name":"Vasaros Kampelis","description":"Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje. Nemokamas pristatymas nuo 80€.","inLanguage":["lt-LT","en"],"publisher":{"@id":"https://vasaroskampelis.com/#organization"},"potentialAction":{"@type":"ReadAction","target":"https://vasaroskampelis.com/#products"}},{"@type":"Product","@id":"https://vasaroskampelis.com/#product-vandens-sautuvai","name":"Vandens šautuvai – Vasaros Kampelis","description":"Galingas vandens šautuvas, su kuriuo valdysi visą kiemą. Didelė vandens talpa, ergonomiška forma, aukšta surinkimo kokybė. Mėlyna ir rožinė spalva. Automatas ir pistoletas.","image":["https://vasaroskampelis.com/blue1.webp","https://vasaroskampelis.com/hero-pink-ar.webp"],"brand":{"@type":"Brand","name":"Vasaros Kampelis"},"category":"Vandens šautuvai","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"51","bestRating":"5","worstRating":"1"},"offers":{"@type":"AggregateOffer","lowPrice":"9.99","highPrice":"35.99","priceCurrency":"EUR","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","offerCount":"4","url":"https://vasaroskampelis.com/","shippingDetails":{"@type":"OfferShippingDetails","shippingRate":{"@type":"MonetaryAmount","value":"2.99","currency":"EUR"},"freeShippingThreshold":{"@type":"MonetaryAmount","value":"80","currency":"EUR"},"shippingDestination":{"@type":"DefinedRegion","addressCountry":"LT"},"deliveryTime":{"@type":"ShippingDeliveryTime","handlingTime":{"@type":"QuantitativeValue","minValue":1,"maxValue":2,"unitCode":"d"},"transitTime":{"@type":"QuantitativeValue","minValue":5,"maxValue":12,"unitCode":"d"}}},"hasMerchantReturnPolicy":{"@type":"MerchantReturnPolicy","returnPolicyCategory":"https://schema.org/MerchantReturnFiniteReturnWindow","merchantReturnDays":30,"applicableCountry":"LT","returnMethod":"https://schema.org/ReturnByMail","returnFees":"https://schema.org/FreeReturn","refundType":"https://schema.org/FullRefund","returnPolicyUrl":"https://vasaroskampelis.com/grazinimai"}}},{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https://vasaroskampelis.com/#product-vandens-sautuvai"}}],"numberOfItems":1,"name":"Vandens šautuvai ir blasteriai"},{"@type":"BreadcrumbList","@id":"https://vasaroskampelis.com/#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Pagrindinis","item":"https://vasaroskampelis.com/"},{"@type":"ListItem","position":2,"name":"Produktai","item":"https://vasaroskampelis.com/#products"}]},{"@type":"FAQPage","@id":"https://vasaroskampelis.com/#faq","mainEntity":[{"@type":"Question","name":"Ar pristatote į visą Lietuvą?","acceptedAnswer":{"@type":"Answer","text":"Taip, užsakymus pristatome į visus Lietuvos miestus ir miestelius. Užsakymams virš 80€ pristatymas yra nemokamas."}},{"@type":"Question","name":"Kiek laiko trunka pristatymas?","acceptedAnswer":{"@type":"Answer","text":"Pristatymas paprastai trunka 8–12 darbo dienas, priklausomai nuo užsakymo kiekio. Didesnių užsakymų metu pristatymas gali užtrukti šiek tiek ilgiau."}},{"@type":"Question","name":"Ar turite fizinę parduotuvę?","acceptedAnswer":{"@type":"Answer","text":"Šiuo metu dirbame tik internetu, tačiau siūlome greitą pristatymą visoje Lietuvoje ir saugų pirkimą internetu."}},{"@type":"Question","name":"Kaip sužinoti, ar prekė yra sandėlyje?","acceptedAnswer":{"@type":"Answer","text":"Produktų puslapiuose nurodoma atsargų būsena. Jei matote žymą „Turime sandėlyje“, prekę galite užsisakyti iš karto."}},{"@type":"Question","name":"Ar taikote nuolaidas arba akcijas?","acceptedAnswer":{"@type":"Answer","text":"Taip! Reguliariai siūlome nuolaidas pasirinktiems produktams. Sekite mūsų naujienas arba prisijunkite prie naujienlaiškio."}},{"@type":"Question","name":"Kaip susisiekti, jei turiu klausimų?","acceptedAnswer":{"@type":"Answer","text":"Galite rašyti mums el. paštu info@vasaroskampelis.com arba per Facebook ir Instagram žinutes. Atsakome per 24 valandas."}},{"@type":"Question","name":"Kiek šaudo vandens šautuvai?","acceptedAnswer":{"@type":"Answer","text":"Mūsų vandens šautuvai šaudo iki 10 metrų. Tinkami vandens mūšiams kieme, parke ar vasaros stovykloje."}},{"@type":"Question","name":"Kokios spalvos yra vandens šautuvai?","acceptedAnswer":{"@type":"Answer","text":"Siūlome mėlyną ir rožinę spalvą. Galite rinktis tarp automatinio šautuvo ir pistoletų."}},{"@type":"Question","name":"Ar vandens šautuvai tinka vaikams?","acceptedAnswer":{"@type":"Answer","text":"Taip, vandens šautuvai yra saugūs, be aštrių kraštų. Tinka šeimyniniams žaidimams. Rekomenduojame vandens mūšiams kieme ar parke."}}]}]}]}
+    </script>
   </body>
 </html>

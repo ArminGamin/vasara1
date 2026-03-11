@@ -119,10 +119,8 @@ function heroSrcSet(base: string) {
   const b = base.replace(/\.webp$/, '');
   return `${b}-480w.webp 480w, ${b}-768w.webp 768w, ${b}-1024w.webp 1024w, ${base} 1920w`;
 }
-function productSrcSet(path: string) {
-  if (!path || path.startsWith('http') || !/\.webp$/i.test(path)) return undefined;
-  const b = path.replace(/\.webp$/, '');
-  return `${b}-306w.webp 306w, ${b}-612w.webp 612w, ${path} 1024w`;
+function productSrcSet(_path: string): string | undefined {
+  return undefined;
 }
 const HERO_IMAGES = [
   { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
@@ -1460,7 +1458,7 @@ function HomePage() {
                       decoding="async"
                       width={600}
                       height={600}
-                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      sizes="(max-width: 640px) min(100vw, 400px), (max-width: 1024px) min(100vw, 600px), 50vw"
                     />
                   </div>
                   {currentVariantImages.length > 1 && (
