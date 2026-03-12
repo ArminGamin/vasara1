@@ -13,6 +13,9 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 const HERO_WIDTHS = [480, 768, 1024];
 // Product: 306w (thumb/card), 512w (medium), 612w (detail), 1024w (large)
 const PRODUCT_WIDTHS = [306, 512, 612, 1024];
+// Review avatars: 88w for 44px display at 2x retina (used in ReviewsSection)
+const AVATAR_WIDTH = 88;
+const REVIEW_AVATARS = ['giedre1.png', 'tomas2.png', 'mantas1.jpg', 'ruta1.jpg', 'jonas1.jpg', 'andrius3.jpg'];
 
 async function ensureVariant(srcPath, formatExt) {
   const dir = path.dirname(srcPath);
@@ -71,6 +74,32 @@ async function walk(dir) {
   }
 }
 
+async function generateAvatarVariant(srcPath) {
+  const dir = path.dirname(srcPath);
+  const base = path.basename(srcPath, path.extname(srcPath));
+  const out = path.join(dir, `${base}-${AVATAR_WIDTH}w.webp`);
+  if (fs.existsSync(out)) return;
+  try {
+    await sharp(srcPath)
+      .resize({ width: AVATAR_WIDTH, height: AVATAR_WIDTH, fit: 'cover' })
+      .toFormat('webp', { quality: 80 })
+      .toFile(out);
+    console.log('Generated', out.replace(ROOT, ''));
+  } catch (e) {
+    console.warn('Skip avatar variant', srcPath, e?.message || e);
+  }
+}
+
+async function processReviewAvatars() {
+  if (!fs.existsSync(PUBLIC_DIR)) return;
+  for (const file of REVIEW_AVATARS) {
+    const p = path.join(PUBLIC_DIR, file);
+    if (fs.existsSync(p)) {
+      await generateAvatarVariant(p);
+    }
+  }
+}
+
 async function processHeroAndProductImages() {
   if (!fs.existsSync(PUBLIC_DIR)) return;
   const files = fs.readdirSync(PUBLIC_DIR);
@@ -97,6 +126,7 @@ async function main() {
     console.log('No /public/products directory found; skipping product variants.');
   }
   tasks.push(processHeroAndProductImages());
+  tasks.push(processReviewAvatars());
   await Promise.all(tasks).catch((e) => {
     console.error('Image variant generation failed:', e);
     process.exit(0);
