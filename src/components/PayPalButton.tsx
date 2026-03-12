@@ -76,7 +76,7 @@ export default function PayPalButton({
             return actions.order.create({
               application_context: {
                 shipping_preference: "NO_SHIPPING",
-                brand_name: "Kalėdų Kampelis"
+                brand_name: "Vasaros Kampelis"
               },
               purchase_units: [
                 {

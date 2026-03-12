@@ -532,16 +532,16 @@ function HomePage() {
   
   const [stockCount, setStockCount] = useState(getWeightedStockCount());
   const [recentOrders, setRecentOrders] = useState([
-    { name: 'Jonas P.', location: 'Vilnius', time: '3 min', product: 'Kalėdinis namelis' },
-    { name: 'Eglė K.', location: 'Klaipėda', time: '7 min', product: 'LED girlianda' },
-    { name: 'Darius R.', location: 'Šiauliai', time: '12 min', product: 'Žaisliukų rinkinys' },
-    { name: 'Lina B.', location: 'Panevėžys', time: '15 min', product: 'Kalėdinis puokštė' },
-    { name: 'Mantas S.', location: 'Alytus', time: '18 min', product: 'Dekoracijos' },
-    { name: 'Gintarė V.', location: 'Marijampolė', time: '22 min', product: 'LED apšvietimas' },
-    { name: 'Tomas M.', location: 'Utena', time: '25 min', product: 'Kalėdinis namelis' },
-    { name: 'Rūta L.', location: 'Tauragė', time: '28 min', product: 'Žaisliukai' },
-    { name: 'Arūnas K.', location: 'Telšiai', time: '31 min', product: 'Girliandos' },
-    { name: 'Ieva N.', location: 'Mažeikiai', time: '35 min', product: 'Puokštės' },
+    { name: 'Jonas P.', location: 'Vilnius', time: '3 min', product: 'Vandens šautuvas' },
+    { name: 'Eglė K.', location: 'Klaipėda', time: '7 min', product: 'Vandens blasteris' },
+    { name: 'Darius R.', location: 'Šiauliai', time: '12 min', product: 'Vandens žaidimų rinkinys' },
+    { name: 'Lina B.', location: 'Panevėžys', time: '15 min', product: 'Vandens pistoletas' },
+    { name: 'Mantas S.', location: 'Alytus', time: '18 min', product: 'Blasterių rinkinys' },
+    { name: 'Gintarė V.', location: 'Marijampolė', time: '22 min', product: 'Vandens šautuvas' },
+    { name: 'Tomas M.', location: 'Utena', time: '25 min', product: 'Vandens blasteris' },
+    { name: 'Rūta L.', location: 'Tauragė', time: '28 min', product: 'Vandens žaidimai' },
+    { name: 'Arūnas K.', location: 'Telšiai', time: '31 min', product: 'Vandens šautuvai' },
+    { name: 'Ieva N.', location: 'Mažeikiai', time: '35 min', product: 'Vandens pistoletai' },
   ]);
 
   // Ensure product cards show varied recent-order info without repeating the same entry
@@ -2722,7 +2722,7 @@ function HomePage() {
                         (PayPal kartais neperduoda visų duomenų, todėl jūsų pagalba padeda mums greičiau išsiųsti prekę 🎁)
                       </p>
                       <p className="text-xs text-gray-700 font-bold">
-                        💛 Atsiskaitydami per PayPal, taikomas nedidelis apdorojimo mokestis (apie 2.5 %). Jis padeda padengti PayPal mokesčius ir užtikrina, kad galėtume išlaikyti mažas kainas visiems 🎄
+                        💛 Atsiskaitydami per PayPal, taikomas nedidelis apdorojimo mokestis (apie 2.5 %). Jis padeda padengti PayPal mokesčius ir užtikrina, kad galėtume išlaikyti mažas kainas visiems 💦
                       </p>
                     </div>
                     <PayPalButton
@@ -2981,7 +2981,7 @@ export default function App() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-brand-bg">
         <div className="text-center">
-          <div className="text-6xl animate-bounce mb-4">🎄</div>
+          <div className="text-6xl animate-bounce mb-4">💦</div>
           <div className="text-xl font-bold text-brand-blue-deep">Vasaros Kampelis</div>
           <div className="text-gray-600 mt-2">Kraunama...</div>
         </div>

@@ -48,7 +48,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => (name.startsWith('christmas-shop-') || name.startsWith('vasaros-kampelis-')) && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE && name !== THIRD_PARTY_CACHE)
+            .filter((name) => name.startsWith('vasaros-kampelis-') && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE && name !== THIRD_PARTY_CACHE)
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
