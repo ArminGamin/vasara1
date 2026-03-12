@@ -75,12 +75,14 @@
       };
     </script>
 
-    <!-- Defer analytics to idle to avoid blocking LCP -->
+    <!-- Load analytics on first interaction (scroll/click/key) or after 5s – avoids competing with LCP -->
     <script>
-      (function loadAnalyticsLazy(){
-        var inject = function(){
+      (function loadAnalyticsOnInteraction(){
+        var done = false;
+        function inject(){
+          if (done) return;
+          done = true;
           try {
-            // GA4
             var g = document.createElement('script');
             g.async = true;
             g.src = 'https://www.googletagmanager.com/gtag/js?id=G-NP96YPG80J';
@@ -90,7 +92,6 @@
             window.gtag = gtag;
             gtag('js', new Date());
             gtag('config', 'G-NP96YPG80J');
-            // Meta Pixel
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -102,12 +103,12 @@
             window.fbq && window.fbq('init', '1135180922149957');
             window.fbq && window.fbq('track', 'PageView');
           } catch(e) {}
-        };
-        if (window.requestIdleCallback) {
-          requestIdleCallback(inject, { timeout: 2000 });
-        } else {
-          setTimeout(inject, 1500);
         }
+        function onInteraction(){ inject(); }
+        ['scroll','click','keydown','touchstart'].forEach(function(ev){
+          window.addEventListener(ev, onInteraction, { passive: true, once: true });
+        });
+        setTimeout(inject, 5000);
       })();
     </script>
     
