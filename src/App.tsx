@@ -119,8 +119,13 @@ function heroSrcSet(base: string) {
   const b = base.replace(/\.webp$/, '');
   return `${b}-480w.webp 480w, ${b}-768w.webp 768w, ${b}-1024w.webp 1024w, ${base} 1920w`;
 }
-function productSrcSet(_path: string): string | undefined {
-  return undefined;
+// Product images (blue1.webp, pink2.webp, etc.) have 306/512/612/1024w variants from prebuild
+const PRODUCT_WIDTHS = [306, 512, 612, 1024];
+function productSrcSet(path: string): string | undefined {
+  const normalized = path.startsWith('/') ? path : '/' + path;
+  if (!/^\/(blue|pink|bluepistol|pinkpistol)\d+\.webp$/i.test(normalized)) return undefined;
+  const base = normalized.replace(/\.webp$/i, '');
+  return PRODUCT_WIDTHS.map((w) => `${base}-${w}w.webp ${w}w`).join(', ');
 }
 const HERO_IMAGES = [
   { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
@@ -1458,7 +1463,7 @@ function HomePage() {
                       decoding="async"
                       width={600}
                       height={600}
-                      sizes="(max-width: 640px) min(100vw, 400px), (max-width: 1024px) min(100vw, 600px), 50vw"
+                      sizes="(max-width: 640px) min(100vw, 400px), (max-width: 1024px) 50vw, min(50vw, 612px)"
                     />
                   </div>
                   {currentVariantImages.length > 1 && (
@@ -1818,6 +1823,8 @@ function HomePage() {
               src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
               alt="Mastercard"
               className="h-5 object-contain opacity-90"
+              width={32}
+              height={20}
               loading="lazy"
             />
             <div className="bg-white/10 border border-white/20 px-2 py-1 rounded">
@@ -1827,6 +1834,8 @@ function HomePage() {
               src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
               alt="PayPal"
               className="h-5 object-contain opacity-90"
+              width={48}
+              height={20}
               loading="lazy"
             />
           </div>
