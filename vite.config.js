@@ -5,6 +5,11 @@ import react from "@vitejs/plugin-react";
 import fs from 'fs';
 import path from 'path';
 
+// Inline loader: run after first paint so LCP (static hero) isn't blocked by main bundle
+function getDeferLoaderScript(mainSrc) {
+  return `(function(s){var d=document,el=d.createElement('script');el.type='module';el.src=s;if('requestIdleCallback' in window)requestIdleCallback(function(){d.body.appendChild(el);},{timeout:400});else setTimeout(function(){d.body.appendChild(el);},100);})("${mainSrc.replace(/"/g, '\\"')}");`;
+}
+
 function removeDataPreloadAndPreloadMain() {
   return {
     name: 'remove-data-preload-and-preload-main',
@@ -19,28 +24,20 @@ function removeDataPreloadAndPreloadMain() {
       // 2. Make main CSS non-blocking: media="print" onload="this.media='all'" defers render-block
       html = html.replace(
         /<link([^>]*)\srel="stylesheet"([^>]*)\shref="(\/assets\/[^"]+\.css)"([^>]*)\/?>/gi,
-        (_, before, mid, href, after) => 
+        (_, before, mid, href, after) =>
           `<link${before} rel="stylesheet"${mid} href="${href}" media="print" onload="this.media='all'"${after}>`
       );
 
-      // 3. Preload main entry (index-*.js) and add fetchpriority=high for LCP
+      // 3. Defer main script: load after first paint so static hero (LCP) isn't blocked by 92 KiB JS
       const mainScriptMatch = html.match(/<script[^>]*\ssrc="(\/assets\/index-[^"]+\.js)"[^>]*>/i);
       if (mainScriptMatch) {
         const mainSrc = mainScriptMatch[1];
-        const escapedSrc = mainSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const hasPreload = new RegExp(`rel="modulepreload"[^>]*href="${escapedSrc}"|href="${escapedSrc}"[^>]*rel="modulepreload"`, 'i').test(html);
-        if (!hasPreload) {
-          html = html.replace(
-            new RegExp(`(<script[^>]*\\ssrc="${escapedSrc}"[^>]*>)`, 'i'),
-            `<link rel="modulepreload" href="${mainSrc}">\n    $1`
-          );
-          console.log('[build] Added modulepreload for main entry');
-        }
-        // Add fetchpriority="high" to main script for LCP
+        const loader = '<script>' + getDeferLoaderScript(mainSrc) + '</script>';
         html = html.replace(
-          new RegExp(`(<script[^>]*\\ssrc="${escapedSrc}")([^>]*>)`, 'i'),
-          (_, open, close) => open + (close.includes('fetchpriority') ? '' : ' fetchpriority="high"') + close
+          /<script[^>]*\ssrc="\/assets\/index-[^"]+\.js"[^>]*><\/script>/i,
+          loader
         );
+        console.log('[build] Main script deferred until after idle');
       }
 
       fs.writeFileSync(indexPath, html);
