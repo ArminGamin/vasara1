@@ -4,85 +4,136 @@
   
   <url>
     <loc>https://vasaroskampelis.com/</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/"/>
   </url>
 
   <url>
     <loc>https://vasaroskampelis.com/apie-mus</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/apie-mus"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/apie-mus"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/duk</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/duk"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/duk"/>
-  </url>
-
-  <url>
     <loc>https://vasaroskampelis.com/pristatymo-info</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/pristatymo-info"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/pristatymo-info"/>
   </url>
 
   <url>
     <loc>https://vasaroskampelis.com/grazinimai</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/grazinimai"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/grazinimai"/>
   </url>
 
   <url>
+    <loc>https://vasaroskampelis.com/kontaktai</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/kontaktai"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/kontaktai"/>
+  </url>
+
+  <url>
     <loc>https://vasaroskampelis.com/privatumo-politika</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/privatumo-politika"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/privatumo-politika"/>
   </url>
 
   <url>
     <loc>https://vasaroskampelis.com/blog</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-sukurti-tikra-kaledu-nuotaika-namuose"/>
+    <loc>https://vasaroskampelis.com/blog/kaip-sukurti-vasaros-nuotaika-namuose</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-sukurti-vasaros-nuotaika-namuose"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-sukurti-vasaros-nuotaika-namuose"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kalediniu-dovanu-idejos-ir-sventinio-interjero-tendencijos-2025"/>
+    <loc>https://vasaroskampelis.com/blog/vasaros-pasiulymai-ir-idejos-2025</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/vasaros-pasiulymai-ir-idejos-2025"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/vasaros-pasiulymai-ir-idejos-2025"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-puosti-namus-kaledoms-mazame-bute"/>
+    <loc>https://vasaroskampelis.com/blog/kaip-puosti-kiema-vandens-zaidimams</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-puosti-kiema-vandens-zaidimams"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-puosti-kiema-vandens-zaidimams"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/10-paprastu-budu-padaryti-namus-jaukesnius-ziema"/>
+    <loc>https://vasaroskampelis.com/blog/10-paprastu-budu-megautis-vasara-lauke</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/10-paprastu-budu-megautis-vasara-lauke"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/10-paprastu-budu-megautis-vasara-lauke"/>
   </url>
 
   <url>
-    <loc>https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos</loc>
-    <lastmod>2026-03-05</lastmod>
-    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-kaledoms-be-streso-planavimas-dekoracijos-ir-dovanos"/>
+    <loc>https://vasaroskampelis.com/blog/kaip-pasiruosti-vasarai-be-streso</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-vasarai-be-streso"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-pasiruosti-vasarai-be-streso"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/vandens-musiu-organizavimas</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/vandens-musiu-organizavimas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/vandens-musiu-organizavimas"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/kaip-issirinkti-vandens-blasteri</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/kaip-issirinkti-vandens-blasteri"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/kaip-issirinkti-vandens-blasteri"/>
+  </url>
+
+  <url>
+    <loc>https://vasaroskampelis.com/blog/pikniko-idejos-vasarai</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lt-LT" href="https://vasaroskampelis.com/blog/pikniko-idejos-vasarai"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vasaroskampelis.com/blog/pikniko-idejos-vasarai"/>
   </url>
 </urlset>

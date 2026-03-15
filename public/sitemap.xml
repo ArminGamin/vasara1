@@ -1,82 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
-  <!-- Main Page -->
-  <url>
-    <loc>https://vasaroskampelis.com/</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1200&amp;q=80&amp;auto=format&amp;fit=crop</image:loc>
-      <image:title>Kalėdų Kampelis - Premium Kalėdų Dekoracijos</image:title>
-      <image:caption>Transformuokite savo namus šioms Kalėdoms su mūsų išskirtiniais dekoracijų pasiūlymais</image:caption>
-    </image:image>
-  </url>
-
-  <!-- Product Categories -->
-  <url>
-    <loc>https://vasaroskampelis.com/kaledu-nameliai</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/led-girliandos</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/kaledu-puokstes</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/dekoracijos</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Seasonal Pages -->
-  <url>
-    <loc>https://vasaroskampelis.com/kaledu-pasiulymai</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/nuolaidos</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Info Pages -->
-  
-  <url>
-    <loc>https://vasaroskampelis.com/pristatymo-info</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/grazinimai</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://vasaroskampelis.com/privatumo-politika</loc>
-    <lastmod>2024-12-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://vasaroskampelis.com/sitemap-pages.xml</loc>
+    <lastmod>2026-03-15</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://vasaroskampelis.com/sitemap-products.xml</loc>
+    <lastmod>2026-03-15</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://vasaroskampelis.com/sitemap-images.xml</loc>
+    <lastmod>2026-03-15</lastmod>
+  </sitemap>
+</sitemapindex>

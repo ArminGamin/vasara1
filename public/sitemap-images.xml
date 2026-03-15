@@ -3,26 +3,36 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://vasaroskampelis.com/</loc>
-    <lastmod>2026-03-05</lastmod>
+    <lastmod>2026-03-15</lastmod>
     
     <image:image>
-      <image:loc>https://vasaroskampelis.com/logo.png?v=3</image:loc>
-      <image:title>Kalėdų Kampelis logotipas</image:title>
+      <image:loc>https://vasaroskampelis.com/logo.png</image:loc>
+      <image:title>Vasaros Kampelis logotipas</image:title>
     </image:image>
 
     <image:image>
-      <image:loc>https://vasaroskampelis.com/products/megztiniai/red.png</image:loc>
-      <image:title>Kalėdinis megztinis — raudonas</image:title>
+      <image:loc>https://vasaroskampelis.com/hero-pink-ar.webp</image:loc>
+      <image:title>Vandens šautuvas – rožinis</image:title>
     </image:image>
 
     <image:image>
-      <image:loc>https://vasaroskampelis.com/products/megztiniai/green.png</image:loc>
-      <image:title>Kalėdinis megztinis — žalias</image:title>
+      <image:loc>https://vasaroskampelis.com/hero-blue-ar.webp</image:loc>
+      <image:title>Vandens šautuvas – mėlynas</image:title>
     </image:image>
 
     <image:image>
-      <image:loc>https://vasaroskampelis.com/products/megztiniai/navy.png</image:loc>
-      <image:title>Kalėdinis megztinis — tamsiai mėlynas</image:title>
+      <image:loc>https://vasaroskampelis.com/hero-pink-glock.webp</image:loc>
+      <image:title>Vandens pistoletas – rožinis</image:title>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://vasaroskampelis.com/hero-blue-glock.webp</image:loc>
+      <image:title>Vandens pistoletas – mėlynas</image:title>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://vasaroskampelis.com/blue1.webp</image:loc>
+      <image:title>Vandens šautuvas mėlyna spalva</image:title>
     </image:image>
   </url>
 </urlset>
