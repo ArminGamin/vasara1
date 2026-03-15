@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Globe } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const STORAGE_KEY = 'splashzone-lang-prompt';
 
@@ -15,12 +14,12 @@ interface LanguageDetectionPopupProps {
 export function LanguageDetectionPopup({ onChooseLanguage, currentLang }: LanguageDetectionPopupProps) {
   const [show, setShow] = useState(false);
   const [detected, setDetected] = useState<Lang | null>(null);
+  const [entered, setEntered] = useState(false);
 
   useEffect(() => {
     const alreadyDecided = localStorage.getItem(STORAGE_KEY);
     if (alreadyDecided) return;
 
-    // Simple geo hint: check timezone or accept external hint. In production you'd use an API or server header.
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     const looksLikeLT = /Europe\/Vilnius/i.test(tz) || (typeof navigator !== 'undefined' && navigator.language?.startsWith('lt'));
     const looksLikeEN = /America|Europe\/London|en(-|$)/i.test(tz) || (typeof navigator !== 'undefined' && /^en\b/.test(navigator.language || ''));
@@ -30,9 +29,14 @@ export function LanguageDetectionPopup({ onChooseLanguage, currentLang }: Langua
       setShow(true);
     } else if (looksLikeEN && currentLang !== 'en') {
       setDetected('en');
-      // Optional: show "View in English?" for LT users in EN region; for now we only prompt LT when we think user is in LT
     }
   }, [currentLang]);
+
+  useEffect(() => {
+    if (!show) return;
+    const t = setTimeout(() => setEntered(true), 0);
+    return () => clearTimeout(t);
+  }, [show]);
 
   const handleChoose = (lang: Lang) => {
     localStorage.setItem(STORAGE_KEY, lang);
@@ -46,15 +50,12 @@ export function LanguageDetectionPopup({ onChooseLanguage, currentLang }: Langua
   };
 
   return (
-    <AnimatePresence>
+    <>
       {show && detected === 'lt' && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 pb-8 sm:pb-4">
           <div className="absolute inset-0 bg-black/20" aria-hidden onClick={handleDismiss} />
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-gray-100"
+          <div
+            className={`relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-gray-100 ${entered ? 'popup-enter-end' : 'popup-enter-start'}`}
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-brand-blue flex items-center justify-center">
@@ -83,9 +84,9 @@ export function LanguageDetectionPopup({ onChooseLanguage, currentLang }: Langua
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

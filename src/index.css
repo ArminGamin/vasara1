@@ -35,6 +35,12 @@ body {
 /* Summer theme – no snowfall; splash-friendly palette */
 /* Removed: kk-snow-fall, snowflake, gold-text, fairy-light, sparkle-line (gold), kk-red-contour */
 
+/* Popup enter animations (replaces framer-motion for smaller bundle) */
+.popup-enter-start { opacity: 0; transform: translateY(24px); }
+.popup-enter-end { opacity: 1; transform: translateY(0); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+.popup-scale-start { opacity: 0; transform: scale(0.95); }
+.popup-scale-end { opacity: 1; transform: scale(1); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+
 /* Google Translate – hide top banner, compact dropdown */
 #google_translate_element .goog-te-banner-frame,
 .skiptranslate {

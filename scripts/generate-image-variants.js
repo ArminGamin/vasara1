@@ -41,9 +41,9 @@ async function generateResponsiveVariant(srcPath, widthW) {
   const base = path.basename(srcPath, path.extname(srcPath));
   const ext = path.extname(srcPath);
   const out = path.join(dir, `${base}-${widthW}w${ext}`);
-  if (fs.existsSync(out)) return;
   const isHero = /hero-.+\.webp$/i.test(path.basename(srcPath));
   const quality = isHero ? 65 : 75;
+  if (fs.existsSync(out) && !isHero) return;
   try {
     await sharp(srcPath)
       .resize({ width: widthW, fit: 'inside', withoutEnlargement: true })

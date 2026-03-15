@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { X, Gift, Percent, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface ExitIntentPopupProps {
   onClose: () => void;
@@ -8,10 +7,11 @@ interface ExitIntentPopupProps {
 
 export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => {
   const [showPopup, setShowPopup] = useState(false);
+  const [entered, setEntered] = useState(false);
   const [discountCode, setDiscountCode] = useState('SUMMER15');
 
   useEffect(() => {
-    let hasShown = localStorage.getItem('exitIntentShown');
+    const hasShown = localStorage.getItem('exitIntentShown');
     if (hasShown) return;
 
     const handleMouseLeave = (e: MouseEvent) => {
@@ -25,6 +25,12 @@ export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => 
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, []);
 
+  useEffect(() => {
+    if (!showPopup) return;
+    const t = setTimeout(() => setEntered(true), 0);
+    return () => clearTimeout(t);
+  }, [showPopup]);
+
   const handleClose = () => {
     setShowPopup(false);
     onClose();
@@ -32,18 +38,14 @@ export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => 
 
   const copyDiscountCode = () => {
     navigator.clipboard.writeText(discountCode);
-    // You could add a toast notification here
   };
 
   return (
-    <AnimatePresence>
+    <>
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="bg-white rounded-2xl max-w-md w-full p-6 relative"
+          <div
+            className={`bg-white rounded-2xl max-w-md w-full p-6 relative ${entered ? 'popup-scale-end' : 'popup-scale-start'}`}
           >
             <button
               onClick={handleClose}
@@ -106,10 +108,10 @@ export const ExitIntentPopup: React.FC<ExitIntentPopupProps> = ({ onClose }) => 
                 Nuolaidos kodas galioja 24 valandas
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
-    </AnimatePresence>
+    </>
   );
 };
 

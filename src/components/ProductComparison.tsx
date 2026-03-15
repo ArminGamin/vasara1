@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Star, Check, X as XIcon } from 'lucide-react';
 import { Product } from '../store/productStore';
 import OptimizedImage from './OptimizedImage';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductComparisonProps {
   products: Product[];
@@ -17,6 +16,15 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
   onClose,
   onRemoveProduct,
 }) => {
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setEntered(false);
+    const t = setTimeout(() => setEntered(true), 0);
+    return () => clearTimeout(t);
+  }, [isOpen]);
+
   if (!isOpen || products.length === 0) return null;
 
   const features = [
@@ -35,14 +43,10 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-surface rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
-        >
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div
+        className={`bg-surface rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden ${entered ? 'popup-scale-end' : 'popup-scale-start'}`}
+      >
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -238,9 +242,8 @@ export const ProductComparison: React.FC<ProductComparisonProps> = ({
               )}
             </div>
           </div>
-        </motion.div>
       </div>
-    </AnimatePresence>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const STORAGE_KEY = 'splashzone-email-popup-seen';
 
@@ -11,6 +10,7 @@ interface EmailCapturePopupProps {
 
 export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapturePopupProps) {
   const [show, setShow] = useState(false);
+  const [entered, setEntered] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -21,6 +21,12 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
     const t = setTimeout(() => setShow(true), delayMs);
     return () => clearTimeout(t);
   }, [delayMs]);
+
+  useEffect(() => {
+    if (!show) return;
+    const t = setTimeout(() => setEntered(true), 0);
+    return () => clearTimeout(t);
+  }, [show]);
 
   const handleClose = () => {
     setShow(false);
@@ -50,15 +56,12 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
   };
 
   return (
-    <AnimatePresence>
+    <>
       {show && (
         <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4 pb-8 sm:pb-4">
           <div className="absolute inset-0 bg-black/30" aria-hidden onClick={handleClose} />
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            className="relative w-full max-w-md rounded-2xl shadow-xl overflow-hidden bg-brand-blue text-white p-6"
+          <div
+            className={`relative w-full max-w-md rounded-2xl shadow-xl overflow-hidden bg-brand-blue text-white p-6 ${entered ? 'popup-enter-end' : 'popup-enter-start'}`}
           >
             <button
               type="button"
@@ -106,9 +109,9 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }
