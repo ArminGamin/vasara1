@@ -34,7 +34,7 @@ function removeDataPreloadAndPreloadMain() {
         const mainSrc = mainScriptMatch[1];
         const loader = '<script>' + getDeferLoaderScript(mainSrc) + '</script>';
         html = html.replace(
-          /<script[^>]*\ssrc="\/assets\/index-[^"]+\.js"[^>]*><\/script>/i,
+          /<script[^>]*src="\/assets\/index-[^"]+\.js"[^>]*>\s*<\/script>/i,
           loader
         );
         console.log('[build] Main script deferred until after idle');

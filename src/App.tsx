@@ -1463,7 +1463,7 @@ function HomePage() {
                       decoding="async"
                       width={600}
                       height={600}
-                      sizes="(max-width: 640px) min(100vw, 400px), (max-width: 1024px) 50vw, 512px"
+                      sizes="(max-width: 768px) 50vw, 400px"
                     />
                   </div>
                   {currentVariantImages.length > 1 && (

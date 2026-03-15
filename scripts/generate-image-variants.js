@@ -42,10 +42,12 @@ async function generateResponsiveVariant(srcPath, widthW) {
   const ext = path.extname(srcPath);
   const out = path.join(dir, `${base}-${widthW}w${ext}`);
   if (fs.existsSync(out)) return;
+  const isHero = /hero-.+\.webp$/i.test(path.basename(srcPath));
+  const quality = isHero ? 65 : 75;
   try {
     await sharp(srcPath)
       .resize({ width: widthW, fit: 'inside', withoutEnlargement: true })
-      .toFormat(ext === '.webp' ? 'webp' : ext === '.avif' ? 'avif' : 'webp', { quality: 75 })
+      .toFormat(ext === '.webp' ? 'webp' : ext === '.avif' ? 'avif' : 'webp', { quality })
       .toFile(out);
     console.log('Generated', out.replace(ROOT, ''));
   } catch (e) {

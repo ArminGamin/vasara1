@@ -51,12 +51,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Vasaros Kampelis" />
     
-    <!-- Enhanced Performance: ≤4 preconnects (fonts + Stripe); rest dns-prefetch -->
+    <!-- No preconnect (Stripe adds 2; we use dns-prefetch only to stay ≤4 total) -->
     <link rel="dns-prefetch" href="https://ae-pic-a1.aliexpress-media.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://js.stripe.com" crossorigin />
-    <link rel="preconnect" href="https://r.stripe.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://js.stripe.com" />
+    <link rel="dns-prefetch" href="https://r.stripe.com" />
     <link rel="dns-prefetch" href="https://www.paypal.com" />
     <link rel="dns-prefetch" href="https://api-m.paypal.com" />
     <!-- Google Fonts: async load to avoid render-blocking -->
