@@ -18,6 +18,13 @@ function removeDataPreloadAndPreloadMain() {
       if (!fs.existsSync(indexPath)) return;
       let html = fs.readFileSync(indexPath, 'utf8');
 
+      // 0. Inject preconnect to asset origin to shorten critical path (same-origin warm connection)
+      const origin = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : (process.env.VITE_ORIGIN || 'https://vasaroskampelis.com');
+      const preconnect = `<link rel="preconnect" href="${origin}" />`;
+      html = html.replace(/(<head[^>]*>)/i, `$1\n    ${preconnect}`);
+
       // 1. Remove data: preload (bad for performance)
       html = html.replace(/<link[^>]*rel="preload"[^>]*href="data:[^"]*"[^>]*\/?>\s*/gi, '');
 

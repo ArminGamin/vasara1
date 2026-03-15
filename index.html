@@ -51,7 +51,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Vasaros Kampelis" />
     
-    <!-- No preconnect (Stripe adds 2; we use dns-prefetch only to stay ≤4 total) -->
+    <!-- Preconnect injected at build time to asset origin (see vite.config.js) -->
     <link rel="dns-prefetch" href="https://ae-pic-a1.aliexpress-media.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
