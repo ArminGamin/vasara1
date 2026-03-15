@@ -28,9 +28,6 @@ import { LazyVideo } from "./components/LazyVideo";
 import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
 import { initialProducts } from "./data/products";
-import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import StripeCardSection from './components/StripeCardSection';
 import PayPalButton from './components/PayPalButton';
 // Lazy-load below-fold components – defers framer-motion and reduces main-thread work
 const CookieConsent = lazy(() => import("./components/CookieConsent").then((m) => ({ default: m.default })));
@@ -42,75 +39,9 @@ const FAQAccordion = lazy(() => import("./components/FAQAccordion").then((m) => 
 const EmailCapturePopup = lazy(() => import("./components/EmailCapturePopup").then((m) => ({ default: m.EmailCapturePopup })));
 const StickyMobileCTA = lazy(() => import("./components/StickyMobileCTA").then((m) => ({ default: m.StickyMobileCTA })));
 const ThankYouModal = lazy(() => import("./components/ThankYouModal").then((m) => ({ default: m.ThankYouModal })));
+const CheckoutStripeLoader = lazy(() => import("./components/CheckoutStripeLoader").then((m) => ({ default: m.default })));
 
 const STRIPE_PK = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
-
-// Bridge component that exposes a pay() function via ref so parent can trigger payment
-// Server computes amount from items – never trust client-provided amount
-function StripePayBridge({
-  payRef,
-  customer,
-  items,
-  giftWrapping
-}: {
-  payRef: React.MutableRefObject<null | (() => Promise<{ ok: boolean; error?: string }>)>;
-  customer: { name: string; surname: string; email: string; phone: string; address: string };
-  items: Array<{ productId: number; name: string; selectedColor?: string; selectedSize?: string; quantity: number }>;
-  giftWrapping: boolean;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-
-  useEffect(() => {
-    payRef.current = async () => {
-      if (!stripe || !elements) {
-        return { ok: false, error: 'Mokėjimo sistema dar kraunasi' };
-      }
-      const resp = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: customer.name,
-          surname: customer.surname,
-          email: customer.email,
-          phone: customer.phone,
-          address: customer.address,
-          items: items.map((it) => ({
-            productId: it.productId,
-            name: it.name,
-            selectedColor: it.selectedColor ?? '',
-            selectedSize: it.selectedSize ?? '',
-            quantity: it.quantity
-          })),
-          giftWrapping
-        })
-      });
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({} as any));
-        return { ok: false, error: err.error || resp.statusText };
-      }
-      const { clientSecret } = await resp.json();
-      const card = elements.getElement(CardElement);
-      const confirmation = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card,
-          billing_details: { name: `${customer.name} ${customer.surname}`, email: customer.email }
-        }
-      } as any);
-      if ((confirmation as any)?.error) {
-        return { ok: false, error: (confirmation as any).error.message };
-      }
-      if (!confirmation?.paymentIntent || confirmation.paymentIntent.status !== 'succeeded') {
-        return { ok: false, error: 'Mokėjimas nepatvirtintas' };
-      }
-      return { ok: true };
-    };
-    return () => { payRef.current = null; };
-  }, [stripe, elements, payRef, customer, items, giftWrapping]);
-
-  return null;
-}
 
 // Lazy load non-critical components for code splitting
 const ProductComparison = lazy(() => import("./components/ProductComparison").then(module => ({ default: module.ProductComparison })));
@@ -2484,8 +2415,28 @@ function HomePage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-surface rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
             <div className="p-4">
-              {stripePromise ? (
-              <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
+              {STRIPE_PK ? (
+              <Suspense fallback={<div className="flex items-center justify-center py-12 text-gray-600">Kraunama...</div>}>
+              <CheckoutStripeLoader
+                payRef={stripePayRef}
+                customer={{
+                  name: checkoutFormData.name,
+                  surname: checkoutFormData.surname,
+                  email: checkoutFormData.email,
+                  phone: checkoutFormData.phone,
+                  address: `${checkoutFormData.address}, ${checkoutFormData.city} ${checkoutFormData.postalCode}`,
+                }}
+                items={cartItems.map((it: any) => ({
+                  productId: it.productId,
+                  name: it.name,
+                  selectedColor: it.selectedColor ?? '',
+                  selectedSize: it.selectedSize ?? '',
+                  quantity: Number(it.quantity || 1)
+                }))}
+                giftWrapping={!!giftWrapping}
+              >
+              {(card) => (
+              <>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Apmokėjimas</h2>
                 <button
@@ -2636,27 +2587,8 @@ function HomePage() {
                       <CreditCard className="w-4 h-4" />
                       <h3 className="text-base font-semibold">Mokėjimo Informacija</h3>
                     </div>
-                    <StripeCardSection />
-                      </div>
-                  {/* Expose Stripe pay function to parent */}
-                  <StripePayBridge
-                    payRef={stripePayRef}
-                    customer={{
-                      name: checkoutFormData.name,
-                      surname: checkoutFormData.surname,
-                      email: checkoutFormData.email,
-                      phone: checkoutFormData.phone,
-                      address: `${checkoutFormData.address}, ${checkoutFormData.city} ${checkoutFormData.postalCode}`,
-                    }}
-                    items={cartItems.map((it: any) => ({
-                      productId: it.productId,
-                      name: it.name,
-                      selectedColor: it.selectedColor ?? '',
-                      selectedSize: it.selectedSize ?? '',
-                      quantity: Number(it.quantity || 1)
-                    }))}
-                    giftWrapping={!!giftWrapping}
-                  />
+                    {card}
+                  </div>
                 </div>
 
                 {/* Right Column - Order Summary */}
@@ -2815,7 +2747,8 @@ function HomePage() {
                                 window.location.href = url;
                                 return;
                               }
-                              const stripeClient = await stripePromise;
+                              const { loadStripe } = await import('@stripe/stripe-js');
+                              const stripeClient = await loadStripe(STRIPE_PK);
                               await stripeClient?.redirectToCheckout({ sessionId: id });
                               setLoading(false);
                               return;
@@ -2950,7 +2883,10 @@ function HomePage() {
                   </p>
                 </div>
               </div>
-              </Elements>
+              </>
+              )}
+              </CheckoutStripeLoader>
+              </Suspense>
               ) : (
                 <div className="text-center">
                   <p className="text-sm text-brand-urgency font-semibold">
