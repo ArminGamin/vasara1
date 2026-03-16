@@ -61,6 +61,31 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("Discord webhook error:", err);
     }
+
+    // Send order confirmation email (covers redirect flow; client sends for inline flow)
+    if (md.order_id && md.email) {
+      try {
+        const base = process.env.NEXT_PUBLIC_URL || "https://vasaroskampelis.com";
+        const emailRes = await fetch(`${base}/api/send-order-confirmation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: orderNumber,
+            email: md.email,
+            name: md.name || "",
+            surname: md.surname || "",
+            total: amount,
+            items: [],
+          }),
+        });
+        if (!emailRes.ok) {
+          const errBody = await emailRes.text().catch(() => "");
+          console.error("Order confirmation email failed:", emailRes.status, errBody);
+        }
+      } catch (err) {
+        console.error("Order confirmation email error:", err);
+      }
+    }
   }
 
   res.status(200).send("OK");

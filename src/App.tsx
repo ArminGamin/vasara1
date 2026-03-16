@@ -2612,7 +2612,7 @@ function HomePage() {
                           });
                         } catch {}
                         try {
-                          fetch('/api/send-order-confirmation', {
+                          await fetch('/api/send-order-confirmation', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
