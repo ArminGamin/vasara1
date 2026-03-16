@@ -8,11 +8,13 @@ const STRIPE_PK = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
 // Bridge component that exposes a pay() function via ref so parent can trigger payment
 function StripePayBridge({
   payRef,
+  orderIdRef,
   customer,
   items,
   giftWrapping
 }: {
   payRef: React.MutableRefObject<null | (() => Promise<{ ok: boolean; error?: string }>)>;
+  orderIdRef: React.MutableRefObject<string | null>;
   customer: { name: string; surname: string; email: string; phone: string; address: string };
   items: Array<{ productId: number; name: string; selectedColor?: string; selectedSize?: string; quantity: number }>;
   giftWrapping: boolean;
@@ -34,6 +36,7 @@ function StripePayBridge({
           email: customer.email,
           phone: customer.phone,
           address: customer.address,
+          orderId: orderIdRef?.current ?? undefined,
           items: items.map((it) => ({
             productId: it.productId,
             name: it.name,
@@ -65,13 +68,14 @@ function StripePayBridge({
       return { ok: true };
     };
     return () => { payRef.current = null; };
-  }, [stripe, elements, payRef, customer, items, giftWrapping]);
+  }, [stripe, elements, payRef, orderIdRef, customer, items, giftWrapping]);
 
   return null;
 }
 
 export interface CheckoutStripeLoaderProps {
   payRef: React.MutableRefObject<null | (() => Promise<{ ok: boolean; error?: string }>)>;
+  orderIdRef: React.MutableRefObject<string | null>;
   customer: { name: string; surname: string; email: string; phone: string; address: string };
   items: Array<{ productId: number; name: string; selectedColor?: string; selectedSize?: string; quantity: number }>;
   giftWrapping: boolean;
@@ -81,6 +85,7 @@ export interface CheckoutStripeLoaderProps {
 
 export default function CheckoutStripeLoader({
   payRef,
+  orderIdRef,
   customer,
   items,
   giftWrapping,
@@ -107,7 +112,7 @@ export default function CheckoutStripeLoader({
 
   return (
     <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
-      <StripePayBridge payRef={payRef} customer={customer} items={items} giftWrapping={giftWrapping} />
+      <StripePayBridge payRef={payRef} orderIdRef={orderIdRef} customer={customer} items={items} giftWrapping={giftWrapping} />
       {children(<StripeCardSection />)}
     </Elements>
   );

@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { name, surname, email, phone, address, items, giftWrapping } = req.body || {};
+  const { name, surname, email, phone, address, items, giftWrapping, orderId } = req.body || {};
 
   const computed = computeOrderTotal(items, !!giftWrapping);
   if (!computed.itemsValid || computed.amountCents < 1) {
@@ -38,7 +38,8 @@ export default async function handler(req, res) {
       email: email || "",
       phone: phone || "",
       address: address || "",
-      items: Array.isArray(items) ? items.map((it) => `${it.name}×${it.quantity}`).join(", ") : ""
+      items: Array.isArray(items) ? items.map((it) => `${it.name}×${it.quantity}`).join(", ") : "",
+      order_id: orderId && typeof orderId === "string" ? orderId.trim() : ""
     };
 
     const paymentIntent = await stripe.paymentIntents.create({

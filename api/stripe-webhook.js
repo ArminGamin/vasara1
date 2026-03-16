@@ -62,10 +62,12 @@ export default async function handler(req, res) {
       console.error("Discord webhook error:", err);
     }
 
-    // Send order confirmation email (covers redirect flow; client sends for inline flow)
-    if (md.order_id && md.email) {
+    // Send order confirmation email for every successful payment (inline + redirect)
+    if (md.email) {
       try {
-        const base = process.env.NEXT_PUBLIC_URL || "https://vasaroskampelis.com";
+        const base = process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_URL || "https://vasaroskampelis.com";
         const emailRes = await fetch(`${base}/api/send-order-confirmation`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

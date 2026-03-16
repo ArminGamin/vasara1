@@ -359,6 +359,7 @@ function HomePage() {
   }, []);
   // Bridge ref to trigger Stripe payment from parent button
   const stripePayRef = React.useRef<null | (() => Promise<{ ok: boolean; error?: string }>)>(null);
+  const orderIdRef = React.useRef<string | null>(null);
   // Scroll-snap slideshow: container ref + section refs for entrance animations
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -2267,6 +2268,7 @@ function HomePage() {
               <Suspense fallback={<div className="flex items-center justify-center py-12 text-gray-600">Kraunama...</div>}>
               <CheckoutStripeLoader
                 payRef={stripePayRef}
+                orderIdRef={orderIdRef}
                 customer={{
                   name: checkoutFormData.name,
                   surname: checkoutFormData.surname,
@@ -2524,6 +2526,7 @@ function HomePage() {
                         if (!payInvoker) {
                           if ((import.meta as any).env?.DEV) console.warn('[Checkout] Stripe pay bridge not ready, falling back to Checkout Session');
                         }
+                        orderIdRef.current = `ORD-${Date.now()}-${Math.floor(Math.random()*1000)}`;
                         const payResult = await (payInvoker ? payInvoker() : Promise.resolve({ ok: false, error: 'Mokėjimo sistema nepasiruošusi' }));
                         if (!payResult.ok) {
                           // Fallback to Stripe Checkout (hosted) when Elements fails/blocked
@@ -2574,7 +2577,7 @@ function HomePage() {
                           return;
                         }
                         
-                        const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+                        const orderNumber = orderIdRef.current || `ORD-${Date.now()}-${Math.floor(Math.random()*1000)}`;
                         const order = {
                           id: Date.now(),
                           items: totalItems,
@@ -2611,20 +2614,7 @@ function HomePage() {
                             })
                           });
                         } catch {}
-                        try {
-                          await fetch('/api/send-order-confirmation', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              orderId: orderNumber,
-                              email: checkoutFormData.email,
-                              name: checkoutFormData.name,
-                              surname: checkoutFormData.surname,
-                              total: (orderCents / 100).toFixed(2),
-                              items: cartItems.map((it: any) => ({ name: it.name, quantity: Number(it.quantity || 1) })),
-                            }),
-                          }).catch(() => {});
-                        } catch {}
+                        // Confirmation email is sent from Stripe webhook (payment_intent.succeeded)
                         
                         setOrderHistory([order, ...orderHistory]);
                         setCompletedOrderNumber(orderNumber);
