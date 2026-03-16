@@ -138,7 +138,13 @@ export const CartSidebar = React.memo(({
                   <div className="bg-white border border-gray-300 px-2 py-1 rounded">
                     <span className="text-blue-600 font-bold text-sm">VISA</span>
                   </div>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-6 opacity-60" alt="PayPal" loading="lazy" decoding="async" />
+                  <img
+                    src="/stripe-logo.svg"
+                    className="h-6 opacity-80"
+                    alt="Stripe"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
 
                 <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">

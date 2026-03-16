@@ -16,7 +16,7 @@ export function TrustBadges() {
           </div>
           <div className="flex items-center gap-2 text-text">
             <CreditCard className="w-5 h-5 flex-shrink-0" aria-hidden />
-            <span className="text-sm font-semibold">Visa, Mastercard, PayPal</span>
+            <span className="text-sm font-semibold">Visa, Mastercard</span>
           </div>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
@@ -28,9 +28,9 @@ export function TrustBadges() {
             <span className="text-primary font-bold text-xs">VISA</span>
           </div>
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-            alt="PayPal"
-            className="h-6 opacity-70 object-contain"
+            src="/stripe-logo.svg"
+            alt="Stripe"
+            className="h-6 opacity-80 object-contain"
             loading="lazy"
           />
         </div>

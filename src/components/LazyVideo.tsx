@@ -21,7 +21,7 @@ export function LazyVideo({
       ([entry]) => {
         if (entry.isIntersecting) setShouldLoad(true);
       },
-      { rootMargin: '200px 0px', threshold: 0 }
+      { rootMargin: '100px', threshold: 0.01 }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -36,7 +36,7 @@ export function LazyVideo({
       muted={muted}
       loop={loop}
       autoPlay={autoPlay}
-      preload={shouldLoad ? 'auto' : 'none'}
+      preload={shouldLoad ? 'metadata' : 'none'}
       controls={controls}
       aria-label={ariaLabel}
     />

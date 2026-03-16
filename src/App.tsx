@@ -28,7 +28,6 @@ import { LazyVideo } from "./components/LazyVideo";
 import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
 import { initialProducts } from "./data/products";
-import PayPalButton from './components/PayPalButton';
 import { SITE_NAME, DEFAULT_DESC } from './components/PageWrapper';
 // Lazy-load below-fold components – defers framer-motion and reduces main-thread work
 const CookieConsent = lazy(() => import("./components/CookieConsent").then((m) => ({ default: m.default })));
@@ -1609,10 +1608,10 @@ function HomePage() {
               <span className="text-white font-bold text-xs">VISA</span>
             </div>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-              alt="PayPal"
+              src="/stripe-logo.svg"
+              alt="Stripe"
               className="h-5 object-contain opacity-90"
-              width={48}
+              width={60}
               height={20}
               loading="lazy"
             />
@@ -1782,9 +1781,11 @@ function HomePage() {
                       <span className="text-blue-600 font-bold text-sm">VISA</span>
                     </div>
                     <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                      className="h-6 opacity-60"
-                      alt="PayPal"
+                      src="/stripe-logo.svg"
+                      className="h-6 opacity-80"
+                      alt="Stripe"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
 
@@ -2497,42 +2498,6 @@ function HomePage() {
                   </div>
 
                   <hr className="my-6 border-gray-300" />
-                  {/* Pay with PayPal */}
-                  <div className="mt-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-base font-semibold">Apmokėti per PayPal</h3>
-                    </div>
-                    <div className="space-y-1 mb-2">
-                      <p className="text-xs text-gray-700 font-bold">
-                        📨 Mokėdami per PayPal, įrašykite savo kontaktinę informaciją čia, kad galėtume susisiekti dėl užsakymo!
-                      </p>
-                      <p className="text-xs text-gray-700 font-bold">
-                        (PayPal kartais neperduoda visų duomenų, todėl jūsų pagalba padeda mums greičiau išsiųsti prekę 🎁)
-                      </p>
-                      <p className="text-xs text-gray-700 font-bold">
-                        💛 Atsiskaitydami per PayPal, taikomas nedidelis apdorojimo mokestis (apie 2.5 %). Jis padeda padengti PayPal mokesčius ir užtikrina, kad galėtume išlaikyti mažas kainas visiems 💦
-                      </p>
-                    </div>
-                    <PayPalButton
-                      amountCents={orderCents}
-                      orderNumber={`ORD-${Date.now()}-${Math.floor(Math.random()*1000)}`}
-                      customer={{
-                        name: checkoutFormData.name,
-                        surname: checkoutFormData.surname,
-                        email: checkoutFormData.email,
-                        phone: checkoutFormData.phone,
-                        address: `${checkoutFormData.address}`,
-                        city: checkoutFormData.city,
-                        postalCode: checkoutFormData.postalCode,
-                      }}
-                      items={cartItems.map((it: any) => ({
-                        name: it.name,
-                        quantity: Number(it.quantity || 1),
-                        price: Number(it.price),
-                        selectedColor: it.selectedColor || ''
-                      }))}
-                    />
-                  </div>
 
                   {/* Consent */}
                   
@@ -2710,9 +2675,9 @@ function HomePage() {
                       <span className="text-blue-600 font-bold text-sm">VISA</span>
                     </div>
                     <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                      className="h-6 opacity-60"
-                      alt="PayPal"
+                      src="/stripe-logo.svg"
+                      className="h-6 opacity-80"
+                      alt="Stripe"
                       loading="lazy"
                       decoding="async"
                     />

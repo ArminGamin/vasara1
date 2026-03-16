@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: 'Kokie mokėjimo būdai?',
-    a: 'Priimame Visa, Mastercard ir PayPal. Visi mokėjimai apdorojami per saugius mokėjimų tiekėjus.',
+    a: 'Priimame Visa ir Mastercard. Visi mokėjimai apdorojami per saugius mokėjimų tiekėjus.',
   },
 ];
 
