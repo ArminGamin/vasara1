@@ -2611,6 +2611,20 @@ function HomePage() {
                             })
                           });
                         } catch {}
+                        try {
+                          fetch('/api/send-order-confirmation', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              orderId: orderNumber,
+                              email: checkoutFormData.email,
+                              name: checkoutFormData.name,
+                              surname: checkoutFormData.surname,
+                              total: (orderCents / 100).toFixed(2),
+                              items: cartItems.map((it: any) => ({ name: it.name, quantity: Number(it.quantity || 1) })),
+                            }),
+                          }).catch(() => {});
+                        } catch {}
                         
                         setOrderHistory([order, ...orderHistory]);
                         setCompletedOrderNumber(orderNumber);
