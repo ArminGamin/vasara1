@@ -74,4 +74,4 @@ function computeOrderTotal(items, giftWrapping = false) {
   };
 }
 
-module.exports = { PRICE_TABLE, getPrice, computeOrderTotal };
+export { PRICE_TABLE, getPrice, computeOrderTotal };

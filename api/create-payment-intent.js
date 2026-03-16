@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-const { computeOrderTotal } = require("./price-table");
+import { computeOrderTotal } from "./price-table.js";
 
 const secretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(secretKey || "");
