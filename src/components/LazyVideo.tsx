@@ -21,7 +21,7 @@ export function LazyVideo({
       ([entry]) => {
         if (entry.isIntersecting) setShouldLoad(true);
       },
-      { rootMargin: '100px', threshold: 0.01 }
+      { rootMargin: '400px', threshold: 0.01 }
     );
     io.observe(el);
     return () => io.disconnect();

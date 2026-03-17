@@ -1403,10 +1403,10 @@ function HomePage() {
         <div className="max-w-6xl mx-auto">
           <Mail className="mx-auto mb-3 w-10 h-10" />
           <h3 className="text-2xl font-bold mb-2">
-            Gaukite 15% nuolaidą pirmajam užsakymui
+            Sužinokite pirmi apie naujienas!
           </h3>
           <p className="text-sm mb-4">
-            Užsiprenumeruokite naujienlaiškį – išsiųsime nuolaidos kodą ir naujienas apie vasaros pasiūlymus.
+            Užsiprenumeruokite naujienlaiškį - informuosime apie akcijas ir naujausius vasaros pasiūlymus.
           </p>
           <form
             onSubmit={async (e) => {

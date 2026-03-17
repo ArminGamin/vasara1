@@ -47,7 +47,7 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
         await onSubscribe(trimmed);
       }
       setStatus('success');
-      setMessage('Ačiū! Gaukite 15% nuolaidą pirmajam užsakymui.');
+      setMessage('Ačiū! Prenumerata sėkminga.');
       setTimeout(handleClose, 2500);
     } catch {
       setStatus('error');
@@ -76,9 +76,9 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-1">Gaukite 15% nuolaidą</h3>
+                <h3 className="text-lg font-bold mb-1">Sužinokite pirmi!</h3>
                 <p className="text-sm text-white/90 mb-4">
-                  Užsiprenumeruokite ir gaukite nuolaidą pirmajam užsakymui bei naujienas apie pasiūlymus.
+                  Užsiprenumeruokite ir gaukite naujienas apie akcijas bei naujausius pasiūlymus tiesiai į el. paštą.
                 </p>
                 {status === 'success' ? (
                   <p className="text-sm font-medium text-white/95">{message}</p>
@@ -103,7 +103,7 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
                       disabled={status === 'loading'}
                       className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold py-3 rounded-lg transition min-h-[48px] disabled:opacity-70"
                     >
-                      {status === 'loading' ? 'Siunčiama...' : 'Gauti nuolaidą'}
+                      {status === 'loading' ? 'Siunčiama...' : 'Prenumeruoti'}
                     </button>
                   </form>
                 )}
