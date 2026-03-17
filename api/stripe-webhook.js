@@ -1,6 +1,8 @@
 import Stripe from "stripe";
+import { Resend } from "resend";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-11-08" });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const config = {
   api: {
@@ -65,27 +67,22 @@ export default async function handler(req, res) {
     // Send order confirmation email for every successful payment (inline + redirect)
     if (md.email) {
       try {
-        const base = process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NEXT_PUBLIC_URL || "https://vasaroskampelis.com";
-        const emailRes = await fetch(`${base}/api/send-order-confirmation`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: orderNumber,
-            email: md.email,
-            name: md.name || "",
-            surname: md.surname || "",
-            total: amount,
-            items: [],
-          }),
+        const html = `
+<h1>Užsakymas patvirtintas!</h1>
+<p>Užsakymo numeris: <strong>${orderNumber}</strong></p>
+<p>Ačiū už pirkinį!</p>
+`;
+
+        const { error } = await resend.emails.send({
+          from: process.env.RESEND_FROM || "onboarding@resend.dev",
+          to: md.email,
+          subject: "Jūsų užsakymas patvirtintas | Vasaros Kampelis",
+          html,
         });
-        if (!emailRes.ok) {
-          const errBody = await emailRes.text().catch(() => "");
-          console.error("Order confirmation email failed:", emailRes.status, errBody);
-        }
+
+        if (error) console.error("Resend error:", error);
       } catch (err) {
-        console.error("Order confirmation email error:", err);
+        console.error("Email send failed:", err);
       }
     }
   }
