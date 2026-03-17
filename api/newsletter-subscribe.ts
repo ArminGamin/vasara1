@@ -78,40 +78,68 @@ export default async function handler(req: any, res: any) {
       if (exists) {
         return res.status(409).json({ error: 'Šis el. paštas jau užregistruotas.' });
       }
-      // Reserve for 24h; ESPs typically dedup permanently, but we can re-extend later
       const ok = await redisSetNX(key, '1', 60 * 60 * 24);
       if (!ok) {
         return res.status(409).json({ error: 'Šis el. paštas jau užregistruotas.' });
       }
     }
 
-    // Send email via Resend (no activation page)
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     if (!RESEND_API_KEY) {
       return res.status(500).json({ error: 'Missing RESEND_API_KEY' });
     }
 
-    // Use Resend onboarding sender for testing if you haven't verified a domain yet
     const fromAddress = process.env.RESEND_FROM || 'onboarding@resend.dev';
-    const emailBody = {
-      from: fromAddress,
-      to: ['info@vasaroskampelis.com'],
-      subject: 'Naujas naujienlaiškio prenumeratorius',
-      text: `Gautas naujas prenumeratos adresas: ${e}`,
-    } as const;
 
+    // Notify you of a new subscriber
     const forward = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify(emailBody),
+      body: JSON.stringify({
+        from: fromAddress,
+        to: ['info@vasaroskampelis.com'],
+        subject: 'Naujas naujienlaiškio prenumeratorius',
+        text: `Gautas naujas prenumeratos adresas: ${e}`,
+      }),
     });
 
     if (!forward.ok) {
       const msg = await forward.json().catch(async () => ({ message: await forward.text().catch(() => '') }));
       return res.status(502).json({ error: 'Failed to deliver', details: msg });
+    }
+
+    // Send confirmation email to the subscriber
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [e],
+          subject: 'Ačiū už prenumeratą! | Vasaros Kampelis',
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:40px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.08)">
+              <div style="background:linear-gradient(90deg,#1e90ff,#00c2ff);padding:30px 20px;text-align:center">
+                <h1 style="color:white;margin:0;font-size:24px">🌿 Vasaros Kampelis</h1>
+                <p style="color:white;margin:8px 0 0">Ačiū už prenumeratą!</p>
+              </div>
+              <div style="padding:30px;color:#333;line-height:1.6">
+                <p>Sveiki!</p>
+                <p>Esate sėkmingai užsiregistravę gauti Vasaros Kampelio naujienas. Informuosime jus apie akcijas ir naujausius pasiūlymus.</p>
+                <p style="margin-top:30px;color:#999;font-size:13px">Jei neprenumeravote — tiesiog ignoruokite šį laišką.</p>
+              </div>
+            </div>
+          `,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to send confirmation email:', err);
     }
 
     // Notify Discord (newsletter channel)
@@ -140,5 +168,3 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: 'Server error' });
   }
 }
-
-
