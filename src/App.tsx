@@ -1509,7 +1509,7 @@ function HomePage() {
           {newsletterMsg && (
             <div className={`mt-4 max-w-xl mx-auto rounded-lg border px-4 py-3 text-sm font-semibold shadow ${
               newsletterMsg.type === 'success'
-                ? 'bg-success/20 border-success text-text'
+                ? 'bg-promoBg border-success text-text'
                 : 'bg-promoBg border-promoBorder text-text'
             }`}>
               <div className="flex items-center gap-2 justify-center">
