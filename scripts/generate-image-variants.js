@@ -108,7 +108,8 @@ async function processHeroAndProductImages() {
   for (const file of files) {
     const p = path.join(PUBLIC_DIR, file);
     if (!fs.statSync(p).isFile()) continue;
-    if (/^hero-.+\.webp$/i.test(file)) {
+    // Only process base hero images (exclude already-generated -480w, -768w, -1024w variants)
+    if (/^hero-.+\.webp$/i.test(file) && !/-\d+w\.webp$/i.test(file)) {
       for (const w of HERO_WIDTHS) {
         await generateResponsiveVariant(p, w);
       }
