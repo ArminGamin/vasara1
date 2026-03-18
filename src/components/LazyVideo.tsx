@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 
-/** Loads video src only when in viewport – saves ~28MB on initial load */
+/** Loads video src when in viewport (or immediately if priority). Uses preload="auto" for faster first frame. */
 export function LazyVideo({
   src,
   className,
@@ -10,22 +10,24 @@ export function LazyVideo({
   autoPlay,
   controls,
   'aria-label': ariaLabel,
-}: React.ComponentProps<'video'>) {
+  priority = false,
+}: React.ComponentProps<'video'> & { priority?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(priority);
 
   useEffect(() => {
+    if (priority) return;
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setShouldLoad(true);
       },
-      { rootMargin: '400px', threshold: 0.01 }
+      { rootMargin: '800px', threshold: 0.01 }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [priority]);
 
   return (
     <video
@@ -36,9 +38,10 @@ export function LazyVideo({
       muted={muted}
       loop={loop}
       autoPlay={autoPlay}
-      preload={shouldLoad ? 'metadata' : 'none'}
+      preload={shouldLoad ? 'auto' : 'none'}
       controls={controls}
       aria-label={ariaLabel}
+      {...(priority && shouldLoad ? { fetchPriority: 'high' as const } : {})}
     />
   );
 }

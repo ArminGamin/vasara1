@@ -1182,6 +1182,7 @@ function HomePage() {
                 autoPlay
                 controls
                 aria-label="Promo 1"
+                priority
               />
             </div>
             <div className="promo-shorts-card">
