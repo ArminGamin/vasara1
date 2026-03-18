@@ -60,7 +60,7 @@ export const ThankYouModal: React.FC<ThankYouModalProps> = ({
           {/* Continue Shopping Button */}
           <button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105"
+            className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
           >
             Tęsti Apsipirkimą
           </button>

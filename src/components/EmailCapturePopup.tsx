@@ -94,7 +94,7 @@ export function EmailCapturePopup({ onSubscribe, delayMs = 12000 }: EmailCapture
                       autoComplete="email"
                     />
                     {message && (
-                      <p className={`text-sm ${status === 'error' ? 'text-red-200' : 'text-white/90'}`}>
+                      <p className={`text-sm ${status === 'error' ? 'text-red-500 font-bold' : 'text-white/90'}`}>
                         {message}
                       </p>
                     )}

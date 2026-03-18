@@ -100,7 +100,7 @@ export default async function handler(req: any, res: any) {
       },
       body: JSON.stringify({
         from: fromAddress,
-        to: ['info@vasaroskampelis.com'],
+        to: ['vasaroskampelis@gmail.com'],
         subject: 'Naujas naujienlaiškio prenumeratorius',
         text: `Gautas naujas prenumeratos adresas: ${e}`,
       }),
@@ -133,7 +133,7 @@ export default async function handler(req: any, res: any) {
                 <p>Sveiki!</p>
                 <p>Esate sėkmingai užsiregistravę gauti Vasaros Kampelio naujienas. Informuosime jus apie akcijas ir naujausius pasiūlymus.</p>
                 <p style="margin-top:30px;color:#999;font-size:13px">Jei neprenumeravote — tiesiog ignoruokite šį laišką.</p>
-                <p style="color:#999;font-size:13px">Norite atsisakyti prenumeratos? <a href="mailto:info@vasaroskampelis.com?subject=Atsisakyti%20prenumeratos" style="color:#999">Spauskite čia</a>.</p>
+                <p style="color:#999;font-size:13px">Norite atsisakyti prenumeratos? <a href="mailto:vasaroskampelis@gmail.com?subject=Atsisakyti%20prenumeratos" style="color:#999">Spauskite čia</a>.</p>
               </div>
             </div>
           `,

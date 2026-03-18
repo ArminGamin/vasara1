@@ -93,7 +93,7 @@ const CookieConsent: React.FC = () => {
               Paspaudę "Priimti visus", sutinkate su visomis slapukų kategorijomis.
             </p>
             <a
-              href="/privatumo-politika"
+              href="/slapuku-politika"
               className="text-red-600 hover:text-red-700 text-sm underline"
             >
               Sužinokite daugiau apie slapukų politiką

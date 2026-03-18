@@ -32,7 +32,7 @@ export function FAQAccordion() {
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className="bg-surface rounded-2xl border border-border overflow-hidden"
+              className="bg-surface rounded-2xl border border-border overflow-hidden shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
             >
               <button
                 type="button"

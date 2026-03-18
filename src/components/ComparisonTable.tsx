@@ -21,11 +21,11 @@ type ComparisonTableProps = {
 export function ComparisonTable({ embedded = false, otherLabel = 'Pigūs pistoletai' }: ComparisonTableProps) {
   const content = (
     <div className={embedded ? 'pillow-comparison-box overflow-x-auto' : 'overflow-x-auto rounded-2xl border border-border shadow-sm bg-surface'}>
-      <table className="w-full text-left min-w-[340px]">
+      <table className="w-full text-left min-w-[340px] lg:min-w-[480px]">
         <thead>
           <tr className="border-b border-border bg-bg">
-            <th className="px-3 py-3 sm:p-4 font-semibold text-text text-sm sm:text-base">Charakteristika</th>
-            <th className="px-3 py-3 sm:p-4 font-semibold text-text bg-promoBg text-center text-sm sm:text-base">{BRAND.nameShort}</th>
+            <th className="px-3 py-3 sm:p-4 font-bold text-text text-sm sm:text-base">Charakteristika</th>
+            <th className="px-3 py-3 sm:p-4 font-bold text-text bg-promoBg text-center text-sm sm:text-base">{BRAND.nameShort}</th>
             <th className="px-3 py-3 sm:p-4 font-semibold text-muted text-center text-sm sm:text-base">{otherLabel}</th>
           </tr>
         </thead>

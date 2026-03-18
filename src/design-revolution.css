@@ -68,7 +68,7 @@
   letter-spacing: -0.02em;
   justify-self: center;
   grid-column: 2;
-  transform: translateX(4px);
+  transform: translateX(-1px);
 }
 @media (min-width: 640px) {
   .storefront-logo { font-size: 1.5rem; }
@@ -506,6 +506,7 @@
   .pillow-why-grid {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-8);
+    align-items: start;
   }
 }
 .pillow-why-headline {
@@ -531,7 +532,7 @@
   background: var(--color-surface);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--color-border);
 }
 /* Pillow-style: brand column uses primary */
@@ -541,6 +542,45 @@
 }
 .pillow-comparison-box tbody td.bg-promoBg {
   background: var(--color-primary) !important;
+}
+
+/* Desktop only (lg): larger Why section + comparison table – mobile unchanged */
+@media (min-width: 1024px) {
+  .pillow-why-section {
+    padding: var(--space-8) 0 var(--space-12);
+  }
+  .pillow-why-grid {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+  .pillow-why-headline {
+    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    margin-bottom: var(--space-4);
+  }
+  .pillow-why-body {
+    font-size: 1.125rem;
+  }
+  .pillow-why-body p {
+    margin-bottom: var(--space-3);
+  }
+  .pillow-comparison-box th,
+  .pillow-comparison-box td {
+    padding: 1.25rem 2rem;
+    font-size: 1.125rem;
+  }
+  .pillow-comparison-box th:nth-child(2),
+  .pillow-comparison-box td:nth-child(2) {
+    min-width: 5rem;
+  }
+  .pillow-comparison-box th:nth-child(3),
+  .pillow-comparison-box td:nth-child(3) {
+    min-width: 8rem;
+  }
+  .pillow-comparison-box svg {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
 }
 
 /* Ensure slide-content can position absolute children (e.g. hero gradient) */
@@ -903,6 +943,7 @@
   border-radius: 16px;
   padding: var(--space-4);
   border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 .revo-review-card .revo-review-text {
   font-size: 0.9375rem;
@@ -951,8 +992,8 @@
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.15);
   box-shadow:
-    0 0 30px rgba(14, 165, 233, 0.25),
-    0 8px 32px rgba(0, 0, 0, 0.4);
+    0 0 40px rgba(14, 165, 233, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.5);
   background: #000;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
   will-change: transform;
@@ -1068,12 +1109,13 @@
   overflow: hidden;
 }
 @media (min-width: 640px) {
-  .product-modal-image-wrap { min-height: 400px; aspect-ratio: 3 / 4; }
+  .product-modal-image-wrap { min-height: 480px; aspect-ratio: 3 / 4; }
 }
 .product-modal-thumb {
   border-radius: 12px;
   border: 2px solid transparent;
   background: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .product-modal-thumb:hover {
@@ -1082,12 +1124,13 @@
 }
 .product-modal-thumb.active {
   border-color: var(--color-cta);
-  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.4);
 }
 .product-modal-new-badge {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   font-size: 0.7rem;
   letter-spacing: 0.03em;
   padding: 0.3rem 0.6rem;

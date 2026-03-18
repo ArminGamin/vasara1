@@ -13,7 +13,7 @@ This document describes the implementation of JSON-LD structured data and servic
   - Complete business information (name, address, contact)
   - Operating hours and payment methods
   - Aggregate ratings (4.7/5 from 1247 reviews)
-  - Social media links (Facebook, Instagram, TikTok)
+  - Social media links (Instagram, TikTok)
   - Search action functionality
   - Logo and images with proper ImageObject schema
 

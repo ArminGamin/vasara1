@@ -4,7 +4,7 @@ export const BRAND = {
   nameShort: "Vasaros Kampelis",
   tagline: "Summer Fun That Hits Different",
   domain: "https://vasaroskampelis.com",
-  email: "info@vasaroskampelis.lt",
+  email: "vasaroskampelis@gmail.com",
   colors: {
     primary: "#00BFFF",
     primaryDeep: "#0077FF",

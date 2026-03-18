@@ -55,7 +55,7 @@ export default function ApieMus() {
             <details className="group rounded-lg border border-gray-200 p-4 bg-white">
               <summary className="cursor-pointer font-semibold select-none">5️⃣ Kaip susisiekti, jei turiu klausimų?</summary>
               <p className="mt-2 text-gray-700">
-                Atsakymas: Galite rašyti mums el. paštu <a href="mailto:info@vasaroskampelis.lt" className="text-brand-orange underline">info@vasaroskampelis.lt</a> arba per kontaktų puslapį. Atsakome per 24 valandas.
+                Atsakymas: Galite rašyti mums el. paštu <a href="mailto:vasaroskampelis@gmail.com" className="text-brand-orange underline">vasaroskampelis@gmail.com</a> arba per kontaktų puslapį. Atsakome per 24 valandas.
               </p>
             </details>
           </div>

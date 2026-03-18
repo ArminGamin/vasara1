@@ -50,6 +50,7 @@ const ProductComparison = lazy(() => import("./components/ProductComparison").th
 const PristatymoInfo = lazy(() => import("./pages/PristatymoInfo").then(m => ({ default: m.default })));
 const Grazinimai = lazy(() => import("./pages/Grazinimai").then(m => ({ default: m.default })));
 const PrivatumoPolitika = lazy(() => import("./pages/PrivatumoPolitika").then(m => ({ default: m.default })));
+const SlapukuPolitika = lazy(() => import("./pages/SlapukuPolitika").then(m => ({ default: m.default })));
 const Kontaktai = lazy(() => import("./pages/Kontaktai").then(m => ({ default: m.default })));
 const ApieMus = lazy(() => import("./pages/ApieMus").then(m => ({ default: m.default })));
 const BlogIndex = lazy(() => import("./pages/BlogIndex").then(m => ({ default: m.default })));
@@ -134,7 +135,7 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
             onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
             className="hero-overlay-cta"
           >
-            {language === 'lt' ? 'PIRK DABAR' : 'SHOP NOW'}
+            {language === 'lt' ? 'PIRK DABAR!' : 'SHOP NOW'}
           </button>
         </div>
       </div>
@@ -662,7 +663,6 @@ function HomePage() {
       });
     } else {
       // Fallback for browsers that don't support Web Share API
-      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
       
       const shareWindow = window.open('', '_blank', 'width=600,height=400');
@@ -674,7 +674,6 @@ function HomePage() {
               <h2>Share this product</h2>
               <p>${shareText}</p>
               <div style="margin-top: 20px;">
-                <a href="${facebookUrl}" target="_blank" style="margin-right: 10px; padding: 10px; background: #3b5998; color: white; text-decoration: none; border-radius: 5px;">Share on Facebook</a>
                 <a href="${twitterUrl}" target="_blank" style="padding: 10px; background: #1da1f2; color: white; text-decoration: none; border-radius: 5px;">Share on Twitter</a>
               </div>
             </body>
@@ -1026,9 +1025,9 @@ function HomePage() {
             <div key={copy} className="storefront-promo-set" aria-hidden={copy > 0 ? true : undefined}>
               <span>💦 Šaudo iki 10 metrų atstumu</span>
               <span>➔</span>
-              <span>💧 Didelė vandens talpa</span>
-              <span>➔</span>
               <span>🚀 Pilnai automatinis režimas</span>
+              <span>➔</span>
+              <span>💧 Didelė vandens talpa</span>
               <span>➔</span>
               <span>🖐 Stabilus ir patogus laikymas</span>
               <span>➔</span>
@@ -1054,11 +1053,11 @@ function HomePage() {
         {/* Section 2: Pillow-style Why – two columns: text left, comparison table right */}
         <section
           ref={(el) => { sectionRefs.current[1] = el; }}
-          className="snap-slide pillow-why-section"
+          className="snap-slide snap-auto pillow-why-section"
           style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}
         >
           <div className="slide-content w-full">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl lg:max-w-7xl xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="pillow-why-grid">
                 <div>
                   <h2 className="pillow-why-headline">
@@ -1196,7 +1195,7 @@ function HomePage() {
       </div>
 
       {/* Products – one big section with inline variant selection */}
-      <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 flex-1">
+      <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 md:py-14 flex-1">
         <h2 className="revo-section-title text-center mb-2">{t.products}</h2>
         <p className="revo-section-sub text-center mb-10 pl-6 pr-1">Tegul prasideda tikras vasaros mūšis! 🚀</p>
         {productsSorted.length === 0 ? (
@@ -1225,13 +1224,13 @@ function HomePage() {
             <div className="product-section-card w-full max-w-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 h-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] w-full">
                 {/* Left: image updates by variant */}
-                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full w-full min-w-0 max-w-full flex flex-col items-center justify-center p-5 lg:p-6 overflow-hidden">
+                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full w-full min-w-0 max-w-full flex flex-col items-center justify-center p-3 lg:p-4 overflow-hidden">
                   {product.isNew && (
-                    <span className="absolute top-3 left-3 bg-success text-white text-xs font-bold px-3 py-1.5 rounded-full z-10">
+                    <span className="absolute top-3 left-3 bg-success text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
                       {t.newBadge}
                     </span>
                   )}
-                  <div className="flex-1 w-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden">
+                  <div className="flex-1 w-full min-w-0 min-h-0 lg:min-h-[min(55vh,520px)] flex items-center justify-center overflow-hidden">
                     <OptimizedImage
                       src={currentImage}
                       srcSet={productSrcSet(currentImage)}
@@ -1241,7 +1240,7 @@ function HomePage() {
                       decoding="async"
                       width={600}
                       height={600}
-                      sizes="(max-width: 768px) 50vw, 400px"
+                      sizes="(max-width: 768px) 50vw, 550px"
                     />
                   </div>
                   {currentVariantImages.length > 1 && (
@@ -1251,11 +1250,11 @@ function HomePage() {
                           key={i}
                           type="button"
                           onClick={() => setSectionImageIndex(i)}
-                          className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
-                            sectionImageIndex === i ? 'border-cta ring-2 ring-cta/30' : 'border-border'
+                          className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 shadow-[0_4px_14px_rgba(0,0,0,0.08)] ${
+                            sectionImageIndex === i ? 'border-cta ring-4 ring-cta/50' : 'border-border'
                           }`}
                         >
-                          <OptimizedImage src={resolveImagePath(url)} srcSet={productSrcSet(url)} alt="" className="w-full h-full object-cover" width={56} height={56} sizes="56px" />
+                          <OptimizedImage src={resolveImagePath(url)} srcSet={productSrcSet(url)} alt="" className="w-full h-full object-cover" width={64} height={64} sizes="64px" />
                         </button>
                       ))}
                     </div>
@@ -1490,7 +1489,7 @@ function HomePage() {
           >
             <input
               placeholder="Įveskite savo el. paštą"
-              className="w-full sm:flex-1 px-4 py-3 rounded-md text-black"
+              className="w-full sm:flex-1 px-4 py-3 rounded-md text-black shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
               type="email"
               name="email"
               value={email}
@@ -1499,7 +1498,7 @@ function HomePage() {
             />
             {/* Honeypot for additional spam protection */}
             <input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
-            <button disabled={isSubmittingNewsletter} className={`bg-surface text-primaryDark font-semibold px-6 py-3 rounded-md hover:bg-border min-h-[48px] ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            <button disabled={isSubmittingNewsletter} className={`bg-surface text-primaryDark font-semibold px-6 py-3 rounded-md hover:bg-border min-h-[48px] shadow-[0_4px_14px_rgba(0,0,0,0.08)] ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
               Prenumeruoti
             </button>
           </form>
@@ -1564,6 +1563,11 @@ function HomePage() {
                   Privatumo Politika
                 </Link>
               </li>
+              <li>
+                <Link to="/slapuku-politika" className="hover:text-white cursor-pointer font-semibold">
+                  Slapukų politika
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -1571,13 +1575,7 @@ function HomePage() {
             <ul className="text-sm space-y-2 text-white/80">
               <li className="flex items-center gap-3 py-1">
                 <Mail className="w-5 h-5 block shrink-0" />
-                <span className="inline-flex items-center h-5 font-semibold">info@vasaroskampelis.lt</span>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/facebook/FFFFFF" alt="Facebook" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
-                  Vasaros Kampelis
-                </a>
+                <span className="inline-flex items-center h-5 font-semibold">vasaroskampelis@gmail.com</span>
               </li>
               <li className="flex items-center gap-3 py-1">
                 <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
@@ -1594,7 +1592,7 @@ function HomePage() {
             </ul>
           </div>
         </div>
-        <div className="py-6 text-center text-sm text-white/80">
+        <div className="pt-3 pb-6 text-center text-sm text-white/80">
           {/* Payment processor logos only */}
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5">
             <img
@@ -1633,7 +1631,7 @@ function HomePage() {
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl overflow-y-auto">
+          <div className={`fixed right-0 top-0 w-full max-w-md bg-white shadow-xl overflow-y-auto ${totalItems === 0 ? 'h-auto max-h-full' : 'h-full'}`}>
             <div className="p-6">
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
@@ -1805,7 +1803,7 @@ function HomePage() {
       {/* Wishlist Sidebar */}
       {wishlistOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl overflow-y-auto">
+          <div className={`fixed right-0 top-0 w-full max-w-md bg-white shadow-xl overflow-y-auto ${wishlist.length === 0 ? 'h-auto max-h-full' : 'h-full'}`}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">{t.wishlist} • {wishlist.length}</h2>
@@ -1958,7 +1956,7 @@ function HomePage() {
                             <button
                               key={`${t.group}-${t.idx}-${i}`}
                               onClick={() => { setSelectedSize(t.group); setSelectedImageIndex(t.idx); }}
-                              className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                              className={`product-modal-thumb w-16 h-16 sm:w-20 sm:h-20 overflow-hidden touch-manipulation ${
                                 (selectedSize === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
@@ -1991,7 +1989,7 @@ function HomePage() {
                             <button
                               key={`${t.group}-${t.idx}-${i}`}
                               onClick={() => { setSelectedColor(t.group); setSelectedImageIndex(t.idx); }}
-                              className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                              className={`product-modal-thumb w-16 h-16 sm:w-20 sm:h-20 overflow-hidden touch-manipulation ${
                                 (selectedColor === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
@@ -2021,7 +2019,7 @@ function HomePage() {
                         <button
                           key={index}
                             onClick={() => setSelectedImageIndex(index)}
-                          className={`product-modal-thumb w-14 h-14 sm:w-16 sm:h-16 overflow-hidden touch-manipulation ${
+                          className={`product-modal-thumb w-16 h-16 sm:w-20 sm:h-20 overflow-hidden touch-manipulation ${
                               selectedImageIndex === index ? 'active' : ''
                           }`}
                           title={`Variantas ${index + 1}`}
@@ -2765,6 +2763,7 @@ export default function App() {
         <Route path="/grazinimai" element={<Grazinimai />} />
         <Route path="/kontaktai" element={<Kontaktai />} />
         <Route path="/privatumo-politika" element={<PrivatumoPolitika />} />
+        <Route path="/slapuku-politika" element={<SlapukuPolitika />} />
       </Routes>
     </Suspense>
   );
