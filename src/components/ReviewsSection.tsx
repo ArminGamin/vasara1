@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 
 const reviews = [
@@ -45,6 +45,40 @@ function ReviewCard({ r }: { r: (typeof reviews)[0] }) {
 }
 
 export function ReviewsSection() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(false);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Mobile: auto-scroll via JS so user can also swipe manually
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    if (!mq.matches) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let raf: number;
+    const scroll = () => {
+      if (paused || !el) return;
+      const half = el.scrollWidth / 2;
+      el.scrollLeft += 0.4;
+      if (el.scrollLeft >= half - 1) el.scrollLeft = 0;
+      raf = requestAnimationFrame(scroll);
+    };
+    raf = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(raf);
+  }, [paused]);
+
+  const handleTouchStart = () => {
+    setPaused(true);
+    if (resumeTimeoutRef.current) {
+      clearTimeout(resumeTimeoutRef.current);
+      resumeTimeoutRef.current = null;
+    }
+  };
+  const handleTouchEnd = () => {
+    resumeTimeoutRef.current = setTimeout(() => setPaused(false), 2000);
+  };
+
   return (
     <section className="py-6 md:py-10 bg-surface">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
@@ -53,7 +87,13 @@ export function ReviewsSection() {
       </div>
       {/* Full-width marquee so it fills edge-to-edge */}
       <div className="revo-reviews-marquee-wrap" aria-label="Atsiliepimų slinktis">
-        <div className="revo-reviews-marquee">
+        <div
+          ref={scrollRef}
+          className="revo-reviews-marquee"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+        >
           <div className="revo-reviews-track">
             {[0, 1].map((copy) => (
               <div key={copy} className="revo-reviews-set" aria-hidden={copy > 0}>

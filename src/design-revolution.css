@@ -914,13 +914,33 @@
   padding: var(--space-2) 0 var(--space-1);
   padding-left: var(--space-4);
 }
+/* Mobile: swipeable horizontal scroll */
+@media (max-width: 767px) {
+  .revo-reviews-marquee {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  .revo-reviews-track {
+    animation: none;
+    padding-right: var(--space-4);
+  }
+  .revo-review-card {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+}
 .revo-reviews-track {
   display: flex;
   width: max-content;
   animation: reviews-marquee 70s linear infinite;
   will-change: transform;
 }
-@media (prefers-reduced-motion: reduce) {
+@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
   .revo-reviews-track {
     animation: none;
   }

@@ -82,10 +82,13 @@ const HERO_IMAGES = [
   { src: '/hero-blue-glock.webp', alt: 'Elektrinis vandens pistoletas – mėlynas' },
 ];
 
+const SWIPE_THRESHOLD = 50;
+
 const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language: string }) {
   const [idx, setIdx] = useState(0);
   const len = HERO_IMAGES.length;
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef(0);
 
   const go = useCallback((n: number) => {
     setIdx((n % len + len) % len);
@@ -98,9 +101,24 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [len]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dx = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    if (dx > 0) go(idx + 1);      // swipe left -> next
+    else go(idx - 1);              // swipe right -> prev
+  }, [idx, go]);
+
   return (
     <>
-      <div className="hero-carousel">
+      <div
+        className="hero-carousel"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {HERO_IMAGES.map((img, i) => (
           <img
             key={i}
@@ -135,7 +153,7 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
             onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
             className="hero-overlay-cta"
           >
-            {language === 'lt' ? 'PIRK DABAR!' : 'SHOP NOW'}
+            {language === 'lt' ? 'PIRK DABAR' : 'SHOP NOW'}
           </button>
         </div>
       </div>
