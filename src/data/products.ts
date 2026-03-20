@@ -5,8 +5,8 @@ export const initialProducts: Product[] = [
   {
     id: 1001,
     name: "Vandens šautuvai – Vasaros Kampelis",
-    price: 9.99,
-    originalPrice: 19.99,
+    price: 35.99,
+    originalPrice: 46.99,
     image: "/blue1.webp",
     images: ["/blue1.webp", "/blue2.webp", "/blue3.webp", "/pink1.webp", "/pink2.webp", "/pink3.webp"],
     imagesBySize: [

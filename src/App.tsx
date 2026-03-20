@@ -935,53 +935,64 @@ function HomePage() {
         "@context": "https://schema.org",
         "@type": "ItemList",
         name: "Produktų sąrašas",
-        itemListElement: (storeProducts.length ? storeProducts : []).map((p, idx) => ({
-          "@type": "ListItem",
-          position: idx + 1,
-          item: {
-            "@type": "Product",
-            name: p.name,
-            image: p.images?.[0] || p.image,
-            description: p.description,
-            sku: `KK-${p.id}`,
-            brand: { "@type": "Brand", name: "Vasaros Kampelis" },
-            url: `https://splashzone.example.com/?product=${p.id}`,
-            offers: {
-              "@type": "Offer",
-              price: p.price,
-              priceCurrency: "EUR",
-              availability: "https://schema.org/InStock",
-              priceValidUntil: "2025-12-31",
-              shippingDetails: {
-                "@type": "OfferShippingDetails",
-                "shippingRate": { "@type": "MonetaryAmount", "value": "2.99", "currency": "EUR" },
-                "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "LT" },
-                "deliveryTime": {
-                  "@type": "ShippingDeliveryTime",
-                  "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2, "unitCode": "d" },
-                  "transitTime": { "@type": "QuantitativeValue", "minValue": 8, "maxValue": 12, "unitCode": "d" }
-                }
-              },
-              hasMerchantReturnPolicy: {
-                "@type": "MerchantReturnPolicy",
-                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-                "merchantReturnDays": 30,
-                "applicableCountry": "LT",
-                "returnMethod": "https://schema.org/ReturnByMail",
-                "returnFees": "https://schema.org/FreeReturn",
-                "refundType": "https://schema.org/FullRefund",
-                "returnPolicyUrl": "https://splashzone.example.com/grazinimai"
+        itemListElement: (storeProducts.length ? storeProducts : []).map((p, idx) => {
+          const siteOrigin = "https://vasaroskampelis.com";
+          const productUrl = `${siteOrigin}/?product=${p.id}`;
+          const variantPrices = p.pricesBySize?.length ? p.pricesBySize : [p.price];
+          const lowPrice = Math.min(...variantPrices);
+          const highPrice = Math.max(...variantPrices);
+          const offerBase = {
+            priceCurrency: "EUR",
+            availability: "https://schema.org/InStock",
+            priceValidUntil: "2026-12-31",
+            url: productUrl,
+            shippingDetails: {
+              "@type": "OfferShippingDetails",
+              shippingRate: { "@type": "MonetaryAmount", value: "2.99", currency: "EUR" },
+              shippingDestination: { "@type": "DefinedRegion", addressCountry: "LT" },
+              deliveryTime: {
+                "@type": "ShippingDeliveryTime",
+                handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "d" },
+                transitTime: { "@type": "QuantitativeValue", minValue: 8, maxValue: 12, unitCode: "d" }
               }
             },
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: p.rating,
-              reviewCount: p.reviews,
-              bestRating: 5,
-              worstRating: 1
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+              merchantReturnDays: 30,
+              applicableCountry: "LT",
+              returnMethod: "https://schema.org/ReturnByMail",
+              returnFees: "https://schema.org/FreeReturn",
+              refundType: "https://schema.org/FullRefund",
+              returnPolicyUrl: `${siteOrigin}/grazinimai`
             }
-          }
-        }))
+          };
+          const offers =
+            p.pricesBySize && p.pricesBySize.length > 1
+              ? { "@type": "AggregateOffer", lowPrice, highPrice, offerCount: p.pricesBySize.length, ...offerBase }
+              : { "@type": "Offer", price: lowPrice, ...offerBase };
+          return {
+            "@type": "ListItem",
+            position: idx + 1,
+            item: {
+              "@type": "Product",
+              name: p.name,
+              image: p.images?.[0] || p.image,
+              description: p.description,
+              sku: `KK-${p.id}`,
+              brand: { "@type": "Brand", name: "Vasaros Kampelis" },
+              url: productUrl,
+              offers,
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: p.rating,
+                reviewCount: p.reviews,
+                bestRating: 5,
+                worstRating: 1
+              }
+            }
+          };
+        })
       }) }} />
       <header className="storefront-header ios-safe-area shrink-0">
         <div className="storefront-header-emoji-deco" aria-hidden>
