@@ -3,6 +3,23 @@
   "outputDirectory": "dist",
   "installCommand": "npm install --force",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.vasaroskampelis.com" }],
+      "destination": "https://vasaroskampelis.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "vasaroskampelis.com" },
+        { "type": "header", "key": "x-forwarded-proto", "value": "http" }
+      ],
+      "destination": "https://vasaroskampelis.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
