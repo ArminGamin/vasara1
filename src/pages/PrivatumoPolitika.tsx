@@ -13,6 +13,8 @@ export default function PrivatumoPolitika() {
         <p>Asmeninė informacija nėra parduodama, nuomojama ar kitaip perduodama trečiosioms šalims, išskyrus atvejus, kai tai būtina užsakymui įvykdyti, laikantis įstatymų reikalavimų arba siekiant apsaugoti mūsų teises.</p>
         <h3 className="text-brand-blue-deep font-semibold text-lg">Saugumas</h3>
         <p>Mes rimtai žiūrime į asmeninės informacijos apsaugą ir taikome tinkamas technines bei organizacines priemones, siekiant apsaugoti ją nuo neteisėtos prieigos, praradimo ar paviešinimo. Mokėjimai atliekami per saugius serverius, o klientų duomenys saugomi apsaugotoje duomenų bazėje.</p>
+        <h3 className="text-brand-blue-deep font-semibold text-lg">Duomenų saugojimas</h3>
+        <p>Asmeniniai duomenys saugomi 24 mėnesius nuo paskutinio susisiekimo dienos, nebent teisės aktai numato ilgesnį saugojimo laikotarpį. Jūs turite teisę bet kuriuo metu pateikti prašymą ištrinti savo asmens duomenis.</p>
         <h3 className="text-brand-blue-deep font-semibold text-lg">Privatumo politikos pakeitimai</h3>
         <p>Ši privatumo politika gali būti atnaujinama be išankstinio įspėjimo. Atnaujinta versija visada bus pateikta šioje svetainėje ir įsigalios nuo paskelbimo momento.</p>
         <h3 className="text-brand-blue-deep font-semibold text-lg">Kontaktai</h3>
