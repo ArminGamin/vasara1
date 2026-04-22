@@ -1,8 +1,36 @@
 // Using loose types to avoid requiring '@vercel/node' in this Vite app
 
-// In-memory rate limit per IP (5 req / 15 min). Use Upstash for multi-instance.
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
-const RATE_LIMIT_MAX = 5;
+import { Redis } from '@upstash/redis';
+
+const SUBSCRIBERS_TXT_KEY = 'nl:subscribers_txt';
+
+async function appendNewsletterEmailLine(email: string) {
+  const line = `${email}\n`;
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  if (url && token) {
+    try {
+      await new Redis({ url, token }).append(SUBSCRIBERS_TXT_KEY, line);
+    } catch (err) {
+      console.error('newsletter subscribers append (redis):', err);
+    }
+    return;
+  }
+  if (process.env.VERCEL) return;
+  try {
+    const { mkdir, appendFile } = await import('fs/promises');
+    const path = await import('path');
+    const file = path.join(process.cwd(), 'data', 'newsletter-subscribers.txt');
+    await mkdir(path.dirname(file), { recursive: true });
+    await appendFile(file, line, 'utf8');
+  } catch (err) {
+    console.error('newsletter subscribers append (file):', err);
+  }
+}
+
+// In-memory rate limit per IP (100 req / 8 h). Use Upstash for multi-instance.
+const RATE_LIMIT_WINDOW_MS = 8 * 60 * 60 * 1000;
+const RATE_LIMIT_MAX = 100;
 const ipCounts = new Map<string, { count: number; resetAt: number }>();
 
 function getClientIp(req: any): string {
@@ -111,6 +139,8 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: 'Failed to deliver', details: msg });
     }
 
+    await appendNewsletterEmailLine(e);
+
     // Send confirmation email to the subscriber
     try {
       await fetch('https://api.resend.com/emails', {
@@ -132,6 +162,7 @@ export default async function handler(req: any, res: any) {
               <div style="padding:30px;color:#333;line-height:1.6">
                 <p>Sveiki!</p>
                 <p>Esate sėkmingai užsiregistravę gauti Vasaros Kampelio naujienas. Informuosime jus apie akcijas ir naujausius pasiūlymus.</p>
+                <p>Mūsų puslapyje galite apsilankyti paspaudę šią nuorodą: <a href="https://vasaroskampelis.com" style="color:#1e90ff">vasaroskampelis.com</a>.</p>
                 <p style="margin-top:30px;color:#999;font-size:13px">Jei neprenumeravote — tiesiog ignoruokite šį laišką.</p>
                 <p style="color:#999;font-size:13px">Norite atsisakyti prenumeratos? <a href="mailto:vasaroskampelis@gmail.com?subject=Atsisakyti%20prenumeratos" style="color:#999">Spauskite čia</a>.</p>
               </div>

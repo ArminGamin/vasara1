@@ -1448,24 +1448,12 @@ function HomePage() {
               // Basic client-side rate limiting to reduce spam
               try {
                 const now = Date.now();
-                const minuteWindowMs = 60 * 1000; // 1 minute
-                const hourWindowMs = 60 * 60 * 1000; // 1 hour
-                const dayWindowMs = 24 * 60 * 60 * 1000; // 24 hours
-                const attempts: number[] = JSON.parse(localStorage.getItem('nl_attempts') || '[]').filter((t: number) => now - t < dayWindowMs);
-                // Save back filtered list in case old entries existed
+                const eightHoursMs = 8 * 60 * 60 * 1000;
+                const dayWindowMs = 24 * 60 * 60 * 1000;
+                const attempts: number[] = JSON.parse(localStorage.getItem('nl_attempts') || '[]').filter((t: number) => now - t < eightHoursMs);
                 localStorage.setItem('nl_attempts', JSON.stringify(attempts));
-                const attemptsLastMinute = attempts.filter((t) => now - t < minuteWindowMs).length;
-                const attemptsLastHour = attempts.filter((t) => now - t < hourWindowMs).length;
-                if (attemptsLastMinute >= 3) {
-                  setNewsletterMsg({ type: 'error', text: 'Per daug bandymų. Limitas: 3 per minutę.' });
-                  return;
-                }
-                if (attemptsLastHour >= 10) {
-                  setNewsletterMsg({ type: 'error', text: 'Per daug bandymų. Limitas: 10 per valandą.' });
-                  return;
-                }
-                if (attempts.length >= 15) {
-                  setNewsletterMsg({ type: 'error', text: 'Pasiektas dienos limitas (15). Pabandykite rytoj.' });
+                if (attempts.length >= 100) {
+                  setNewsletterMsg({ type: 'error', text: 'Per daug bandymų. Limitas: 100 per 8 valandas.' });
                   return;
                 }
                 // Prevent duplicate email permanently (and keep 24h log as secondary)
