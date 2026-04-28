@@ -36,12 +36,16 @@ function outputPathForRoute(route) {
 }
 
 async function launchChromium() {
-  if (process.env.VERCEL === "1") {
-    const pack = (await import("@sparticuz/chromium")).default;
-    pack.setGraphicsMode = false;
+  if (process.env.VERCEL) {
+    const chromiumPack = (await import("@sparticuz/chromium")).default;
+    chromiumPack.setGraphicsMode = false;
     return chromium.launch({
-      args: pack.args,
-      executablePath: await pack.executablePath(),
+      executablePath: await chromiumPack.executablePath(),
+      args: [
+        ...chromiumPack.args.filter((arg) => arg !== "--single-process"),
+        "--no-zygote",
+        "--no-sandbox",
+      ],
       headless: true,
     });
   }
