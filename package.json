@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/generate-favicons.js && (node scripts/generate-image-variants.js || true)",
-    "build": "vite build --mode production && node scripts/inject-sw-assets.js && npm run generate:sitemaps && npm run ping:sitemaps",
+    "build": "vite build --mode production && npx playwright install chromium && node scripts/prerender.mjs && node scripts/inject-sw-assets.js && npm run generate:sitemaps && npm run ping:sitemaps",
     "build:analyze": "vite build --mode production && npx vite-bundle-analyzer dist",
     "preview": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -46,7 +46,9 @@
     "baseline-browser-mapping": "^2.10.0",
     "cssnano": "^7.1.3",
     "postcss": "^8.4.31",
+    "playwright": "^1.49.1",
     "rollup": "^4.52.5",
+    "sirv": "^3.0.0",
     "sharp": "^0.33.4",
     "tailwindcss": "^3.4.13",
     "terser": "^5.44.0",

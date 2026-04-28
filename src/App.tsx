@@ -170,7 +170,7 @@ function HomePage() {
     if (m) m.setAttribute('content', DEFAULT_DESC);
   }, []);
   const { items: cartItems, totalItems, totalPrice, addItem, removeItem, updateQuantity, clearCart } = useCartStore();
-  const { products, setProducts } = useProductStore();
+  const { products } = useProductStore();
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -383,10 +383,7 @@ function HomePage() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
-  // Initialize products from centralized data source
-  useEffect(() => {
-    setProducts(initialProducts);
-  }, [setProducts]);
+  // Products initialized at app level (see ProductCatalogBootstrap) so catalog + prerender-ready are consistent on all routes
 
   // Translations – summer shop, LT + EN
   const [language, setLanguage] = useState<'lt' | 'en'>(() => {
@@ -1079,9 +1076,68 @@ function HomePage() {
           </div>
         </section>
 
+        <section
+          className="sr-only"
+          aria-label={language === "lt" ? "Vasaros Kampelis — apie vandens žaidimus" : "Vasaros Kampelis — about water play"}
+        >
+          <h2>
+            {language === "lt"
+              ? "Vandens šautuvai, vandens pistoletai ir vasaros žaidimai lauke"
+              : "Water blasters, pistols and outdoor summer play"}
+          </h2>
+          {language === "lt" ? (
+            <div>
+              <p>
+                Ieškote kokybiško <strong>vandens šautuvo</strong>, kuris tikrai įtrauktų visą šeimą? Mūsų elektriniai
+                modeliai šaudo iki dešimties metrų, turi didelę rezervuarą ir tinka tikriems vandens mūšiams kieme ar
+                sode – be aštrių dalių, tik smagus spaudimas ir švari vandens srovė.
+              </p>
+              <p>
+                <strong>Vandens pistoletas vaikams</strong> ir suaugusiems pas mus yra parinktas taip, kad mažiesiems
+                būtų paprasta laikyti ir saugu žaisti, o tėvams – ramu stebėti žaidimą lauke. Tinkama dovana
+                gimtadieniui ar papildymas prie baseino, kai norisi daugiau judesio ir mažiau ekranų.
+              </p>
+              <p>
+                Geriausias <strong>blasteris vasarai</strong> – tai tas, kuris atlaiko intensyvias sesijas, greitai
+                pasikrauna vandeniu ir išlaiko stabilų spaudimą nuo pirmo iki paskutinio šūvio. Vasaros Kampelis padeda
+                išsirinkti patikimus variantus linksmybėms kieme, terasoje ar parkelyje penktadienio piknikui.
+              </p>
+              <p>
+                <strong>Vandens žaidimai lauke</strong> su draugais ir šeima – paprasčiausias būdas pridėti judesio,
+                juoko ir vėsaus atvėsimo karštą dieną. Užsisakykite internetu visoje Lietuvoje – pristatome į
+                didmiesčius ir mažesnius miestelius, o nuo 80 € pristatymas nemokamas.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p>
+                Looking for a quality <strong>water blaster</strong> that actually gets the whole family involved? Our
+                electric models shoot up to about ten metres, hold plenty of water and are built for real backyard
+                battles – no sharp parts, just fun streams and easy controls.
+              </p>
+              <p>
+                A <strong>water pistol for kids</strong> (and adults) should feel safe in small hands. We focus on
+                sturdy, rounded designs so summer play stays light-hearted whether you are by a paddling pool or
+                running through the garden.
+              </p>
+              <p>
+                The right <strong>summer blaster</strong> keeps pressure steady, refills quickly and survives long
+                afternoons outside. Vasaros Kampelis curates options you can rely on for terraces, yards and sunny
+                weekend picnics.
+              </p>
+              <p>
+                <strong>Outdoor water games</strong> are the easiest way to add movement and laughter on hot days.
+                Order online with delivery across Lithuania – free shipping from 80 €.
+              </p>
+            </div>
+          )}
+        </section>
+
         {/* Section 2: Pillow-style Why – two columns: text left, comparison table right */}
         <section
-          ref={(el) => { sectionRefs.current[1] = el; }}
+          ref={(el) => {
+            sectionRefs.current[1] = el;
+          }}
           className="snap-slide snap-auto pillow-why-section"
           style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}
         >
@@ -1137,7 +1193,9 @@ function HomePage() {
 
         {/* Section 4: Products (recently viewed + recommendations + main grid) */}
         <section
-          ref={(el) => { sectionRefs.current[2] = el; }}
+          ref={(el) => {
+            sectionRefs.current[2] = el;
+          }}
           className="snap-slide bg-bg"
           style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px' }}
         >
@@ -2752,6 +2810,14 @@ function HomePage() {
 }
 
 
+function ProductCatalogBootstrap() {
+  const setProducts = useProductStore((s) => s.setProducts);
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [setProducts]);
+  return null;
+}
+
 // --- Main Router ---
 export default function App() {
   return (
@@ -2764,6 +2830,7 @@ export default function App() {
         </div>
       </div>
     }>
+      <ProductCatalogBootstrap />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/p/:id" element={<HomePage />} />

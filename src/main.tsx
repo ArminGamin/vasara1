@@ -3,6 +3,7 @@ import React, { Suspense, lazy, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import App from "./App";
+import { useProductStore } from "./store/productStore";
 import "./index.css";
 import "./styles.css";
 import "./design-revolution.css";
@@ -19,6 +20,52 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 // Updates <link rel="canonical"> on every route change so Google
 // doesn't treat all pages as duplicates of the homepage.
+function PrerenderSignal() {
+  const { pathname } = useLocation();
+  const productsReady = useProductStore((s) => s.products.length > 0);
+
+  useEffect(() => {
+    let alive = true;
+    let idleCbId: number | undefined;
+    let softTimeout = 0;
+    let raf1 = 0;
+    let raf2 = 0;
+
+    const fire = () => {
+      if (!alive) return;
+      document.dispatchEvent(new Event("prerender-ready"));
+    };
+
+    const hardCap = window.setTimeout(fire, 20000);
+
+    if (productsReady) {
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          if (!alive) return;
+          if (typeof requestIdleCallback !== "undefined") {
+            idleCbId = requestIdleCallback(fire, { timeout: 3000 });
+          } else {
+            softTimeout = window.setTimeout(fire, 500);
+          }
+        });
+      });
+    }
+
+    return () => {
+      alive = false;
+      window.clearTimeout(hardCap);
+      window.clearTimeout(softTimeout);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      if (idleCbId !== undefined && typeof cancelIdleCallback !== "undefined") {
+        cancelIdleCallback(idleCbId);
+      }
+    };
+  }, [pathname, productsReady]);
+
+  return null;
+}
+
 function CanonicalUpdater() {
   const location = useLocation();
 
@@ -43,6 +90,7 @@ function CanonicalUpdater() {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
+      <PrerenderSignal />
       <CanonicalUpdater />
       <App />
     </BrowserRouter>
