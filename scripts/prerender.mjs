@@ -35,6 +35,19 @@ function outputPathForRoute(route) {
   return path.join(DIST, clean, "index.html");
 }
 
+async function launchChromium() {
+  if (process.env.VERCEL === "1") {
+    const pack = (await import("@sparticuz/chromium")).default;
+    pack.setGraphicsMode = false;
+    return chromium.launch({
+      args: pack.args,
+      executablePath: await pack.executablePath(),
+      headless: true,
+    });
+  }
+  return chromium.launch({ headless: true });
+}
+
 async function main() {
   if (process.env.SKIP_PRERENDER === "1") {
     console.log("[prerender] SKIP_PRERENDER=1, skipping");
@@ -56,7 +69,7 @@ async function main() {
     server.on("error", reject);
   });
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium();
 
   try {
     for (const route of ROUTES) {

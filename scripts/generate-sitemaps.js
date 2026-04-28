@@ -5,6 +5,7 @@ import path from 'path';
 
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
+const DIST_DIR = path.join(ROOT, 'dist');
 const SRC_PRODUCTS = path.join(ROOT, 'src', 'data', 'products.ts');
 const SITE_ORIGIN = 'https://vasaroskampelis.com';
 
@@ -134,6 +135,23 @@ writeFile(path.join(PUBLIC_DIR, 'sitemap.xml'), indexXml); // sitemap.xml = inde
 writeFile(path.join(PUBLIC_DIR, 'sitemap-pages.xml'), pagesXml);
 writeFile(path.join(PUBLIC_DIR, 'sitemap-products.xml'), productsXml);
 writeFile(path.join(PUBLIC_DIR, 'sitemap-images.xml'), imagesXml);
+
+const SITEMAP_FILES = [
+  'sitemap.xml',
+  'sitemap_index.xml',
+  'sitemap-pages.xml',
+  'sitemap-products.xml',
+  'sitemap-images.xml',
+];
+
+if (fs.existsSync(DIST_DIR)) {
+  for (const file of SITEMAP_FILES) {
+    fs.copyFileSync(path.join(PUBLIC_DIR, file), path.join(DIST_DIR, file));
+  }
+  console.log('Sitemaps copied to dist/.');
+} else {
+  console.warn('dist/ not found; sitemaps only written to public/. Run after vite build for deploy output.');
+}
 
 console.log('Sitemaps generated.');
 
