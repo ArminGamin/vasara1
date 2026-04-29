@@ -1,24 +1,46 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
 
 export default function BlogPost10BuduVasara() {
   return (
-    <PageWrapper title="10 Paprastų Būdų Mėgautis Vasarą Lauke">
+    <PageWrapper
+      title="10 Paprastų Būdų Mėgautis Vasara Lauke"
+      bannerTitle={
+        <>
+          <span aria-hidden="true">🌴 </span>
+          10 Paprastų Būdų Mėgautis Vasara Lauke
+        </>
+      }
+      publishedAt={BLOG_PUBLISHED.desimtBudu}
+      description={BLOG_DESCRIPTION.desimtBudu}
+    >
       <article className="prose prose-lg max-w-none">
-        <p>Vasara – metas, kai norisi saulės, vandens ir linksmybių. Net jei kiemas nedidelis, jūsų vasaros dienos gali tapti nepamirštamos. Štai 10 paprastų, bet veiksmingų patarimų:</p>
+        <p>Vasara dažnai praeina greičiau už mėgstamą kelionės dainą – todėl verta sąmoningai rezervuoti kelias veiklas per savaitę, net jei neturite didelės sodybos. Žemiau dešimt būdų, kurie nepareikalauja specialios įrangos, bet pastebimai keičia savaitgalio jausmą – nuo vandens iki mažų erdvės pakeitimų.</p>
+
+        <h3>💦 Vanduo ir judesys</h3>
         <ul>
-          <li>Organizuokite vandens mūšius – rinkitės kokybiškus blasterius ir vandens balionus.</li>
-          <li>Pastatykite vandens žaidimų zoną ne tik atostogoms, bet visai vasarai.</li>
-          <li>Naudokite šiaudinus kilimus – jie lengvi ir tinka terasai.</li>
-          <li>Pakeiskite pagalvėles į šviesias, vasarines spalvas.</li>
-          <li>Papildykite kiemą gėlėmis – saulėgrąžos, bazilikas, mėtas.</li>
-          <li>Papuoškite stalą gaivinančiais gėrimais ir vaisiais.</li>
-          <li>Laikykite vandens pistoletus po ranka – tiek vaikams, tiek suaugusiems.</li>
-          <li>Įveskite gamtos akcentus: gėlės, žolelės, vandens fontanėlės.</li>
-          <li>Paruoškite ledinę arbatą ar smoothie – gaivina ir sveikina.</li>
-          <li>Įjunkite vasaros muziką arba gamtos garsus.</li>
+          <li>Organizuokite vandens mūšį su aiškiomis trimis taisyklėmis ir pertraukomis – taip visi lieka motyvuoti ir saugūs.</li>
+          <li>Sukurkite „vandens zoną“ su refill tašku – net mažas kiemas tinka, jei visi žino, kur sausas kilimėlis.</li>
+          <li>Laikykite po ranka bent vieną įrankį, pritaikytą ir suaugusiesiems – bendras juokas stipresnis už vaikų žaidimą vieną.</li>
         </ul>
-        <p><em>🔎 vasaros jaukumas, kiemo idėjos, vandens žaidimai, vasaros dekoracijos.</em></p>
+
+        <h3>🏡 Kiemo jaukumas be remonto</h3>
+        <ul>
+          <li>Šiaudinis kilimėlis terasoje – greitas būdas pakeisti nuotaiką be baldų keitimo.</li>
+          <li>Pagalvėlėmis pakeiskite bent porą spalvų į šviesias – akiai lengviau karštomis dienomis.</li>
+          <li>Papildykite vazonais ar vazonėliais bent vieną kampą – net bazilikas virtuvėje ant stalo skaitosi kaip vasara.</li>
+        </ul>
+
+        <h3>🍉 Skonis ir garsas</h3>
+        <ul>
+          <li>Stalo dekoras: vaisiai dubenyje ir vanduo su citrina – vizualiai vėsiau ir sveikiau už saldintus gėrimus kasdien.</li>
+          <li>Ledinė arbata arba neper saldus smoothie – po vandens žaidimo atgaivina greičiau nei gazuoti gėrimai.</li>
+          <li>Vasaros grojaraštis arba gamtos garsai per nešiojamą garsiakalbį – ribokite garsą kaimynų atžvilgiu, bet dienos ritmą tai keičia pastebimai.</li>
+        </ul>
+
+        <p>Kai norite investuoti į vieną daiktą, kuris padeda daugeliui punktų iš karto, prasminga pažiūrėti į <Link to="/p/1001" className="text-blue-600 hover:underline">vandens šautuvų asortimentą</Link> – jis jungia judesį, šeimyninį laiką ir kiemo veiksmą vienoje vietoje. Visą <Link to="/#products" className="text-blue-600 hover:underline">parduotuvės pasirinkimą rasite čia</Link>.</p>
       </article>
     </PageWrapper>
   );

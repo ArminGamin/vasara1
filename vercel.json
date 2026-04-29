@@ -3,6 +3,13 @@
   "outputDirectory": "dist",
   "installCommand": "npm install --force",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/blog/vasaros-pasiulymai-ir-idejos-2025",
+      "destination": "/blog/vasaros-pasiulymai-ir-idejos-2026",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }

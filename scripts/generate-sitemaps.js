@@ -60,7 +60,7 @@ const pages = [
   { path: '/privatumo-politika', priority: '0.7', changefreq: 'yearly' },
   { path: '/blog', priority: '0.8', changefreq: 'weekly' },
   { path: '/blog/kaip-sukurti-vasaros-nuotaika-namuose', priority: '0.7', changefreq: 'monthly' },
-  { path: '/blog/vasaros-pasiulymai-ir-idejos-2025', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vasaros-pasiulymai-ir-idejos-2026', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/kaip-puosti-kiema-vandens-zaidimams', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/10-paprastu-budu-megautis-vasara-lauke', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/kaip-pasiruosti-vasarai-be-streso', priority: '0.7', changefreq: 'monthly' },

@@ -16,6 +16,7 @@ const ROUTES = [
   "/blog",
   "/blog/kaip-sukurti-vasaros-nuotaika-namuose",
   "/blog/vasaros-pasiulymai-ir-idejos-2025",
+  "/blog/vasaros-pasiulymai-ir-idejos-2026",
   "/blog/kaip-puosti-kiema-vandens-zaidimams",
   "/blog/kaip-pasiruosti-vasarai-be-streso",
   "/blog/10-paprastu-budu-megautis-vasara-lauke",

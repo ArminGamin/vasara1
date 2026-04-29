@@ -21,7 +21,7 @@ import {
   Users,
   AlertTriangle,
 } from "lucide-react";
-import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
 import { LazyVideo } from "./components/LazyVideo";
 // Loaded on idle via simple state gating below to avoid layout thrash
@@ -2837,7 +2837,8 @@ export default function App() {
         <Route path="/apie-mus" element={<ApieMus />} />
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/kaip-sukurti-vasaros-nuotaika-namuose" element={<BlogPostVasaraNamuose />} />
-        <Route path="/blog/vasaros-pasiulymai-ir-idejos-2025" element={<BlogPostVasarosPasiulymai2025 />} />
+        <Route path="/blog/vasaros-pasiulymai-ir-idejos-2025" element={<Navigate to="/blog/vasaros-pasiulymai-ir-idejos-2026" replace />} />
+        <Route path="/blog/vasaros-pasiulymai-ir-idejos-2026" element={<BlogPostVasarosPasiulymai2025 />} />
         <Route path="/blog/kaip-puosti-kiema-vandens-zaidimams" element={<BlogPostKiemasVandens />} />
         <Route path="/blog/10-paprastu-budu-megautis-vasara-lauke" element={<BlogPost10BuduVasara />} />
         <Route path="/blog/kaip-pasiruosti-vasarai-be-streso" element={<BlogPostVasaraBeStreso />} />
