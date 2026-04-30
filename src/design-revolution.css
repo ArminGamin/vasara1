@@ -180,16 +180,16 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  gap: 12px;
   z-index: 5;
 }
-/* 44×44 px minimum tap target; visual dot is ::after */
+/* 48×48 px tap target (Lighthouse / material); visual dot is ::after */
 .hero-dot {
   box-sizing: border-box;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   padding: 0;
   border: none;
   background: transparent;
@@ -229,10 +229,11 @@
   z-index: 10;
   pointer-events: none;
   background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
-  padding: var(--space-2) var(--space-2) var(--space-3);
+  /* Reserve strip for hero dots (48px targets + inset) so CTA/dot targets don’t overlap in hit-testing */
+  padding: var(--space-2) var(--space-2) calc(var(--space-3) + 4.5rem);
 }
 @media (min-width: 768px) {
-  .hero-overlay { padding: var(--space-4) var(--space-4) var(--space-4); }
+  .hero-overlay { padding: var(--space-4) var(--space-4) calc(var(--space-4) + 3rem); }
 }
 .hero-overlay-inner {
   pointer-events: auto;
@@ -241,10 +242,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 @media (min-width: 768px) {
-  .hero-overlay-inner { gap: var(--space-2); }
+  .hero-overlay-inner { gap: var(--space-3); }
 }
 .hero-discount-badge {
   display: inline-flex;
@@ -284,13 +285,15 @@
   .hero-overlay-sub { flex-basis: auto; font-size: 0.9375rem; }
 }
 
-/* Primary CTA – dominant size, contrast, focus ring */
+/* Primary CTA – meets min touch target on all breakpoints */
 .hero-overlay-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 8px var(--space-3);
+  box-sizing: border-box;
+  min-height: var(--btn-cta-min-height);
+  min-width: 48px;
+  padding: 10px var(--space-4);
   background: var(--color-cta);
   color: white;
   font-weight: 700;
@@ -300,13 +303,14 @@
   cursor: pointer;
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   margin-left: auto;
+  margin-top: var(--space-1);
   box-shadow: 0 2px 8px rgba(255,122,0,0.35);
 }
 @media (min-width: 768px) {
   .hero-overlay-cta {
-    min-height: var(--btn-cta-min-height);
     padding: var(--btn-padding-y) var(--space-4);
     font-size: 1.0625rem;
+    margin-top: 0;
   }
 }
 .hero-overlay-cta:hover {
