@@ -34,7 +34,8 @@ function ReviewCard({ r }: { r: (typeof reviews)[0] }) {
           <p className="text-sm text-muted">{r.location}</p>
         </div>
       </div>
-      <div className="flex gap-0.5 mt-2" aria-label={`${r.rating} iš 5`}>
+      <span className="sr-only">{`Vertinimas: ${r.rating} iš 5 žvaigždžių`}</span>
+      <div className="flex gap-0.5 mt-2" aria-hidden="true">
         {[...Array(5)].map((_, j) => (
           <Star key={j} className={`w-4 h-4 ${j < r.rating ? 'text-cta fill-cta' : 'text-border'}`} />
         ))}
@@ -86,7 +87,7 @@ export function ReviewsSection() {
         <p className="revo-section-sub text-center font-semibold text-text">Tikri atsiliepimai! ✅</p>
       </div>
       {/* Full-width marquee so it fills edge-to-edge */}
-      <div className="revo-reviews-marquee-wrap" aria-label="Atsiliepimų slinktis">
+      <div className="revo-reviews-marquee-wrap" role="region" aria-label="Atsiliepimų slinktis">
         <div
           ref={scrollRef}
           className="revo-reviews-marquee"

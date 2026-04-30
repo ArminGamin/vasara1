@@ -86,7 +86,7 @@ export default defineConfig({
     },
     // Copy service worker to dist
     copyPublicDir: true,
-    // Enable CSS code splitting
+    // Default true — split CSS per entry/async chunk so route CSS is not lumped into one blocking file where avoidable
     cssCodeSplit: true,
     // Optimize chunk sizes
     chunkSizeWarningLimit: 600,

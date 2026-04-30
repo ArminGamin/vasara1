@@ -1341,6 +1341,12 @@ function HomePage() {
                           className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 shadow-[0_4px_14px_rgba(0,0,0,0.08)] ${
                             sectionImageIndex === i ? 'border-cta ring-4 ring-cta/50' : 'border-border'
                           }`}
+                          aria-label={
+                            variantName
+                              ? `${product.name}, ${variantName}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
+                              : `${product.name}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
+                          }
+                          aria-pressed={sectionImageIndex === i}
                         >
                           <OptimizedImage src={resolveImagePath(url)} srcSet={productSrcSet(url)} alt="" className="w-full h-full object-cover" width={64} height={64} sizes="64px" />
                         </button>
@@ -2036,6 +2042,8 @@ function HomePage() {
                                 (selectedSize === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
+                              aria-label={`${selectedProduct.name}, variantų grupė ${t.group + 1}, nuotrauka ${t.idx + 1}`}
+                              aria-pressed={selectedSize === t.group && selectedImageIndex === t.idx}
                             >
                               <OptimizedImage
                                 src={resolveImagePath(t.url)}
@@ -2069,6 +2077,8 @@ function HomePage() {
                                 (selectedColor === t.group && selectedImageIndex === t.idx) ? 'active' : ''
                               }`}
                               title={`Variantas ${t.group + 1}-${t.idx + 1}`}
+                              aria-label={`${selectedProduct.name}, spalvų grupė ${t.group + 1}, nuotrauka ${t.idx + 1}`}
+                              aria-pressed={selectedColor === t.group && selectedImageIndex === t.idx}
                             >
                               <OptimizedImage
                                 src={resolveImagePath(t.url)}
@@ -2094,11 +2104,13 @@ function HomePage() {
                         {imagesList.slice(0, 6).map((img: string, index: number) => (
                         <button
                           key={index}
-                            onClick={() => setSelectedImageIndex(index)}
+                          onClick={() => setSelectedImageIndex(index)}
                           className={`product-modal-thumb w-16 h-16 sm:w-20 sm:h-20 overflow-hidden touch-manipulation ${
-                              selectedImageIndex === index ? 'active' : ''
+                            selectedImageIndex === index ? 'active' : ''
                           }`}
                           title={`Variantas ${index + 1}`}
+                          aria-label={`${selectedProduct.name}, nuotrauka ${index + 1} iš ${Math.min(imagesList.length, 6)}`}
+                          aria-pressed={selectedImageIndex === index}
                         >
                           <OptimizedImage
                             src={resolveImagePath(img)}
