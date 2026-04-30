@@ -1678,7 +1678,7 @@ function HomePage() {
           {/* Payment processor logos only */}
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+              src="/Mastercard-logo.png"
               alt="Mastercard"
               className="h-5 object-contain opacity-90"
               width={32}

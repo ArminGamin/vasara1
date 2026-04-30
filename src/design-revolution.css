@@ -180,22 +180,45 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: var(--space-1);
+  gap: 10px;
   z-index: 5;
 }
+/* 44×44 px minimum tap target; visual dot is ::after */
 .hero-dot {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.hero-dot::after {
+  content: '';
+  display: block;
   width: 8px;
   height: 8px;
-  min-width: 8px;
-  min-height: 8px;
   border-radius: 50%;
   border: 2px solid white;
   background: transparent;
-  cursor: pointer;
-  padding: 0;
+  box-sizing: border-box;
   transition: background 0.2s;
 }
-.hero-dot.on { background: white; }
+.hero-dot.on::after {
+  background: white;
+}
+.hero-dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 
 /* ---- Overlay text on bottom – 8px spacing ---- */
 .hero-overlay {
