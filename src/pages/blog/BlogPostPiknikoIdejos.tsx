@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostPiknikoIdejos() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPostPiknikoIdejos() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.pikniko}
+      modifiedAt={BLOG_MODIFIED.pikniko}
+      ogImage="/hero-pink-ar.webp"
       description={BLOG_DESCRIPTION.pikniko}
+      wordCount={287}
+      keywords="piknikas vasarą, pikniko idėjos, išvyka su vaikais, maistas lauke, vandens žaidimai piknike, vasaros iškyla"
+      relatedPostPaths={[
+        '/blog/10-paprastu-budu-megautis-vasara-lauke',
+        '/blog/vandens-musiu-organizavimas',
+        '/blog/vasaros-pasiulymai-ir-idejos-2026',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Piknikas parke, ežero pakrantėje ar savo kieme veikia gerai tada, kai iš anksto pagalvota ne tik apie padėklą su užkandomis, bet ir apie laiką prie saulės, vaikų energiją po valgio ir vietą nedideliams žaidimams. Žemiau – praktinis sąrašas ir kodėl konkretūs punktai sutaupo nervų.</p>

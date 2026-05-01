@@ -13,6 +13,19 @@ export const BLOG_PUBLISHED = {
   pikniko: '2026-04-12T09:00:00+02:00',
 } as const;
 
+/** ISO 8601 — dateModified schema; kol kas sutampa su publikacija */
+export const BLOG_MODIFIED: { [K in keyof typeof BLOG_PUBLISHED]: string } = {
+  vasaraNamuose: BLOG_PUBLISHED.vasaraNamuose,
+  vasarosPasiulymai2026: BLOG_PUBLISHED.vasarosPasiulymai2026,
+  kiemasVandens: BLOG_PUBLISHED.kiemasVandens,
+  desimtBudu: BLOG_PUBLISHED.desimtBudu,
+  vasaraBeStreso: BLOG_PUBLISHED.vasaraBeStreso,
+  vandensMusiai: BLOG_PUBLISHED.vandensMusiai,
+  vandensZaidimaiVaikams: BLOG_PUBLISHED.vandensZaidimaiVaikams,
+  blasteriai: BLOG_PUBLISHED.blasteriai,
+  pikniko: BLOG_PUBLISHED.pikniko,
+};
+
 /** Unikalūs meta aprašai (SERP og:description ir name=description įrašuose) */
 export const BLOG_DESCRIPTION: Record<keyof typeof BLOG_PUBLISHED, string> = {
   vasaraNamuose:

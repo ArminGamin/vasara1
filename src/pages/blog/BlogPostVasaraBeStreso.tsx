@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostVasaraBeStreso() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPostVasaraBeStreso() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.vasaraBeStreso}
+      modifiedAt={BLOG_MODIFIED.vasaraBeStreso}
+      ogImage="/hero-pink-ar.webp"
       description={BLOG_DESCRIPTION.vasaraBeStreso}
+      wordCount={289}
+      keywords="pasiruošimas vasarai, vasaros planas, vandens žaidimų rinkinys, kiemo pasiruošimas, vasara be streso, šeimos organizacija"
+      relatedPostPaths={[
+        '/blog/vasaros-pasiulymai-ir-idejos-2026',
+        '/blog/kaip-puosti-kiema-vandens-zaidimams',
+        '/blog/kaip-issirinkti-vandens-blasteri',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Daugelis metų gale sako „kitą kartą paleisiu sparnus anksčiau“. Realybė paprastesnė – pakanka kelių etapų, susietų su tuo, ką jau turite namuose, ir vienų konkrečių užduočių, ne idealios sąrašo knygos.</p>

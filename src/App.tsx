@@ -992,6 +992,26 @@ function HomePage() {
           };
         })
       }) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Vasaros Kampelis',
+            url: 'https://vasaroskampelis.com',
+            logo: 'https://vasaroskampelis.com/logo.png',
+            sameAs: ['https://www.instagram.com/vasaroskampelis/', 'https://www.tiktok.com/@vasaroskampelis'],
+            contactPoint: {
+              '@type': 'ContactPoint',
+              email: 'vasaroskampelis@gmail.com',
+              contactType: 'customer service',
+              areaServed: 'LT',
+              availableLanguage: 'Lithuanian',
+            },
+          }),
+        }}
+      />
       <header className="storefront-header ios-safe-area shrink-0">
         <div className="storefront-header-emoji-deco" aria-hidden>
           <span>☀️</span>

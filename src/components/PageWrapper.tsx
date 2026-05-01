@@ -1,6 +1,7 @@
-import React, { useEffect, type ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useMemo, type ReactNode } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { BLOG_AUTHOR } from '../data/blogMeta';
+import { resolveRelatedBlogEntries } from '../data/blogEntries';
 
 const SITE_NAME = 'Vasaros Kampelis';
 const DEFAULT_DESC = 'Galingi vandens šautuvai ir blasteriai iki 10m šūvio. Mėlyna ir rožinė spalva. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 8–12 d.';
@@ -10,8 +11,16 @@ const DEFAULT_INDEX_AUTHOR = 'Vasaros Kampelis';
 const BLOG_META_SCRIPT_ID = 'blog-posting-schema';
 const DEFAULT_OG_DESCRIPTION =
   'Galingi vandens šautuvai iki 10m. Mėlyna ir rožinė. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą.';
+const DEFAULT_OG_IMAGE = 'https://vasaroskampelis.com/hero-pink-ar.webp';
 
 export { SITE_NAME, DEFAULT_DESC };
+
+function absoluteOgImage(ogImage?: string): string {
+  const raw = ogImage?.trim();
+  if (!raw) return DEFAULT_OG_IMAGE;
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  return `${SITE_ORIGIN}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}
 
 function formatLtDate(iso: string): string {
   const d = new Date(iso);
@@ -36,6 +45,11 @@ export default function PageWrapper({
   description,
   publishedAt,
   author,
+  wordCount,
+  keywords,
+  relatedPostPaths,
+  ogImage,
+  modifiedAt,
   children,
 }: {
   title: string;
@@ -43,10 +57,28 @@ export default function PageWrapper({
   description?: string;
   publishedAt?: string;
   author?: string;
+  /** Approximate article word count for BlogPosting JSON-LD */
+  wordCount?: number;
+  /** Comma-separated keywords for BlogPosting JSON-LD */
+  keywords?: string;
+  /** Paths like /blog/slug — titles/excerpts resolved from blogEntries */
+  relatedPostPaths?: string[];
+  /** Relative (/hero.webp) or absolute Open Graph image URL */
+  ogImage?: string;
+  /** ISO 8601 — BlogPosting dateModified */
+  modifiedAt?: string;
   children: React.ReactNode;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const relatedEntries = useMemo(
+    () =>
+      publishedAt && relatedPostPaths?.length
+        ? resolveRelatedBlogEntries(relatedPostPaths, location.pathname)
+        : [],
+    [publishedAt, relatedPostPaths, location.pathname],
+  );
 
   useEffect(() => {
     document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
@@ -60,11 +92,14 @@ export default function PageWrapper({
     let jsonEl: HTMLScriptElement | null = null;
 
     if (publishedAt) {
+      const resolvedOgImage = absoluteOgImage(ogImage);
       upsertMeta('property', 'article:published_time', publishedAt);
       upsertMeta('name', 'author', displayAuthor ?? BLOG_AUTHOR);
 
       upsertMeta('property', 'og:title', fullTitlePlain);
       upsertMeta('property', 'twitter:title', fullTitlePlain);
+      upsertMeta('property', 'og:image', resolvedOgImage);
+      upsertMeta('property', 'twitter:image', resolvedOgImage);
       if (description) {
         upsertMeta('property', 'og:description', description);
         upsertMeta('property', 'twitter:description', description);
@@ -76,6 +111,8 @@ export default function PageWrapper({
         '@type': 'BlogPosting',
         headline: title,
         datePublished: publishedAt,
+        dateModified: modifiedAt ?? publishedAt,
+        inLanguage: 'lt',
         author: {
           '@type': 'Organization',
           name: displayAuthor ?? BLOG_AUTHOR,
@@ -86,10 +123,13 @@ export default function PageWrapper({
           url: SITE_ORIGIN,
           logo: { '@type': 'ImageObject', url: `${SITE_ORIGIN}/logo.png` },
         },
+        image: { '@type': 'ImageObject', url: resolvedOgImage },
         mainEntityOfPage: { '@type': 'WebPage', '@id': url },
         url,
       };
       if (description) jsonLd.description = description;
+      if (wordCount !== undefined) jsonLd.wordCount = wordCount;
+      if (keywords) jsonLd.keywords = keywords;
 
       jsonEl = document.createElement('script');
       jsonEl.id = BLOG_META_SCRIPT_ID;
@@ -111,12 +151,14 @@ export default function PageWrapper({
 
         upsertMeta('property', 'og:title', DEFAULT_OG_TITLE);
         upsertMeta('property', 'twitter:title', DEFAULT_OG_TITLE);
+        upsertMeta('property', 'og:image', DEFAULT_OG_IMAGE);
+        upsertMeta('property', 'twitter:image', DEFAULT_OG_IMAGE);
         upsertMeta('property', 'og:description', DEFAULT_OG_DESCRIPTION);
         upsertMeta('property', 'twitter:description', DEFAULT_OG_DESCRIPTION);
       }
 
     };
-  }, [title, description, publishedAt, author, location.pathname]);
+  }, [title, description, publishedAt, author, location.pathname, wordCount, keywords, ogImage, modifiedAt]);
 
   const banner = bannerTitle !== undefined ? bannerTitle : title;
   const showByline = !!(publishedAt || author);
@@ -125,7 +167,7 @@ export default function PageWrapper({
   return (
     <div className="min-h-screen flex flex-col">
       <div className="bg-brand-blue-deep text-white py-3 text-center text-lg font-bold">{banner}</div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 text-lg">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 text-lg w-full">
         {showByline && (
           <p className="text-sm text-gray-600 mb-6 not-prose">
             {bylineAuthor && <span>{bylineAuthor}</span>}
@@ -134,6 +176,30 @@ export default function PageWrapper({
           </p>
         )}
         {children}
+        {relatedEntries.length > 0 && (
+          <section className="not-prose mt-12 pt-10 border-t border-gray-200" aria-labelledby="related-posts-heading">
+            <h2 id="related-posts-heading" className="text-2xl font-bold text-gray-900 mb-6">
+              Susiję straipsniai
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedEntries.map((post) => (
+                <article key={post.to} className="bg-white rounded-xl shadow p-5 flex flex-col text-left">
+                  <h3 className="text-lg font-bold mb-2 leading-snug">
+                    <Link to={post.to} className="text-brand-orange hover:underline">
+                      {post.title}
+                    </Link>
+                  </h3>
+                  <p className="text-gray-700 text-base flex-1">{post.excerpt}</p>
+                  <div className="mt-3">
+                    <Link to={post.to} className="text-blue-600 hover:underline text-base font-medium">
+                      Skaityti →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
       <div className="text-center mb-10">
         <button

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostVasaraNamuose() {
   return (
@@ -15,6 +15,15 @@ export default function BlogPostVasaraNamuose() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.vasaraNamuose}
+      modifiedAt={BLOG_MODIFIED.vasaraNamuose}
+      ogImage="/hero-pink-ar.webp"
+      wordCount={440}
+      keywords="vasaros nuotaika namuose, vasaros dekoras, kiemo idėjos, vasara su vaikais, vasaros kampelis, lauko erdvė namuose"
+      relatedPostPaths={[
+        '/blog/kaip-puosti-kiema-vandens-zaidimams',
+        '/blog/kaip-pasiruosti-vasarai-be-streso',
+        '/blog/vasaros-pasiulymai-ir-idejos-2026',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Kai lauke šviečia saulė ir visur žydi gėlės, norisi namus ir kiemą paversti tikru vasaros kampeliu. Vasara – tai ne tik atostogos, bet ir jausmas, kurį kuriame savo aplinkoje. Kad tas jausmas nepranyktų po pirmos karštos savaitės, padeda keli ritualai ir erdvės „taisyklės“ – kur dedame kilimėlį, kur laikome vandenį refill ir kokius žaidimus renkamės kartu.</p>

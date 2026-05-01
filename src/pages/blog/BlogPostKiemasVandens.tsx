@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostKiemasVandens() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPostKiemasVandens() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.kiemasVandens}
+      modifiedAt={BLOG_MODIFIED.kiemasVandens}
+      ogImage="/hero-pink-ar.webp"
       description={BLOG_DESCRIPTION.kiemasVandens}
+      wordCount={252}
+      keywords="kiemo puošimas vandeniui, vandens žaidimai kieme, mažas kiemas, vasaros zona kieme, refill zona, vandens įranga vaikams"
+      relatedPostPaths={[
+        '/blog/vandens-zaidimai-vaikams',
+        '/blog/vandens-musiu-organizavimas',
+        '/blog/kaip-issirinkti-vandens-blasteri',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Mažas kiemas ar siaura terasa nereiškia, kad vandens žaidimų atmosfera neįmanoma – reikia tik atskirti „šlapia“ zoną nuo „sausos“ ir naudoti vertikalią erdvę bei tekstilę vietoj papildomų didelių baldų. Žemiau – kaip tai padaryti praktiškai.</p>

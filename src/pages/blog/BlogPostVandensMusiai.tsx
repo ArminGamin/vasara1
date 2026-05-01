@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostVandensMusiai() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPostVandensMusiai() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.vandensMusiai}
+      modifiedAt={BLOG_MODIFIED.vandensMusiai}
+      ogImage="/hero-blue-ar.webp"
       description={BLOG_DESCRIPTION.vandensMusiai}
+      wordCount={290}
+      keywords="vandens mūšis, vandens žaidimų organizavimas, vandens šautuvai, vasaros šventė kieme, šeimos žaidimai lauke, saugumas vaikams"
+      relatedPostPaths={[
+        '/blog/vandens-zaidimai-vaikams',
+        '/blog/kaip-issirinkti-vandens-blasteri',
+        '/blog/10-paprastu-budu-megautis-vasara-lauke',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Vandens mūšis kieme ar parke – vienas geriausių būdų praleisti vasaros dieną su šeima ir draugais. Nesėkmės dažniausiai kyla ne nuo trūkstamo inventoriaus, o nuo miglotų taisyklių ir per ilgo žaidimo be pertraukų. Žemiau – kaip struktūruoti vakarą taip, kad ir penkiamečiai, ir suaugusieji jaustųsi įtraukti.</p>

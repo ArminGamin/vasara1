@@ -32,4 +32,10 @@ let sw = fs.readFileSync(SW_PATH, 'utf8');
 const newStaticAssets = `const STATIC_ASSETS = [\n  ${baseAssets.join(',\n  ')}\n];`;
 sw = sw.replace(/const STATIC_ASSETS = \[[\s\S]*?\];/, newStaticAssets);
 fs.writeFileSync(SW_PATH, sw);
+
+sw = fs.readFileSync(SW_PATH, 'utf8');
+const cacheVersionBuild = `vasaros-kampelis-${Date.now()}`;
+sw = sw.replace(/'vasaros-kampelis-v1'/g, `'${cacheVersionBuild}'`);
+fs.writeFileSync(SW_PATH, sw);
+
 console.log('[inject-sw-assets] Injected', assetPaths.length, 'assets into service-worker.js');

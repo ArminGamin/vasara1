@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostVasarosPasiulymai2025() {
   return (
@@ -15,6 +15,15 @@ export default function BlogPostVasarosPasiulymai2025() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.vasarosPasiulymai2026}
+      modifiedAt={BLOG_MODIFIED.vasarosPasiulymai2026}
+      ogImage="/hero-blue-ar.webp"
+      wordCount={654}
+      keywords="vasaros pasiūlymai 2026, vasaros tendencijos, kiemo puošimas, vandens žaidimai lauke, šeimos veikla vasarą, lauko žaidimai"
+      relatedPostPaths={[
+        '/blog/vandens-zaidimai-vaikams',
+        '/blog/kaip-puosti-kiema-vandens-zaidimams',
+        '/blog/10-paprastu-budu-megautis-vasara-lauke',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Artėjant vasarai, vis dažniau kyla klausimas – ką nuveikti su šeima lauke ir kaip papuošti kiemą, kad jame vyrautų tikras vasaros džiaugsmas? Šiemet daugelis renkasi derinį: daugiau natūralių medžiagų, aiškias vandens žaidimų zonas ir laiką be telefonų ekranų. Šiame tekste sutelkiame tai, kas 2026 m. jaučiama kaip „pilna vertė“ lauke – saugumas, paprasti ritualai ir daiktai, kurie tarnauja ilgiau nei vieną savaitgalį.</p>

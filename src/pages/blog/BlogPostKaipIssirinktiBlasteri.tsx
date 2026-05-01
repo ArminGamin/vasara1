@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostKaipIssirinktiBlasteri() {
   return (
@@ -15,6 +15,15 @@ export default function BlogPostKaipIssirinktiBlasteri() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.blasteriai}
+      modifiedAt={BLOG_MODIFIED.blasteriai}
+      ogImage="/hero-blue-ar.webp"
+      wordCount={377}
+      keywords="vandens blasteris, vandens šautuvas vaikams, vandens pistoletas, kaip rinktis blasterį, talpa ir dydis, vasaros žaislai vandeniui"
+      relatedPostPaths={[
+        '/blog/vandens-musiu-organizavimas',
+        '/blog/kaip-pasiruosti-vasarai-be-streso',
+        '/blog/kaip-puosti-kiema-vandens-zaidimams',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Vandens blasteriai skiriasi dydžiu, talpa, tipu (rankinis ar automatinis) ir tuo, kam gamintojas jį rekomenduoja. Prieš perkant verta atsakyti į tris klausimus: kas žais dažniausiai, kiek erdvės turite ir ar norite ilgesnio žaidimo be papildymo, ar lengvesnio nešiojimo. Žemiau – kaip tuos atsakymus paversti konkrečiu pasirinkimu.</p>

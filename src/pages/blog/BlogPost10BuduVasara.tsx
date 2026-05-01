@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPost10BuduVasara() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPost10BuduVasara() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.desimtBudu}
+      modifiedAt={BLOG_MODIFIED.desimtBudu}
+      ogImage="/hero-blue-ar.webp"
       description={BLOG_DESCRIPTION.desimtBudu}
+      wordCount={229}
+      keywords="vasara lauke, lauko veikla, vandens mūšis, šeimos žaidimai, vasaros idėjos, laikas gamtoje"
+      relatedPostPaths={[
+        '/blog/vandens-musiu-organizavimas',
+        '/blog/pikniko-idejos-vasarai',
+        '/blog/kaip-sukurti-vasaros-nuotaika-namuose',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>Vasara dažnai praeina greičiau už mėgstamą kelionės dainą – todėl verta sąmoningai rezervuoti kelias veiklas per savaitę, net jei neturite didelės sodybos. Žemiau dešimt būdų, kurie nepareikalauja specialios įrangos, bet pastebimai keičia savaitgalio jausmą – nuo vandens iki mažų erdvės pakeitimų.</p>

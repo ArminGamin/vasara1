@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/PageWrapper';
-import { BLOG_PUBLISHED, BLOG_DESCRIPTION } from '../../data/blogMeta';
+import { BLOG_PUBLISHED, BLOG_DESCRIPTION, BLOG_MODIFIED } from '../../data/blogMeta';
 
 export default function BlogPostVandensZaidimaiVaikams() {
   return (
@@ -14,7 +14,16 @@ export default function BlogPostVandensZaidimaiVaikams() {
         </>
       }
       publishedAt={BLOG_PUBLISHED.vandensZaidimaiVaikams}
+      modifiedAt={BLOG_MODIFIED.vandensZaidimaiVaikams}
+      ogImage="/hero-pink-ar.webp"
       description={BLOG_DESCRIPTION.vandensZaidimaiVaikams}
+      wordCount={443}
+      keywords="vandens žaidimai, vasaros žaidimai vaikams, vandens žaidimai lauke, vandens žaidimai kieme, vasaros pramogos vaikams, lauko žaidimai vasarą"
+      relatedPostPaths={[
+        '/blog/kaip-puosti-kiema-vandens-zaidimams',
+        '/blog/vandens-musiu-organizavimas',
+        '/blog/kaip-issirinkti-vandens-blasteri',
+      ]}
     >
       <article className="prose prose-lg max-w-none">
         <p>
