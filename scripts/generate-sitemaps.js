@@ -65,6 +65,7 @@ const pages = [
   { path: '/blog/10-paprastu-budu-megautis-vasara-lauke', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/kaip-pasiruosti-vasarai-be-streso', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/vandens-musiu-organizavimas', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vandens-zaidimai-vaikams', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/kaip-issirinkti-vandens-blasteri', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/pikniko-idejos-vasarai', priority: '0.7', changefreq: 'monthly' },
 ];

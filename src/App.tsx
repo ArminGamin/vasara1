@@ -60,6 +60,7 @@ const BlogPostKiemasVandens = lazy(() => import("./pages/blog/BlogPostKiemasVand
 const BlogPost10BuduVasara = lazy(() => import("./pages/blog/BlogPost10BuduVasara").then(m => ({ default: m.default })));
 const BlogPostVasaraBeStreso = lazy(() => import("./pages/blog/BlogPostVasaraBeStreso").then(m => ({ default: m.default })));
 const BlogPostVandensMusiai = lazy(() => import("./pages/blog/BlogPostVandensMusiai").then(m => ({ default: m.default })));
+const BlogPostVandensZaidimaiVaikams = lazy(() => import("./pages/blog/BlogPostVandensZaidimaiVaikams").then(m => ({ default: m.default })));
 const BlogPostKaipIssirinktiBlasteri = lazy(() => import("./pages/blog/BlogPostKaipIssirinktiBlasteri").then(m => ({ default: m.default })));
 const BlogPostPiknikoIdejos = lazy(() => import("./pages/blog/BlogPostPiknikoIdejos").then(m => ({ default: m.default })));
 
@@ -2855,6 +2856,7 @@ export default function App() {
         <Route path="/blog/10-paprastu-budu-megautis-vasara-lauke" element={<BlogPost10BuduVasara />} />
         <Route path="/blog/kaip-pasiruosti-vasarai-be-streso" element={<BlogPostVasaraBeStreso />} />
         <Route path="/blog/vandens-musiu-organizavimas" element={<BlogPostVandensMusiai />} />
+        <Route path="/blog/vandens-zaidimai-vaikams" element={<BlogPostVandensZaidimaiVaikams />} />
         <Route path="/blog/kaip-issirinkti-vandens-blasteri" element={<BlogPostKaipIssirinktiBlasteri />} />
         <Route path="/blog/pikniko-idejos-vasarai" element={<BlogPostPiknikoIdejos />} />
         <Route path="/pristatymo-info" element={<PristatymoInfo />} />

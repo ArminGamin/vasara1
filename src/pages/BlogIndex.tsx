@@ -18,6 +18,13 @@ type Entry = {
 
 const RAW_ENTRIES: Entry[] = [
   {
+    to: '/blog/vandens-zaidimai-vaikams',
+    title: 'Vandens žaidimai vaikams vasarą: idėjos lauke ir kieme',
+    excerpt:
+      'Vandens žaidimai vaikams, vasaros žaidimai lauke ir kieme – saugumas, raundai, įranga ir paprastos idėjos be pertekliaus.',
+    publishedAt: BLOG_PUBLISHED.vandensZaidimaiVaikams,
+  },
+  {
     to: '/blog/kaip-sukurti-vasaros-nuotaika-namuose',
     title: 'Kaip Sukurti Vasaros Nuotaiką Namuose',
     excerpt:

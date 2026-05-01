@@ -21,6 +21,7 @@ const ROUTES = [
   "/blog/kaip-pasiruosti-vasarai-be-streso",
   "/blog/10-paprastu-budu-megautis-vasara-lauke",
   "/blog/vandens-musiu-organizavimas",
+  "/blog/vandens-zaidimai-vaikams",
   "/blog/kaip-issirinkti-vandens-blasteri",
   "/blog/pikniko-idejos-vasarai",
   "/pristatymo-info",

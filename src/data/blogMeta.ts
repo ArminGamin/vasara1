@@ -8,6 +8,7 @@ export const BLOG_PUBLISHED = {
   desimtBudu: '2026-01-30T09:00:00+02:00',
   vasaraBeStreso: '2026-02-28T09:00:00+02:00',
   vandensMusiai: '2026-04-05T09:00:00+02:00',
+  vandensZaidimaiVaikams: '2026-05-01T09:00:00+02:00',
   blasteriai: '2026-03-10T09:00:00+02:00',
   pikniko: '2026-04-12T09:00:00+02:00',
 } as const;
@@ -26,6 +27,8 @@ export const BLOG_DESCRIPTION: Record<keyof typeof BLOG_PUBLISHED, string> = {
     'Pasiruošimas vasarai etapais: inventoriaus tikrinimas, kiemas, vandens žaidimų paruošimas ir ramybės rutina. Mažiau skubos, daugiau smagaus laiko Lauke.',
   vandensMusiai:
     'Vandens mūšis kieme ar parke: vietos pasirinkimas, komandos ir saugumo taisyklės refill taškams bei pertraukoms. Surenkite nepamirštamą dieną visai šeimai.',
+  vandensZaidimaiVaikams:
+    'Vandens žaidimai vaikams vasarą: idėjos lauke ir kieme, saugumas, trumpi raundai ir įranga. Vasaros žaidimai lauke be pertekliaus – praktiniai patarimai tėvams.',
   blasteriai:
     'Kaip rinktis vandens šautuvą ar pistoletą: svoris vaikams, talpa, rankinis prieš automatinį režimą ir ženklai ant pakuotės. Trumpas vadovas tėvams Lietuvoje.',
   pikniko:
