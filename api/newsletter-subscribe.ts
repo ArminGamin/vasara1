@@ -369,7 +369,7 @@ export default async function handler(req: any, res: any) {
     <!-- HERO IMAGE -->
     <div class="hero-image">
       <img
-        src="https://www.vasaroskampelis.com/blue1-1024w.webp"
+        src="https://www.vasaroskampelis.com/hero-blue-ar.webp"
         alt="Elektrinis vandens šautuvas – Vasaros Kampelis"
         width="600"
       />
