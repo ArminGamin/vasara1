@@ -17,7 +17,7 @@ export default function BlogPostVasaraNamuose() {
       publishedAt={BLOG_PUBLISHED.vasaraNamuose}
       modifiedAt={BLOG_MODIFIED.vasaraNamuose}
       ogImage="/hero-pink-ar.webp"
-      wordCount={440}
+      wordCount={807}
       keywords="vasaros nuotaika namuose, vasaros dekoras, kiemo idėjos, vasara su vaikais, vasaros kampelis, lauko erdvė namuose"
       relatedPostPaths={[
         '/blog/kaip-puosti-kiema-vandens-zaidimams',
@@ -26,45 +26,125 @@ export default function BlogPostVasaraNamuose() {
       ]}
     >
       <article className="prose prose-lg max-w-none">
-        <p>Kai lauke šviečia saulė ir visur žydi gėlės, norisi namus ir kiemą paversti tikru vasaros kampeliu. Vasara – tai ne tik atostogos, bet ir jausmas, kurį kuriame savo aplinkoje. Kad tas jausmas nepranyktų po pirmos karštos savaitės, padeda keli ritualai ir erdvės „taisyklės“ – kur dedame kilimėlį, kur laikome vandenį refill ir kokius žaidimus renkamės kartu.</p>
+        <p>
+          Kai Lietuvos vasarą lauke šviečia saulė ir kieme pakyla temperatūra, norisi namus ir terasą paversti vietą, kur norisi būti ne tik šeštadienį po plovimo.
+          Vasara – tai ir jausmas: kur stovi kilimėlis, kur laikote vandenį refill po žaidimo ir kaip vaikai žino ribą tarp „šlapia linksmybė“ ir „čia sausos kojinės“.
+          Žemiau – temos, praktinis zonavimas, vanduo kaip centras ir mažos detalės, kurios veikia tiek bute su balkonu, tiek individualaus namo kieme Kalvarijoje ar
+          Šiauliuose.
+        </p>
 
-        <h3>☀️ 1. Pradėkite nuo Vasaros Tematikos</h3>
-        <p>Pirmas žingsnis – pasirinkti vieną iki trijų pamatinių tonų vietoj chaotiško dekoro. Aiški tema supaprastina pirkinius ir daro kiemą ramesnį akiai.</p>
+        <h3>☀️ 1. Vasaros tema vietoj chaoso</h3>
+        <p>
+          Vietoj dešimties skirtingų „vasariškų“ daiktų iš išpardavimo išsirinkite vieną iki trijų pamatinių krypčių – taip mažiau vizualinio triukšmo ir lengviau pirkti
+          tai, ko tikrai naudosite.
+        </p>
         <ul>
-          <li>Jūrinis stilius – mėlyna, balta, smėlio tonai, lengvi vėjo malūnai, vandens akcentai.</li>
-          <li>Tropikinis – sodri žalia, geltonos detalės, šiaudiniai baldai ir augalai puoduose.</li>
-          <li>Šeimyninis ir linksmas – spalviškas vandens žaidimas, aiški šlapia zona nuo sausos zonos ir bendros taisyklės.</li>
+          <li><strong>Jūrinis stilius</strong> – mėlyna, balta, smėlis; tinka ir prie Baltijos nuotraukų kambario sienoje.</li>
+          <li><strong>Tropikai lengvu būdu</strong> – žalia, geltona, šiaudinis padėklas; net vienas didelis lapas vazei keičia nuotaiką.</li>
+          <li><strong>Šeimyninis aktyvus</strong> – aiški vandens zona kieme ar ant kilimėlio balkone ir paprastos taisyklės visiems.</li>
         </ul>
-        <p>Nepriklausomai nuo stiliaus, stenkitės išlaikyti išdėstymą paprastą – dažnai pakanka vieno centro (stalo ar refilko) ir gero <Link to="/p/1001" className="text-blue-600 hover:underline">vandens įrankių rinkinio</Link>, kad vakaras būtų įvykis.</p>
+        <p>
+          Dažnai pakanka vieno centro – stalo ar refill kampelio – ir kelių kokybiškų įrankių;{' '}
+          <Link to="/p/1001" className="text-blue-600 hover:underline">
+            vandens įrankių asortimentą
+          </Link>{' '}
+          patogu peržiūrėti prieš perkant dekorą, kad spalvos derėtų prie jau turimų šautuvų ar pistoletų.
+        </p>
 
-        <h3>💦 2. Vandens Žaidimai – Vasaros Širdis</h3>
-        <p>Vandens mūšiai ir kokybiški įrankiai sukuria prisiminimus greičiau nei dekoracija. Rinkdamiesi įrangą įvertinkite svorį vaikų rankoms, kaip lengvai pildosi bakas ir ar galima greitai pakeisti ritmą („trumpas roundas“ prieš pusryčius ir ilgesnis vakare). Automatiniai režimai tinka kai norisi mažiau mankštos plaunant grindis nuo purslų rankiniu režimu – abu būdai legitimūs.</p>
+        <h3>💦 2. Vanduo – vasaros centras name ir kieme</h3>
+        <p>
+          Vandens mūšiai kuria prisiminimus greičiau nei keičiamos pagalvėlės. Rinkdamiesi įrangą įvertinkite: kas nešios dažniausiai, ar lengva pildyti prie jūsų čiaupo,
+          ar vaikas išlaikys svorį penkiolikos minučių žaidime. Automatinis ir rankinis režimai abu turi vietą – vienas patogesnis vyresniems, kitas – labiau kontroliuojamas
+          mažiesiems. Jei namuose dar neturite įrankių ar norite atsinaujinti,{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            peržiūrėkite Vasaros Kampelio produktų skyrių
+          </Link>
+          , kur matote įvairius modelius vienoje vietoje.
+        </p>
 
-        <h3>🏖️ 3. Dekoruokite Kiemą ir Terasą</h3>
-        <p>Vasaros stalelis – poilsio centras. Šiaudiniai takeliai nuo durų iki stalo riboja purvą batų, puokštė su vasariškomis spalvomis suteikia vietos pobūdžio. Pagalvėlės lauke turi būti arba specialiai lauko audinio, arba laikomos sausai tarp naudojimų.</p>
+        <h3>🏖️ 3. Terasa ir kiemas be remonto</h3>
+        <p>
+          Vasaros stalelis – poilsio centras: šiaudinis takelis nuo durų riboja purvą, vazonas su žibuoklėmis ar bazilikais duoda kvapą ir spalvą. Lauko tekstilė turi būti
+          skirta drėgmei arba laikoma sausai tarp naudojimų – Lietuvos vasara kartais staiga paleidžia lietų, ir vidinis kambario kilimas netinka kaip nuolatinis pakaitalas.
+        </p>
 
-        <h3>🌴 4. Šešėlis ir Geriamas Vanduo</h3>
-        <p>Šiluma kartu su judesiu reikalauja plano: skėtis ar markizė, ledinė arbata termose, vanduo su citrina ir mėtomis. Statykite gėrimus ten, kur jų nepasieks purslai – maža detalė, bet sumažina streso scenarijus.</p>
+        <h3>🌴 4. Šešėlis ir gėrimai</h3>
+        <p>
+          Skėtis, markizė ar net laikina „palapinės“ kampelis vaikams keičia tai, kiek ilgai išbūsite lauke be pykčio. Statykite termosus su vandeniu ir arbata ten, kur jų
+          nepasieks purslai iš kiemo – maža detalė, bet sumažina konfliktų skaičių.
+        </p>
 
-        <h3>🏠 5. Mažos Dekoracijos – Didelis Efektas</h3>
+        <h3>🏠 5. Mažos dekoracijos, didelis efektas</h3>
         <ul>
-          <li>Baseinas ar fontanėlis ir aiškiai pažymėta vieta blasteriams kai jie nenaudojami;</li>
-          <li>Gėlių puokštė ant stalo – net viena keičia „tuščią“ stalą į pikniką;</li>
-          <li>Kilimėlis su vasaros raštu prie durų – riba tarp namų ir kiemo.</li>
+          <li>Aiški vieta vandens įrankiams po žaidimo – mažiau dingusių daiktų rytoj.</li>
+          <li>Gėlių puokštė ant stalo – net viena keičia „tuščią“ zoną į pikniką.</li>
+          <li>Kilimėlis prie durų kaip riba tarp namų ir kiemo – vaikai greičiau išmoksta protokolo.</li>
         </ul>
 
-        <h3>💡 6. Sukurkite Vasaros Tradiciją</h3>
-        <p>Vienas pakartojamas ritualas – pvz., šeštadienio rytinis vandens raundas prieš pusryčius arba „ledų valanda“ vakare – išmoko vaikus laukti kartu ir kalbėtis be plano. Ritualą galima papildyti <Link to="/#products" className="text-blue-600 hover:underline">nauju įrankiu iš vitrinos</Link>, bet svarbiausia lieka laiką skirti kartu.</p>
+        <h3>🏙️ Kai lauko erdvės mažai</h3>
+        <p>
+          Balkonas ar siauras tarpas tarp namo ir tvoros vis tiek gali turėti vasarišką kampelį: mažas kilimėlis, vazonas, termosas ir sutarta taisyklė, kad purslai tik
+          žemiau tam skirtos linijos. Tokiu atveju rinkitės kompaktiškiausius vandens pistoletus ir trumpiausius roundus – triukšmas mažesnis kaimynams viršuje, o vaikas
+          vis tiek gauna „tikrą vasarą“. Įrankiams{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            peržiūrėkite skyrių čia
+          </Link>
+          ir atkreipkite dėmesį į svorio bei talpos aprašymus.
+        </p>
 
-        <h3>🍉 7. Kur Rasti Vasaros Įkvėpimą Praktiškai</h3>
+        <h3>💡 6. Tradicija, kurią lengva pakartoti</h3>
+        <p>
+          Vienas kartojamas ritualas – šeštadienio rytas su trumpu purslu prieš pusryčius arba „ledų valanda“ sekmadienį – sukuria laukimą be planšetės. Ritualą galima
+          papildyti nauju įrankiu iš{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            Vasaros Kampelio vitrinos
+          </Link>
+          , bet branduolys lieka bendras laikas.
+        </p>
+
+        <h3>🍉 7. Kur praktiškai susirinkti įkvėpimą</h3>
         <ul>
-          <li>Vandens žaidimo įranga pagal amžių;</li>
-          <li>Tekstilė ir elementai stalui ar žolei namuose ar kieme;</li>
-          <li>Dovanų idėjos, kurios nukreipia laukan, ne į stalčių.</li>
+          <li>Vandens įranga pagal amžių ir svorį rankoje.</li>
+          <li>Tekstilė ir smulkmenos stalui bei kilimėliui.</li>
+          <li>Dovanų idėjos, kurios nukelia į kiemą – ne į stalčių.</li>
         </ul>
+
+        <h3>📅 Kai vasara sutampa su darbu ir būreliais</h3>
+        <p>
+          Dažnas Lietuvos miestų scenarijus – tėvai iki vakaro biure ar nuotoliniai susitikimai, vaikai po būrelių grįžta alkani ir pavargę. Tuomet „vasariška“ namų
+          nuotaika ne iš lagaminų, o iš penkiolikos minučių lauko prie termoso ir dviejų aiškių taisyklių: šiandien purslai tik iki sutarto laiko, refill tik prie čiaupo su
+          basutėmis. Jei turite tik vakarą – pakanka vieno lengvo pistoleto ir sausos antklodės kieme ar siaurame žolės ruože prie daugiabučio; rinkinius pagal tai, kiek dažnai
+          nešiosite į automobilį, paprasčiausia palyginti{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            produktų skyriuje
+          </Link>
+          , kur matote talpas ir svorį viename sąraše. Savaitgalį galite „užsidėti“ daugiau – antras įrankis ar papildomas kibiras refill dažnai pigiau nei dar vienas užsiėmimas
+          už miesto ribų, bet duoda panašų bendrystės pojūtį.
+        </p>
 
         <h3>🌟 Apibendrinimas</h3>
-        <p>Sukurti vasaros nuotaiką nereikia daug – užtenka sąmoningo išplanavimo, saugumo ir keleto kokybiškų rakto taškų. Vasaros Kampelyje nuo vandens įrangos iki praktinių idėjų galite išsirinkti tai, kas tinka jūsų kiemui – <Link to="/p/1001" className="text-blue-600 hover:underline">peržiūrėti asortimentą</Link>. Tegul ši vasara būna kupina saulės, vandens ir šypsenų.</p>
+        <p>
+          Sukurti vasaros nuotaiką nereikia viso namo perdarymo – užtenka sąmoningo zonavimo, saugumo ir kelių kokybiškų taškų: vanduo, šešėlis, vienas ritualas. Vasaros
+          Kampelyje galite{' '}
+          <Link to="/p/1001" className="text-blue-600 hover:underline">
+            peržiūrėti asortimentą
+          </Link>{' '}
+          ir išsirinkti tai, kas tinka jūsų kiemui ar balkonui. Tegul ši vasara būna kupina saulės, vandens ir šypsenų – net jei darbo savaitė Vilniuje ar Kaune lieka
+          įtempta.
+        </p>
+        <p>
+          Maži kartojami ritualai – tas pats kilimėlis prie durų, tas pats refill kampelis – padeda vaikams greičiau įprasti prie saugumo taisyklių nei kiekvieną savaitę naujas
+          išradimas, kuris suaugusiesiems galiausiai atrodo kaip dar vienas projektas be pabaigos.
+        </p>
+        <p>
+          Jei gyvenate nuomojame bute ir lauko neturite – kelios valandos savaitgalį parke su tuo pačiu vandens rinkiniu ir antklode duoda panašų efektą kaip kiemas:
+          svarbu tik sutarti laiką ir vietą refill. Draugams iš kito miesto dažnai įdomu išbandyti jūsų įrankius – tuomet verta turėti bent vieną papildomą lengvą pistoletą
+          svečiui, kad niekas neliktų stebėtoju;{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            antrus rinkinius patogu užsisakyti čia
+          </Link>
+          .
+        </p>
       </article>
     </PageWrapper>
   );

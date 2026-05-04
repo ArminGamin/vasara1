@@ -17,7 +17,7 @@ export default function BlogPostVasarosPasiulymai2025() {
       publishedAt={BLOG_PUBLISHED.vasarosPasiulymai2026}
       modifiedAt={BLOG_MODIFIED.vasarosPasiulymai2026}
       ogImage="/hero-blue-ar.webp"
-      wordCount={654}
+      wordCount={847}
       keywords="vasaros pasiūlymai 2026, vasaros tendencijos, kiemo puošimas, vandens žaidimai lauke, šeimos veikla vasarą, lauko žaidimai"
       relatedPostPaths={[
         '/blog/vandens-zaidimai-vaikams',
@@ -67,6 +67,32 @@ export default function BlogPostVasarosPasiulymai2025() {
 
         <h3>❤️ 7. Bendruomenė ir ribos</h3>
         <p>Jei kviečiate kaimynus į mūšį, iš anksto sutarkite garsą, laiką iki vakaro ir kur džiovinsite drabužius – mažiau nesusipratimų, daugiau nuoširdaus juoko. Tikra vasara daugeliui yra būtent tai: sutartos taisyklės ir laisvas juokas jų viduje.</p>
+
+        <h3>🇱🇹 8. Lietuviški vasaros niuansai</h3>
+        <p>
+          Drėgnesnis birželis pajūryje ir sausros atkarpa Vidurio Lietuvoje reiškia skirtingus kiemo planus: prie jūros verta daugiau dėmesio smėliui ir vėjo tvirtinimams
+          skėčiui, vidiniuose miestuose – šešėliui prie refill ir vandens taupymui, jei čiaupas bendras. Kai savaitgaliais visi išvažiuoja į kempingus ar sodybas, namuose
+          paliekamas kiemas vis tiek gali būti „vasariškas“: sutvarkytas kampelis su kilimėliu ir vienu kokybišku vandens įrankiu pakanka vakaro po darbo.
+        </p>
+        <ul>
+          <li><strong>Miesto triukšmas:</strong> sutarkite laiką su kaimynais – dažnai užtenka iki 21 val. ramybės ir aiškaus „pabaigos“ signalo vaikams.</li>
+          <li><strong>Kaimas:</strong> daugiau vietos ir mažiau triukšmo ribų – galima ilgesnius roundus, bet vis tiek saugokite vaikus prie kelių ir statinių.</li>
+          <li><strong>Paplūdimys:</strong> smėlis ir druska oro greičiau veikia metalą – po sezono įrangą gerai išskalbkite ir laikykite sausoje vietoje.</li>
+        </ul>
+
+        <h3>🛒 9. Kada verta atnaujinti įrangą</h3>
+        <p>
+          Jei pernai įrankis nuolat užstrigo ar buvo per sunkus jauniausiam šeimos nariui, naujas sezonas – geras metas pakeisti strategiją: vienas lengvas pistoletas
+          mažajam ir vienas talpesnis vyresniam dažnai pigiau nervų nei nuolatiniai ginčai. Visus variantus galite palyginti{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            Vasaros Kampelio produktų puslapyje
+          </Link>
+          ; jei jau žinote konkretų formatą,{' '}
+          <Link to="/p/1001" className="text-blue-600 hover:underline">
+            vitrina su vandens šautuvais
+          </Link>{' '}
+          padės greitai praeiti pro visas spalvas ir tipus.
+        </p>
 
         <h3>☀️ Apibendrinimas</h3>
         <p>Vasaros laikotarpis veikia geriausiai tada, kai jį galima pajusti per paprastus dalykus – vandenį, bendrą laiką ir erdvę, į kurią norisi išeiti rytoj iš naujo. Jei ieškote praktinio starto paketo, užsukite į <Link to="/#products" className="text-blue-600 hover:underline">Vasaros Kampelio vitriną</Link> ir išsirinkite pagal tai, kaip jūsų šeima mėgsta leisti laiką lauke. Tegul 2026-ųjų vasara būna saulės, vandens ir ramybės su sąrašu, kad „viskas pagal planą“, bet su vietos spontaniškumui.</p>

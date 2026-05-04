@@ -17,7 +17,7 @@ export default function BlogPostVandensZaidimaiVaikams() {
       modifiedAt={BLOG_MODIFIED.vandensZaidimaiVaikams}
       ogImage="/hero-pink-ar.webp"
       description={BLOG_DESCRIPTION.vandensZaidimaiVaikams}
-      wordCount={443}
+      wordCount={806}
       keywords="vandens žaidimai, vasaros žaidimai vaikams, vandens žaidimai lauke, vandens žaidimai kieme, vasaros pramogos vaikams, lauko žaidimai vasarą"
       relatedPostPaths={[
         '/blog/kaip-puosti-kiema-vandens-zaidimams',
@@ -27,65 +27,104 @@ export default function BlogPostVandensZaidimaiVaikams() {
     >
       <article className="prose prose-lg max-w-none">
         <p>
-          Kai įsismarkauja karščiai, paprasčiausias būdas į šeimos dieną įnešti judesio ir geros nuotaikos – tai{' '}
-          <strong>vandens žaidimai</strong>. Jiems nereikia baseino ar sudėtingos įrangos: užtenka čiaupo, kelių kibirų ir kelių aiškių taisyklių. Žemiau
-          paaiškinsime, kaip <strong>vasaros žaidimai lauke</strong> ir <strong>vandens žaidimai kieme</strong> gali būti saugūs, pakartojami ir be perteklinio
-          streso tėvams – su akcentu į tai, kas iš tiesų veikia kieme ir žolyne.
+          Kai Lietuvoje įsismarkauja karščiai – o tai nutinka ir pajūryje, ir vidaus miestuose, kai termometras ilgai laikosi virš 25 °C – paprasčiausias būdas į šeimos
+          dieną įnešti judesio ir geros nuotaikos dažnai būna <strong>vandens žaidimai</strong>. Jiems nereikia privataus baseino: užtenka čiaupo, kelių kibirų,
+          šiek tiek žolės ar saugios terasos ir kelių aiškių taisyklių. Žemiau paaiškinsime, kaip <strong>vasaros žaidimai lauke</strong>,{' '}
+          <strong>vandens žaidimai lauke</strong> ir <strong>vandens žaidimai kieme</strong> gali būti saugūs, pakartojami ir be perteklinio streso tėvams – su pavyzdžiais,
+          kurie tinka tipiniam Lietuvos kiemui ir savaitgalio išvykai į parką.
         </p>
 
         <h2>Kodėl vandens žaidimai vaikams „užsuka“ be prievartos</h2>
         <p>
-          <strong>Vandens žaidimai vaikams</strong> dažnai patinka labiau nei ilgos instrukcijos ar brangūs užsiėmimai: purslai duoja momentinį atsiliepimą, o
-          krūvis lieka savireguliuojantis – norisi pailsėti ties kibiru ar šešėliu, ir tai normalu. Kad nekiltų ginčų prie durų, nuo pradžių susitarkite dėl
-          refill taško, „sausos“ batų zonos ir trumpų raundų formato. Kai vaikai žino ribas, lieka daugiau laiko juokui ir mažiau chaos virtuvėje.
+          <strong>Vandens žaidimai vaikams</strong> dažnai patinka labiau nei ilgos instrukcijos ar brangūs būreliai: purslai duoda greitą grįžtamąjį ryšį, o fizinis
+          krūvis lieka savireguliuojantis – norisi stabtelėti prie kibiro ar šešėlio, ir tai normalu. Problemos paprastai prasideda ten, kur nėra ribų: vanduo prie durų,
+          ginčai dėl refill ir „jis man į akis“. Todėl nuo pirmos minutės sutarkite: refill taškas čia, batų ir sausų kojinių zona ten, o žaidimas skaidomas į trumpus
+          blokus.
         </p>
+        <ul>
+          <li>Mažiems (apie 3–6 m.) – 15–20 minučių veiklos, taurus gėrimas, vėl veikla.</li>
+          <li>Vyresniems – ilgesni roundai, bet vis tiek aiškios pertraukos mažiausiai kas pusvalandį karščiausiu metu.</li>
+        </ul>
 
         <h2>Vasaros žaidimai lauke ir vandens žaidimai lauke</h2>
         <p>
-          <strong>Vasaros žaidimai lauke</strong> atveria daugiau erdvės ir gaivesnio oro – tai ypač jaučiasi, jei turite žolę ar bent platesnį kiemo kampą.
-          <strong> Vandens žaidimai lauke</strong> viešoje vietoje reikalauja papildomo mandagumo: nepurskite praeivių, laikykite žaislus nuo takų ir rinkitės
-          laiką, kai gruntas neįklampsta po liūties. Jei liekate prie nuosavo namo, <strong>vandens žaidimai kieme</strong> leidžia greičiau pastebėti slidžias
-          plyteles ar statesnius laiptus – verta prieš startą peržvelgti kelias rizikos zonas ir jas pažymėti akiai.
+          <strong>Vasaros žaidimai lauke</strong> atveria daugiau erdvės ir gaivesnio vėjo – tai jaučiasi Žemaitijos pievoje, parko lankoje prie telkinio ar tiesiog
+          platesniame bendruomenės kieme. <strong>Vandens žaidimai lauke</strong> viešoje vietoje visada reikalauja papildomos etikos: nepurskite žmonių, kurie neįsitraukė,
+          laikykite įrankius nuo dviračių takų, rinkitės sausą žolę po liūties, kai gruntas mažiau klampus. Jei grįžtate į nuosavą namą,{' '}
+          <strong>vandens žaidimai kieme</strong> leidžia greičiau pastebėti slidžias plyteles, statesnius laiptus ir vietą, kur vanduo nuteka į kaimyno pusę – geriau
+          tai pamatyti prieš žaidimą nei vidury jo.
         </p>
 
-        <h2>Vasaros veikla vaikams ir vasaros pramogos vaikams be pertekliaus</h2>
+        <h2>Vasaros veikla vaikams ir vasaros pramogos vaikams</h2>
         <p>
-          Stilinga <strong>vasaros veikla vaikams</strong> su purslais paprastai reiškia intervalus: intensyvesnis 20–40 minučių blokas, po to šaltas gėrimas
-          šešėlyje ir sausas rankšluostis. <strong>Vasaros pramogos vaikams</strong> gali būti labai paprastos: taikinys į kibirą, komandinis refill ar lengva
-          estafetė su pilnomis talpomis pagal amžių. Aiškiai pasakykite pabaigos signalą – tai sumažina begalinį „dar vieną kartą“ ir padeda visiems ramiau
-          persijungti į kitą dienos dalį.
+          <strong>Vasaros veikla vaikams</strong> su vandeniu veikia geriausiai kaip intervalinė treniruotė: intensyvesnis blokas, po to ramybė šešėlyje.{' '}
+          <strong>Vasaros pramogos vaikams</strong> gali būti labai paprastos ir pigios: taikinys į kibirą, komandinis refill lenktynėmis be kontakto („kas greičiau
+          saugiai pripila ir grįžta į liniją“), estafetė su nestiklinėmis talpomis pagal amžių. Baigiamasis signalas turi būti aiškus – tai sumažina begalinį „dar vieną
+          kartą“, kai jūs jau norite vakarienės ruošti.
         </p>
 
-        <h2>Vandens pramogos vaikams: įranga ir pasirinkimas</h2>
+        <h2>Vandens pramogos vaikams: įranga ir pirkiniai Lietuvoje</h2>
         <p>
-          <strong>Vandens pramogos vaikams</strong> tampa patogesnės, kai įrankis atitinka ranką ir jėgas: per sunki talpa greitai atsidės šone, per maža –
-          nuolat truks papildymo. Jei svarstote konkretų modelį, išsamiai padės{' '}
+          <strong>Vandens pramogos vaikams</strong> tampa patogesnės, kai įrankis atitinka ranką ir jėgas: per sunki talpa greitai padedama šalin, per maža – nuolatinis
+          ginčas dėl refill eilės. Jei renkatės konkretų modelį, padės{' '}
           <Link to="/blog/kaip-issirinkti-vandens-blasteri" className="text-blue-600 hover:underline">
-            kaip išsirinkti vandens blasterį
+            išsamus gidas apie vandens blasterius
           </Link>
           . Visą asortimentą patogu peržiūrėti{' '}
           <Link to="/#products" className="text-blue-600 hover:underline">
-            pagrindinio puslapio prekių skyriuje
-          </Link>{' '}
-          – taip lengviau palyginti kelis variantus vienoje vietoje.
-        </p>
-
-        <h2>Lauko žaidimai vasarą – saugumas trumpai</h2>
-        <p>
-          <strong>Lauko žaidimai vasarą</strong> su vandeniu veikia geriausiai, kai visi žino kelias taisykles: ne taikyti į veidą ir akis, bendras stabdymo
-          žodis visiems privalomas, telefonai ir raktai laikomi sausame kampe. Po sesijos surinkite įrangą – ji greičiau išdžius ir kiemas neatrodys kaip nuolatinė
-          stovyklautojų zona.
-        </p>
-
-        <p>
-          Trumpai tariant, <strong>vandens žaidimai</strong> ir platesni <strong>vasaros žaidimai</strong> su purslais yra vienas pigiausių būdų kartu praleisti
-          kokybišką laiką: pakanka vandens šaltinio, šiek tiek vietos ir kelių susitarimų. Dar kartą – idėjoms pagal amžių ir įrankius žvilgtelėkite į{' '}
-          <Link to="/#products" className="text-blue-600 hover:underline">
-            produktų skyrių
+            Vasaros Kampelio prekių skyriuje
           </Link>
-          , o renkantis konkretų blasterį naudingas ir{' '}
+          – ten matote tiek kompaktiškesnius pistoletus, tiek didesnius šautuvus ilgesniam žaidimui be nuolatinio papildymo.
+        </p>
+        <p>
+          Natūraliai apie vandens šautuvus verta kalbėti ten, kur kalbate apie saugumą ir refill: pvz., „pas mus namuose du lengvi pistoletai vaikams ir vienas didesnis
+          suaugusiam – refill prie čiaupo kartą per penkias minutes“. Tokie sprendimai realistiški tiems, kurie užsako internetu ir nori{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            palyginti kelis variantus vienoje vietoje
+          </Link>
+          .
+        </p>
+        <p>
+          Po darbo dienos daugelis tėvų pradeda žaidimą vakarop – tuomet naudinga turėti paklotą batams prie durų ir rankšluostį sausoje vietoje, kad drėgmė neliptų ant
+          koridoriaus kilimo. Tai smulku, bet sumažina „vasara = nuolatinis valymas“ jausmą.
+        </p>
+
+        <h2>Lauko žaidimai vasarą – saugumas ir kas veikia kieme</h2>
+        <p>
+          <strong>Lauko žaidimai vasarą</strong> su vandeniu reikalauja kelių nekvestionuojamų taisyklių: ne į veidą ir akis; stabdymo žodis galioja visiems; telefonai ir
+          raktai sausoje dėžėje; po žaidimo įranga surinkta ir padėta džiūti – mažiau pelėsio ir nestabdžių mechanizmų kitą savaitę. Jei gyvenate daugiabyje, trumpai
+          suderinkite laiką ir triukšmą su kaimynais – daugelis sutinka, kai aišku, kad baigsite iki vakaro poilsio ir purslas neis į bendras duris.
+        </p>
+        <p>
+          Kai temperatūra viršija 30 °C, kaip būna ne tik Lietuvoje bet ir kaimyninėse šalyse kaitros bangų metu, vaikams svarbu stebėti veido spalvą ir troškulį –
+          vanduo iš buteliuko tarp roundų svarbesnis už dar vieną intensyvų ratą. Jei planuojate neštis įrankius į viešą parką, rinkitės lengvesnius modelius ir trumpesnius
+          laikymo laikus saulėje –{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            produktų sąraše
+          </Link>{' '}
+          rasite įvairaus svorio variantų aprašymus.
+        </p>
+
+        <h3>📏 Amžius ir užduotys be chaoso</h3>
+        <p>
+          Apytikriai: iki ketverių – daugiau purslų į žolę ar į taikinį ant žemės, suaugusysis kontroliuoja refill; keturių–septynerių – trumpi roundai su aiškia „stop“ taisykle ir lengvu pistoletu,
+          kurį vaikas pats prispaudžia; vyresniems – galimos komandinės estafetes ir didesnės talpos, bet vis tiek verta riboti laiką tiesioje saulėje. Lietuvoje darželiai ir stovyklos vasarą dažnai naudoja labai paprastą įrangą –
+          namuose galite duoti šiek tiek daugiau įvairovės, jei aiškiai paaiškinate skirtumą tarp namų kiemo ir viešos vietos elgesio. Jei nežinote, nuo kokio svorio pradėti,{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            produktų puslapyje
+          </Link>{' '}
+          palyginkite kelis variantus ir vieną savaitgalį išbandykite trumpą sesiją – geriau pamatyti reakciją savo kieme nei pirkti „atsarginį“ žaislą, kuris neįdomus po dešimties minučių.
+        </p>
+
+        <p>
+          Trumpai: <strong>vandens žaidimai</strong> ir platesni <strong>vasaros žaidimai</strong> su purslais yra vienas pigiausių būdų kartu praleisti laiką –
+          pakanka vandens šaltinio, vietos ir sutarimo. Dar kartą produktams ir spalvų pasirinkimui –{' '}
+          <Link to="/#products" className="text-blue-600 hover:underline">
+            produktų skyrius
+          </Link>
+          ; renkantis pagal amžių ir svorį vis tiek naudinga{' '}
           <Link to="/blog/kaip-issirinkti-vandens-blasteri" className="text-blue-600 hover:underline">
-            mūsų vadovas apie vandens blasterius
+            blasterių vadovas
           </Link>
           .
         </p>
