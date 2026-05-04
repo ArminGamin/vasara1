@@ -19,26 +19,11 @@ const faqs = [
   },
 ] as const;
 
-const faqJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((faq) => ({
-    '@type': 'Question',
-    name: faq.q,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: faq.a,
-    },
-  })),
-};
-
 export function FAQAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <section className="py-6 md:py-10 bg-bg">
+    <section className="py-6 md:py-10 bg-bg">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-h2 sm:text-h2-lg font-bold text-text text-center mb-6">
           Dažniausiai užduodami klausimai
@@ -70,6 +55,5 @@ export function FAQAccordion() {
         </div>
       </div>
     </section>
-    </>
   );
 }
