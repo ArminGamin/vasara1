@@ -153,21 +153,276 @@ export default async function handler(req: any, res: any) {
           from: fromAddress,
           to: [e],
           subject: 'Ačiū už prenumeratą! | Vasaros Kampelis',
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:600px;margin:40px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.08)">
-              <div style="background:linear-gradient(90deg,#1e90ff,#00c2ff);padding:30px 20px;text-align:center">
-                <h1 style="color:white;margin:0;font-size:24px">🌿 Vasaros Kampelis</h1>
-                <p style="color:white;margin:8px 0 0">Ačiū už prenumeratą!</p>
-              </div>
-              <div style="padding:30px;color:#333;line-height:1.6">
-                <p>Sveiki!</p>
-                <p>Esate sėkmingai užsiregistravę gauti Vasaros Kampelio naujienas. Informuosime jus apie akcijas ir naujausius pasiūlymus.</p>
-                <p>Mūsų puslapyje galite apsilankyti paspaudę šią nuorodą: <a href="https://vasaroskampelis.com" style="color:#1e90ff">vasaroskampelis.com</a>.</p>
-                <p style="margin-top:30px;color:#999;font-size:13px">Jei neprenumeravote — tiesiog ignoruokite šį laišką.</p>
-                <p style="color:#999;font-size:13px">Norite atsisakyti prenumeratos? <a href="mailto:vasaroskampelis@gmail.com?subject=Atsisakyti%20prenumeratos" style="color:#999">Spauskite čia</a>.</p>
-              </div>
-            </div>
-          `,
+          html: `<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sveiki atvykę į Vasaros Kampelis!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #f0f4f8;
+      font-family: 'Nunito', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+      padding: 28px 40px 24px;
+      text-align: center;
+    }
+
+    .header .logo {
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .header .logo span {
+      color: #fde68a;
+    }
+
+    .header .tagline {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    /* HERO IMAGE */
+    .hero-image {
+      width: 100%;
+      display: block;
+      background: #0c1a2e;
+    }
+
+    .hero-image img {
+      width: 100%;
+      display: block;
+      max-height: 320px;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* BODY */
+    .body {
+      padding: 40px 44px 36px;
+    }
+
+    .greeting {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0c1a2e;
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      font-size: 16px;
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .intro .fire {
+      font-size: 18px;
+    }
+
+    /* PERKS */
+    .perks {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      border-radius: 0 12px 12px 0;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+
+    .perks p {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .perk-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .perk-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .perk-icon {
+      font-size: 16px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .perk-text {
+      font-size: 15px;
+      color: #1e3a5f;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    /* CTA */
+    .cta-block {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .cta-pre {
+      font-size: 15px;
+      color: #6b7280;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .cta-pre strong {
+      color: #0c1a2e;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 900;
+      padding: 16px 44px;
+      border-radius: 50px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    /* SIGN OFF */
+    .signoff {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 24px;
+      font-size: 15px;
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    .signoff .name {
+      font-weight: 900;
+      color: #0369a1;
+      font-size: 16px;
+    }
+
+    /* FOOTER */
+    .footer {
+      background: #0c1a2e;
+      padding: 24px 40px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+    }
+
+    .footer a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: underline;
+    }
+
+    /* MOBILE */
+    @media (max-width: 620px) {
+      .wrapper { margin: 0; border-radius: 0; }
+      .body { padding: 28px 24px; }
+      .footer { padding: 20px 24px; }
+      .header { padding: 22px 24px; }
+      .greeting { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo">☀️ Vasaros <span>Kampelis</span></div>
+      <div class="tagline">Vandens šautuvai · Vasaros žaidimai · Lietuva</div>
+    </div>
+
+    <!-- HERO IMAGE -->
+    <div class="hero-image">
+      <img
+        src="https://www.vasaroskampelis.com/blue1-1024w.webp"
+        alt="Elektrinis vandens šautuvas – Vasaros Kampelis"
+        width="600"
+      />
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="greeting">Sveiki! 👋</div>
+
+      <div class="intro">
+        Vasaros Kampelis čia. Ir džiaugiamės, kad esate su mumis. <span class="fire">🔥</span>
+      </div>
+
+      <div class="perks">
+        <p>Dabar oficialiai esate pirmieji, kurie sužinos:</p>
+        <div class="perk-item">
+          <span class="perk-icon">⚡</span>
+          <span class="perk-text">Geriausias akcijas</span>
+        </div>
+        <div class="perk-item">
+          <span class="perk-icon">⚡</span>
+          <span class="perk-text">Naujus produktus dar prieš visiems</span>
+        </div>
+        <div class="perk-item">
+          <span class="perk-icon">⚡</span>
+          <span class="perk-text">Vasaros idėjas, kurios iš tiesų veikia</span>
+        </div>
+      </div>
+
+      <div class="cta-block">
+        <p class="cta-pre">Vienas dalykas prieš baigiant —<br><strong>jūsų šautuvas jau laukia.</strong></p>
+        <a href="https://vasaroskampelis.com" class="cta-button">Pirk dabar →</a>
+      </div>
+
+      <div class="signoff">
+        Iki greito,<br>
+        <span class="name">Vasaros Kampelis ☀️</span>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>
+        Gavote šį laišką, nes užsiprenumeravote Vasaros Kampelio naujienlaiškį.<br>
+        <a href="mailto:vasaroskampelis@gmail.com?subject=atsisakyti%20prenumeratos">Atsisakyti prenumeratos</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`,
         }),
       });
     } catch (err) {
