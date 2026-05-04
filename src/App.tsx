@@ -29,13 +29,13 @@ import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
 import { initialProducts } from "./data/products";
 import { SITE_NAME, DEFAULT_DESC } from './components/PageWrapper';
+import { ReviewsSection } from "./components/ReviewsSection";
+import { FAQAccordion } from "./components/FAQAccordion";
 // Lazy-load below-fold components – defers framer-motion and reduces main-thread work
 const CookieConsent = lazy(() => import("./components/CookieConsent").then((m) => ({ default: m.default })));
 const LanguageDetectionPopup = lazy(() => import("./components/LanguageDetectionPopup").then((m) => ({ default: m.LanguageDetectionPopup })));
 const ComparisonTable = lazy(() => import("./components/ComparisonTable").then((m) => ({ default: m.ComparisonTable })));
-const ReviewsSection = lazy(() => import("./components/ReviewsSection").then((m) => ({ default: m.ReviewsSection })));
 const WhyChooseUs = lazy(() => import("./components/WhyChooseUs").then((m) => ({ default: m.WhyChooseUs })));
-const FAQAccordion = lazy(() => import("./components/FAQAccordion").then((m) => ({ default: m.FAQAccordion })));
 const EmailCapturePopup = lazy(() => import("./components/EmailCapturePopup").then((m) => ({ default: m.EmailCapturePopup })));
 const StickyMobileCTA = lazy(() => import("./components/StickyMobileCTA").then((m) => ({ default: m.StickyMobileCTA })));
 const ThankYouModal = lazy(() => import("./components/ThankYouModal").then((m) => ({ default: m.ThankYouModal })));
@@ -1503,14 +1503,14 @@ function HomePage() {
         {/* Section 5: Reviews */}
         <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
           <div className="slide-content w-full">
-      <Suspense fallback={null}><ReviewsSection /></Suspense>
+      <ReviewsSection />
           </div>
         </section>
 
         {/* Section 6: FAQ + Newsletter + Footer – no bottom padding so footer is last */}
         <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
           <div className="slide-content w-full">
-      <Suspense fallback={null}><FAQAccordion /></Suspense>
+      <FAQAccordion />
 
       {/* Newsletter */}
       <section className="relative bg-primary text-white py-8 md:py-10 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>

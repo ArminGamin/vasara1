@@ -1,5 +1,4 @@
 import React from 'react';
-import { Check, X } from 'lucide-react';
 import { BRAND } from '../config/brand';
 
 const rows = [
@@ -33,19 +32,15 @@ export function ComparisonTable({ embedded = false, otherLabel = 'Pigūs pistole
           {rows.map((row, i) => (
             <tr key={i} className="border-b border-border hover:bg-bg/50">
               <td className="px-3 py-3 sm:p-4 font-semibold text-text text-sm sm:text-base">{row.feature}</td>
-              <td className="px-3 py-3 sm:p-4 bg-promoBg text-center">
-                {row.us ? (
-                  <Check className="w-5 h-5 sm:w-6 sm:h-6 text-success inline-block" aria-hidden />
-                ) : (
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-border inline-block" aria-hidden />
-                )}
+              <td className="px-3 py-3 sm:p-4 bg-promoBg text-center text-lg sm:text-xl">
+                <span role="img" aria-label={row.us ? 'Taip' : 'Ne'}>
+                  {row.us ? '✅' : '❌'}
+                </span>
               </td>
-              <td className="px-3 py-3 sm:p-4 text-center">
-                {row.cheap ? (
-                  <Check className="w-5 h-5 sm:w-6 sm:h-6 text-muted inline-block" aria-hidden />
-                ) : (
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 inline-block" aria-hidden />
-                )}
+              <td className="px-3 py-3 sm:p-4 text-center text-lg sm:text-xl">
+                <span role="img" aria-label={row.cheap ? 'Taip' : 'Ne'}>
+                  {row.cheap ? '✅' : '❌'}
+                </span>
               </td>
             </tr>
           ))}
