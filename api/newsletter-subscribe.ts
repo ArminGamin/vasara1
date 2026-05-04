@@ -214,7 +214,6 @@ export default async function handler(req: any, res: any) {
     .hero-image img {
       width: 100%;
       display: block;
-      max-height: 320px;
       object-fit: cover;
       object-position: center;
     }
