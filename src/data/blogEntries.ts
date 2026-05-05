@@ -10,6 +10,34 @@ export type BlogListEntry = {
 /** Central list for blog index, related posts, and navigation — keep in sync with routes in App.tsx */
 export const BLOG_ENTRIES: BlogListEntry[] = [
   {
+    to: '/blog/vasaros-dovanos-vaikams',
+    title: 'Vasaros Dovanos Vaikams: Ką Padovanoti?',
+    excerpt:
+      'Vasaros dovanos vaikams ir lauko žaislai pagal amžių: kodėl vandens įrankiai dažnai yra geriausias pasirinkimas ir kaip išvengti dovanos stalčiuje likimo.',
+    publishedAt: BLOG_PUBLISHED.vasarosDovanosVaikams,
+  },
+  {
+    to: '/blog/vandens-sautuvas-vs-pistoletas',
+    title: 'Vandens Šautuvas ar Pistoletas: Ką Rinktis?',
+    excerpt:
+      'Vandens šautuvas prieš pistoletą: svoris, talpa, nuotolis ir amžius – trumpas vadovas prieš perkant vasaros žaidimams kieme.',
+    publishedAt: BLOG_PUBLISHED.vandensSautuvasVsPistoletas,
+  },
+  {
+    to: '/blog/ka-veikti-su-vaikais-vasara',
+    title: 'Ką Veikti su Vaikais Vasarą: 8 Idėjos Lauke',
+    excerpt:
+      'Veikla vaikams vasarą ir vasaros idėjos šeimai – aštuonios lauko pramogos nuo vandens žaidimų iki paprastų ritualų be pertekliaus.',
+    publishedAt: BLOG_PUBLISHED.kaVeiktiSuVaikaisVasara,
+  },
+  {
+    to: '/blog/gimtadienis-lauke-vaikams',
+    title: 'Gimtadienis Lauke Vaikams: Idėjos ir Planavimas',
+    excerpt:
+      'Lauko gimtadienis ir vaikų šventė gamtoje: zonos, svečių taisyklės ir vandens žaidimai gimtadieniui be chaoso prie torto.',
+    publishedAt: BLOG_PUBLISHED.gimtadienisLaukeVaikams,
+  },
+  {
     to: '/blog/vandens-zaidimai-vaikams',
     title: 'Vandens žaidimai vaikams vasarą: idėjos lauke ir kieme',
     excerpt:

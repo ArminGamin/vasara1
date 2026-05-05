@@ -68,6 +68,10 @@ const pages = [
   { path: '/blog/vandens-zaidimai-vaikams', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/kaip-issirinkti-vandens-blasteri', priority: '0.7', changefreq: 'monthly' },
   { path: '/blog/pikniko-idejos-vasarai', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/gimtadienis-lauke-vaikams', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/ka-veikti-su-vaikais-vasara', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vandens-sautuvas-vs-pistoletas', priority: '0.7', changefreq: 'monthly' },
+  { path: '/blog/vasaros-dovanos-vaikams', priority: '0.7', changefreq: 'monthly' },
 ];
 const pagesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

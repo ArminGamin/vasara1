@@ -11,6 +11,10 @@ export const BLOG_PUBLISHED = {
   vandensZaidimaiVaikams: '2026-05-01T09:00:00+02:00',
   blasteriai: '2026-03-10T09:00:00+02:00',
   pikniko: '2026-04-12T09:00:00+02:00',
+  gimtadienisLaukeVaikams: '2026-05-06T09:00:00+02:00',
+  kaVeiktiSuVaikaisVasara: '2026-05-12T09:00:00+02:00',
+  vandensSautuvasVsPistoletas: '2026-05-19T09:00:00+02:00',
+  vasarosDovanosVaikams: '2026-05-26T09:00:00+02:00',
 } as const;
 
 /** ISO 8601 — dateModified schema; kol kas sutampa su publikacija */
@@ -24,6 +28,10 @@ export const BLOG_MODIFIED: { [K in keyof typeof BLOG_PUBLISHED]: string } = {
   vandensZaidimaiVaikams: BLOG_PUBLISHED.vandensZaidimaiVaikams,
   blasteriai: BLOG_PUBLISHED.blasteriai,
   pikniko: BLOG_PUBLISHED.pikniko,
+  gimtadienisLaukeVaikams: BLOG_PUBLISHED.gimtadienisLaukeVaikams,
+  kaVeiktiSuVaikaisVasara: BLOG_PUBLISHED.kaVeiktiSuVaikaisVasara,
+  vandensSautuvasVsPistoletas: BLOG_PUBLISHED.vandensSautuvasVsPistoletas,
+  vasarosDovanosVaikams: BLOG_PUBLISHED.vasarosDovanosVaikams,
 };
 
 /** Unikalūs meta aprašai (SERP og:description ir name=description įrašuose) */
@@ -46,4 +54,12 @@ export const BLOG_DESCRIPTION: Record<keyof typeof BLOG_PUBLISHED, string> = {
     'Kaip rinktis vandens šautuvą ar pistoletą: svoris vaikams, talpa, rankinis prieš automatinį režimą ir ženklai ant pakuotės. Trumpas vadovas tėvams Lietuvoje.',
   pikniko:
     'Pikniko sąrašas vasarą: maistas terminose ir induose, vanduo, saulės apsauga ir vandens žaidimai prie antklodės. Ko nepamiršti išvykus iš namų.',
+  gimtadienisLaukeVaikams:
+    'Lauko gimtadienis vaikams Lietuvoje: vieta, svečių taisyklės, vandens žaidimai kaip centrinė veikla ir saugumas prie torto. Idėjos ir planavimas be pertekliaus.',
+  kaVeiktiSuVaikaisVasara:
+    'Ką veikti su vaikais vasarą lauke: aštuonios idėjos šeimai Lietuvos kiemuose ir parkuose – nuo vandens žaidimų iki paprastų ritualų be brangių kelionių.',
+  vandensSautuvasVsPistoletas:
+    'Vandens šautuvas ar pistoletas vaikams: dydis, talpa, nuotolis ir amžius. Trumpas palyginimas ir praktinė rekomendacija prieš perkant vasaros sezonui.',
+  vasarosDovanosVaikams:
+    'Vasaros dovanos vaikams ir lauko žaislai pagal amžių: saugumas, pakartojama naudoti ir kodėl vandens įrankiai dažnai yra geriausia gimtadienio dovana vasarą.',
 };

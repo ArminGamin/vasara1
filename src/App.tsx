@@ -63,6 +63,10 @@ const BlogPostVandensMusiai = lazy(() => import("./pages/blog/BlogPostVandensMus
 const BlogPostVandensZaidimaiVaikams = lazy(() => import("./pages/blog/BlogPostVandensZaidimaiVaikams").then(m => ({ default: m.default })));
 const BlogPostKaipIssirinktiBlasteri = lazy(() => import("./pages/blog/BlogPostKaipIssirinktiBlasteri").then(m => ({ default: m.default })));
 const BlogPostPiknikoIdejos = lazy(() => import("./pages/blog/BlogPostPiknikoIdejos").then(m => ({ default: m.default })));
+const BlogPostGimtadienisLaukeVaikams = lazy(() => import("./pages/blog/BlogPostGimtadienisLaukeVaikams").then(m => ({ default: m.default })));
+const BlogPostKaVeiktiSuVaikaisVasara = lazy(() => import("./pages/blog/BlogPostKaVeiktiSuVaikaisVasara").then(m => ({ default: m.default })));
+const BlogPostVandensSautuvasVsPistoletas = lazy(() => import("./pages/blog/BlogPostVandensSautuvasVsPistoletas").then(m => ({ default: m.default })));
+const BlogPostVasarosDovanosVaikams = lazy(() => import("./pages/blog/BlogPostVasarosDovanosVaikams").then(m => ({ default: m.default })));
 
 function heroSrcSet(base: string) {
   const b = base.replace(/\.webp$/, '');
@@ -2879,6 +2883,10 @@ export default function App() {
         <Route path="/blog/vandens-zaidimai-vaikams" element={<BlogPostVandensZaidimaiVaikams />} />
         <Route path="/blog/kaip-issirinkti-vandens-blasteri" element={<BlogPostKaipIssirinktiBlasteri />} />
         <Route path="/blog/pikniko-idejos-vasarai" element={<BlogPostPiknikoIdejos />} />
+        <Route path="/blog/gimtadienis-lauke-vaikams" element={<BlogPostGimtadienisLaukeVaikams />} />
+        <Route path="/blog/ka-veikti-su-vaikais-vasara" element={<BlogPostKaVeiktiSuVaikaisVasara />} />
+        <Route path="/blog/vandens-sautuvas-vs-pistoletas" element={<BlogPostVandensSautuvasVsPistoletas />} />
+        <Route path="/blog/vasaros-dovanos-vaikams" element={<BlogPostVasarosDovanosVaikams />} />
         <Route path="/pristatymo-info" element={<PristatymoInfo />} />
         <Route path="/grazinimai" element={<Grazinimai />} />
         <Route path="/kontaktai" element={<Kontaktai />} />
