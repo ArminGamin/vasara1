@@ -119,26 +119,6 @@ export default async function handler(req: any, res: any) {
 
     const fromAddress = process.env.RESEND_FROM || 'onboarding@resend.dev';
 
-    // Notify you of a new subscriber
-    const forward = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: fromAddress,
-        to: ['vasaroskampelis@gmail.com'],
-        subject: 'Naujas naujienlaiškio prenumeratorius',
-        text: `Gautas naujas prenumeratos adresas: ${e}`,
-      }),
-    });
-
-    if (!forward.ok) {
-      const msg = await forward.json().catch(async () => ({ message: await forward.text().catch(() => '') }));
-      return res.status(502).json({ error: 'Failed to deliver', details: msg });
-    }
-
     await appendNewsletterEmailLine(e);
 
     // Send confirmation email to the subscriber
