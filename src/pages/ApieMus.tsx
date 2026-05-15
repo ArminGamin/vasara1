@@ -34,7 +34,7 @@ export default function ApieMus() {
             <details className="group rounded-lg border border-gray-200 p-4 bg-white">
               <summary className="cursor-pointer font-semibold select-none">2️⃣ Kiek laiko trunka pristatymas?</summary>
               <p className="mt-2 text-gray-700">
-                Atsakymas: Įprastai užsakymą pristatome per 8–12 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau.
+                Atsakymas: Įprastai užsakymą pristatome per 5–7 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau.
               </p>
             </details>
 

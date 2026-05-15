@@ -237,9 +237,20 @@ button:active {
 @supports (-webkit-touch-callout: none) {
   /* iOS specific optimizations */
   .ios-safe-area {
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-top: env(safe-area-inset-top, 0px);
   }
+}
+
+/* Bottom safe area for fixed footers / sticky CTAs (pairs with viewport-fit=cover) */
+.safe-area-pb {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+}
+
+/* Full viewport height without mobile browser chrome jump (fallback + dynamic) */
+.min-h-screen-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Dark mode support for mobile */

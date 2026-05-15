@@ -46,7 +46,7 @@ This document describes the implementation of JSON-LD structured data and servic
 #### FAQ Schema
 - **Type**: FAQPage
 - **Questions Covered**:
-  - Delivery time (2-5 business days)
+  - Delivery time (5–7 business days)
   - Return policy (30-day return right)
   - Free shipping threshold (€80+)
 

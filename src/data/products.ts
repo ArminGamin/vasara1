@@ -24,7 +24,7 @@ export const initialProducts: Product[] = [
       { name: "Rožinė", value: "pink" },
     ],
     rating: 4.9,
-    reviews: 51,
+    reviews: 53,
     discount: "Iki -35%",
     description:
       "Galingas vandens šautuvas, su kuriuo valdysi visą kiemą - niekas nespės pabėgti. Čia tavo teritorija. 😎🔥",

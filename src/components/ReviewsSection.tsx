@@ -1,28 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
+import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from '../data/storefrontReviews';
 
-const reviews = [
-  { name: 'Elena S.', location: 'Vilnius', rating: 5, text: 'Nupirkome pradžiai vieną, bet greitai teko užsakyti dar 😉', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=120&h=120&fit=crop&q=80' },
-  { name: 'Mantas K.', location: 'Kaunas', rating: 5, text: 'Visai bomba 🔥 su draugais vasarą tikrai bus veiksmo', image: '/mantas1-88w.webp' },
-  { name: 'Rūta L.', location: 'Klaipėda', rating: 5, text: 'Realiai nesitikėjau, kad bus toks smagus dalykas 😂 su draugais išbandėm ir užsikabinom 😂', image: '/ruta1-88w.webp' },
-  { name: 'Jonas P.', location: 'Šiauliai', rating: 4, text: 'Viskas veikia gerai, tik baterija galėtų laikyti šiek tiek ilgiau.', image: '/jonas1-88w.webp' },
-  { name: 'Laura M.', location: 'Kaunas', rating: 5, text: 'Pirkau dovanai sūnėnui jo reakcija buvo geriausia dalis 😄 Žaidžia beveik kasdien. Dizainas gražus, atrodo kokybiškai.', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&q=80' },
-  { name: 'Tomas V.', location: 'Alytus', rating: 5, text: 'Vandens mūšiai kieme tapo kasdienybe. Šaudo tikrai toli, o talpa didesnė nei tikėjausi.', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&q=80' },
-  { name: 'Giedrė J.', location: 'Vilnius', rating: 5, text: 'Draugė rekomendavo, tai nusprendėm išbandyti. Nenusivylėm. Naudojam jau antrą mėnesį - vis dar kaip naujas! 😊', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&q=80' },
-  { name: 'Andrius R.', location: 'Vilnius', rating: 5, text: 'Pirkau sūnui, bet pats išbandžiau pirmas 😄 Šaudo gerai, atrodo kokybiškai. Kol kas jokių nusiskundimų.', image: '/andrius3-88w.webp' },
-];
-
-const FALLBACK_IMAGES: Record<string, string> = {
-  '/mantas1-88w.webp': '/mantas1.jpg',
-  '/ruta1-88w.webp': '/ruta1.jpg',
-  '/jonas1-88w.webp': '/jonas1.jpg',
-  '/andrius3-88w.webp': '/andrius3.jpg',
-};
-
-function ReviewCard({ r }: { r: (typeof reviews)[0] }) {
+function ReviewCard({ r }: { r: (typeof STOREFRONT_REVIEWS)[0] }) {
   const [imgSrc, setImgSrc] = React.useState(r.image);
   const handleError = () => {
-    const fallback = FALLBACK_IMAGES[r.image];
+    const fallback = REVIEW_IMAGE_FALLBACK[r.image];
     if (fallback) setImgSrc(fallback);
   };
   return (
@@ -50,7 +33,6 @@ export function ReviewsSection() {
   const [paused, setPaused] = useState(false);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mobile: auto-scroll via JS so user can also swipe manually
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     if (!mq.matches) return;
@@ -86,7 +68,6 @@ export function ReviewsSection() {
         <h2 className="revo-section-title text-center mb-2">Ką sako klientai</h2>
         <p className="revo-section-sub text-center font-semibold text-text">Tikri atsiliepimai! ✅</p>
       </div>
-      {/* Full-width marquee so it fills edge-to-edge */}
       <div className="revo-reviews-marquee-wrap" role="region" aria-label="Atsiliepimų slinktis">
         <div
           ref={scrollRef}
@@ -98,7 +79,7 @@ export function ReviewsSection() {
           <div className="revo-reviews-track">
             {[0, 1].map((copy) => (
               <div key={copy} className="revo-reviews-set" aria-hidden={copy > 0}>
-                {reviews.map((r, i) => (
+                {STOREFRONT_REVIEWS.map((r, i) => (
                   <ReviewCard key={`${copy}-${i}`} r={r} />
                 ))}
               </div>

@@ -14,6 +14,7 @@ interface CartSidebarProps {
   removeItem: (id: string) => void;
   onCheckout: () => void;
   translations: any;
+  upsellSlot?: React.ReactNode;
 }
 
 export const CartSidebar = React.memo(({
@@ -27,7 +28,8 @@ export const CartSidebar = React.memo(({
   updateQuantity,
   removeItem,
   onCheckout,
-  translations: t
+  translations: t,
+  upsellSlot
 }: CartSidebarProps) => {
   if (!isOpen) return null;
 
@@ -123,6 +125,7 @@ export const CartSidebar = React.memo(({
               </div>
 
               <div className="space-y-4">
+                {upsellSlot}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">{t.orderTotal}:</span>
@@ -133,23 +136,46 @@ export const CartSidebar = React.memo(({
                   </button>
                 </div>
 
-                <div className="flex justify-center space-x-3 pt-4">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" className="h-6 opacity-60" alt="Mastercard" loading="lazy" decoding="async" />
-                  <div className="bg-white border border-gray-300 px-2 py-1 rounded">
-                    <span className="text-blue-600 font-bold text-sm">VISA</span>
+                <style>{`
+                  .checkout-pay-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 32px;
+                    padding: 4px 11px;
+                    border-radius: 8px;
+                    background: #ffffff;
+                    border: 1px solid rgba(226, 232, 240, 0.95);
+                    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 7px 20px rgba(15, 23, 42, 0.06);
+                  }
+                  .checkout-ssl-banner {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 4px;
+                    padding: 10px 14px;
+                    border-radius: 14px;
+                    background: #ffffff;
+                    border: 1px solid rgba(226, 232, 240, 0.95);
+                    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07);
+                  }
+                `}</style>
+                <div className="flex justify-center gap-2 pt-4 flex-wrap">
+                  <div className="checkout-pay-chip">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" className="h-5 w-auto" alt="Mastercard" loading="lazy" decoding="async" />
                   </div>
-                  <img
-                    src="/stripe-logo.svg"
-                    className="h-6 opacity-80"
-                    alt="Stripe"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <div className="checkout-pay-chip">
+                    <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
+                  </div>
+                  <div className="checkout-pay-chip">
+                    <img src="/stripe-logo.svg" className="h-5 w-auto" alt="Stripe" loading="lazy" decoding="async" />
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
-                  <Lock className="w-4 h-4" />
-                  <span>SSL Secure Checkout | 256-bit Encryption</span>
+                <div className="checkout-ssl-banner">
+                  <Lock className="w-4 h-4 text-brand-green flex-shrink-0" />
+                  <span className="text-xs text-gray-700 font-semibold">256-bit SSL Secure Checkout</span>
                 </div>
               </div>
             </>

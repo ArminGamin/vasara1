@@ -32,7 +32,6 @@ export function StickyMobileCTA({ totalItems, onCartClick }: StickyMobileCTAProp
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-brand-orange text-white shadow-lg safe-area-pb"
-      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
     >
       <div className="flex items-center justify-between gap-4 px-4 py-3">
         <button

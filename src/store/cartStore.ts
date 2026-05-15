@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { MYSTERY_GIFT } from '../data/mysteryGift';
 import { CartItem } from './authStore';
 
 interface CartState {
@@ -107,6 +108,35 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
+      onRehydrateStorage: () => (state, error) => {
+        if (error || !state?.items?.length) return;
+        const next = state.items.map((it: CartItem) =>
+          it.productId === MYSTERY_GIFT.productId
+            ? {
+                ...it,
+                image: MYSTERY_GIFT.image,
+                name: MYSTERY_GIFT.name,
+                selectedColor: MYSTERY_GIFT.selectedColor,
+                selectedSize: MYSTERY_GIFT.selectedSize,
+              }
+            : it,
+        );
+        const changed = next.some(
+          (it, i) =>
+            it.image !== state.items[i]?.image ||
+            it.name !== state.items[i]?.name ||
+            it.selectedColor !== state.items[i]?.selectedColor ||
+            it.selectedSize !== state.items[i]?.selectedSize,
+        );
+        if (changed) {
+          const totalItems = next.reduce((sum, it) => sum + it.quantity, 0);
+          const totalCents = next.reduce(
+            (sum, it) => sum + Math.round(Number(it.price) * 100) * it.quantity,
+            0,
+          );
+          useCartStore.setState({ items: next, totalItems, totalPrice: totalCents / 100 });
+        }
+      },
     }
   )
 );

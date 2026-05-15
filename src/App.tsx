@@ -9,17 +9,19 @@ import {
   Shield,
   RotateCcw,
   Headphones,
-  Gift,
   Trash2,
   Check,
   Package,
   CreditCard,
   Lock,
-  ShieldCheck,
   Share2,
   Clock,
   Users,
   AlertTriangle,
+  ChevronDown,
+  Sparkles,
+  Gift,
+  ArrowRight,
 } from "lucide-react";
 import { Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
@@ -28,6 +30,10 @@ import { LazyVideo } from "./components/LazyVideo";
 import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
 import { initialProducts } from "./data/products";
+import { MYSTERY_GIFT } from "./data/mysteryGift";
+import { MysteryGiftUpsell } from "./components/MysteryGiftUpsell";
+import { SocialProofToast } from "./components/SocialProofToast";
+import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from "./data/storefrontReviews";
 import { SITE_NAME, DEFAULT_DESC } from './components/PageWrapper';
 import { ReviewsSection } from "./components/ReviewsSection";
 import { FAQAccordion } from "./components/FAQAccordion";
@@ -79,6 +85,35 @@ function productSrcSet(path: string): string | undefined {
   if (!/^\/(blue|pink|bluepistol|pinkpistol)\d+\.webp$/i.test(normalized)) return undefined;
   const base = normalized.replace(/\.webp$/i, '');
   return PRODUCT_WIDTHS.map((w) => `${base}-${w}w.webp ${w}w`).join(', ');
+}
+
+const PDP_STOCK_CAP = 24;
+
+function computePdpCombinedIndex(
+  sizeGroups: { sizes?: { name: string; value: string }[] }[],
+  sectionSizesByGroup: number[]
+): number {
+  const typeIdx = sectionSizesByGroup[0] ?? 0;
+  const colorIdx = sectionSizesByGroup[1] ?? 0;
+  if (sizeGroups.length >= 2) {
+    return typeIdx * (sizeGroups[1]?.sizes?.length ?? 1) + colorIdx;
+  }
+  return typeIdx;
+}
+
+function computePdpStockLeft(combinedIndex: number): number {
+  return Math.max(3, PDP_STOCK_CAP - (combinedIndex * 3 + 8));
+}
+
+function computePdpStockPct(stockLeft: number): number {
+  return Math.min(100, Math.max(8, Math.round((stockLeft / PDP_STOCK_CAP) * 100)));
+}
+
+function formatCheckoutLeaveTimer(totalSec: number): string {
+  const s = Math.max(0, totalSec);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
 }
 const HERO_IMAGES = [
   { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
@@ -166,6 +201,30 @@ const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language
   );
 });
 
+const CART_DRAWER_REVIEW_NAMES = ['Tomas V.', 'Giedrė J.', 'Mantas K.', 'Rūta L.', 'Jonas P.'] as const;
+const CART_DRAWER_REVIEWS = CART_DRAWER_REVIEW_NAMES.map((name) =>
+  STOREFRONT_REVIEWS.find((r) => r.name === name)
+).filter((r): r is (typeof STOREFRONT_REVIEWS)[number] => Boolean(r));
+
+function CartReviewerAvatar({ originalSrc }: { originalSrc: string }) {
+  const [src, setSrc] = useState(originalSrc);
+  return (
+    <img
+      src={src}
+      alt=""
+      width={28}
+      height={28}
+      loading="lazy"
+      decoding="async"
+      style={{ width: 28, height: 28, borderRadius: 999, objectFit: 'cover', flexShrink: 0 }}
+      onError={() => {
+        const fb = REVIEW_IMAGE_FALLBACK[originalSrc];
+        if (fb) setSrc(fb);
+      }}
+    />
+  );
+}
+
 // --- Main Shop Page ---
 function HomePage() {
   const location = useLocation();
@@ -179,6 +238,11 @@ function HomePage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutLeaveConfirmOpen, setCheckoutLeaveConfirmOpen] = useState(false);
+  const [checkoutLeaveTimerSec, setCheckoutLeaveTimerSec] = useState(300);
+  const [checkoutLiveBuyersCount, setCheckoutLiveBuyersCount] = useState(
+    () => Math.floor(Math.random() * 14) + 4
+  );
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedColor, setSelectedColor] = useState(0);
@@ -191,6 +255,7 @@ function HomePage() {
   const [sectionImageIndex, setSectionImageIndex] = useState(0);
   const [sectionQuantity, setSectionQuantity] = useState(1);
   const [sectionAddSuccess, setSectionAddSuccess] = useState(false);
+  const [sectionFeaturesExpanded, setSectionFeaturesExpanded] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -207,6 +272,54 @@ function HomePage() {
   const [completedOrderEmail, setCompletedOrderEmail] = useState('');
   // Non-critical visuals deferred to idle
   const [showCookie, setShowCookie] = useState(false);
+  const cartReviewsScrollRef = useRef<HTMLDivElement>(null);
+  const [cartReviewDotIndex, setCartReviewDotIndex] = useState(0);
+
+  const scrollCartReviewToIndex = useCallback((i: number) => {
+    const el = cartReviewsScrollRef.current;
+    if (!el) return;
+    const card = el.children.item(i) as HTMLElement | null;
+    if (!card) return;
+    el.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
+    setCartReviewDotIndex(i);
+  }, []);
+
+  const onCartReviewsScroll = useCallback(() => {
+    const el = cartReviewsScrollRef.current;
+    if (!el || el.children.length === 0) return;
+    const n = el.children.length;
+    const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+    const left = el.scrollLeft;
+    const tol = 4;
+    let best = 0;
+    if (maxScroll <= tol) {
+      best = 0;
+    } else if (left >= maxScroll - tol) {
+      best = n - 1;
+    } else if (left <= tol) {
+      best = 0;
+    } else {
+      let bestDist = Infinity;
+      for (let j = 0; j < n; j++) {
+        const c = el.children.item(j) as HTMLElement;
+        const dist = Math.abs(c.offsetLeft - left);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = j;
+        }
+      }
+    }
+    setCartReviewDotIndex((prev) => (prev !== best ? best : prev));
+  }, []);
+
+  useEffect(() => {
+    if (!cartOpen) return;
+    const el = cartReviewsScrollRef.current;
+    if (!el) return;
+    el.scrollLeft = 0;
+    setCartReviewDotIndex(0);
+  }, [cartOpen]);
+
   // Free shipping threshold uses FLOOR of subtotal cents (no rounding up to qualify)
   const freeShippingCents = 8000; // €80.00
   const subtotalCentsFloor = useMemo(() => (
@@ -215,7 +328,12 @@ function HomePage() {
       return sum + priceCentsFloor * Number(it.quantity || 1);
     }, 0)
   ), [cartItems]);
-  const isFreeShipping = subtotalCentsFloor >= freeShippingCents;
+  const mysteryGiftCartItem = useMemo(
+    () => cartItems.find((it: any) => it.productId === MYSTERY_GIFT.productId),
+    [cartItems]
+  );
+  const mysteryInCart = Boolean(mysteryGiftCartItem);
+  const isFreeShipping = subtotalCentsFloor >= freeShippingCents || mysteryInCart;
   const orderCents = useMemo(() => {
     const subtotalCents = cartItems.reduce((sum: number, it: any) => {
       const priceCents = Math.round(Number(it.price) * 100);
@@ -319,6 +437,14 @@ function HomePage() {
   const productsSorted = useMemo(() => {
     return [...products].sort((a: any, b: any) => Number(a.price) - Number(b.price));
   }, [products]);
+
+  const pdpDisplayedStockLeft = useMemo(() => {
+    const product = productsSorted[0];
+    if (!product) return computePdpStockLeft(0);
+    const sizeGroups = product.sizeGroups ?? [];
+    const combinedIndex = computePdpCombinedIndex(sizeGroups, sectionSizesByGroup);
+    return computePdpStockLeft(combinedIndex);
+  }, [productsSorted, sectionSizesByGroup]);
   
   // Weighted random stock counter (3-15, lower numbers prioritized)
   const getWeightedStockCount = () => {
@@ -464,6 +590,19 @@ function HomePage() {
       benefitSafeKids: 'Saugus vaikams',
       benefitQuality: 'Kokybė ir atsparumas',
       benefitReturns: '30 dienų grąžinimas',
+      pdpFeaturesMore: 'Daugiau',
+      pdpFeaturesLess: 'Rodyti mažiau',
+      checkoutLeaveTitle: 'Išeiti iš apmokėjimo?',
+      checkoutLeaveBody: 'Jūsų įvesti duomenys nebus išsaugoti.',
+      checkoutLeaveAlmostDone: 'Beveik baigta! 🚀',
+      checkoutLeaveTitleMystery: 'Tavo mystery dovana beveik tavo!',
+      checkoutLeaveBodyMystery: 'Užbaik užsakymą — staigmena jau krepšelyje laukia tavęs.',
+      checkoutLeaveStay: 'Likti',
+      checkoutLeaveStayMystery: 'NORIU SAVO DOVANOS!',
+      checkoutLeaveStayCta: 'TĘSTI APMOKĖJIMĄ',
+      checkoutLeaveExitMystery: 'Ačiū, man nereikia dovanų',
+      checkoutLeaveSocialProof: 'Šiuo metu perka dar {n} žmonių',
+      checkoutLeaveConfirm: 'Išeiti',
     },
     en: {
       saleBanner: 'Free shipping over €80',
@@ -515,11 +654,66 @@ function HomePage() {
       benefitSafeKids: 'Safe for kids',
       benefitQuality: 'Quality & durability',
       benefitReturns: '30-day returns',
+      pdpFeaturesMore: 'Show more',
+      pdpFeaturesLess: 'Show less',
+      checkoutLeaveTitle: 'Leave checkout?',
+      checkoutLeaveBody: 'Information you entered will not be saved.',
+      checkoutLeaveAlmostDone: 'Almost there! 🚀',
+      checkoutLeaveTitleMystery: 'Your mystery gift is almost yours!',
+      checkoutLeaveBodyMystery: 'Finish checkout — your surprise is already in the cart.',
+      checkoutLeaveStay: 'Stay',
+      checkoutLeaveStayMystery: 'I WANT MY GIFT!',
+      checkoutLeaveStayCta: 'CONTINUE CHECKOUT',
+      checkoutLeaveExitMystery: 'No thanks, I don\u2019t need gifts',
+      checkoutLeaveSocialProof: '{n} people are checking out right now',
+      checkoutLeaveConfirm: 'Leave',
     },
   };
 
   const t = translations[language];
   const { products: storeProducts } = useProductStore();
+
+  useEffect(() => {
+    const intervalMs = 10 * 60 * 1000;
+    const tick = () => setCheckoutLiveBuyersCount(Math.floor(Math.random() * 14) + 4);
+    const id = window.setInterval(tick, intervalMs);
+    return () => clearInterval(id);
+  }, []);
+
+  const closeCheckoutConfirmed = useCallback(() => {
+    setCheckoutOpen(false);
+    setCheckoutLeaveConfirmOpen(false);
+  }, []);
+
+  const requestCheckoutClose = useCallback(() => {
+    setCheckoutLeaveConfirmOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!checkoutOpen) {
+      setCheckoutLeaveConfirmOpen(false);
+    }
+  }, [checkoutOpen]);
+
+  useEffect(() => {
+    if (!checkoutLeaveConfirmOpen) return;
+    setCheckoutLeaveTimerSec(300);
+    const id = window.setInterval(() => {
+      setCheckoutLeaveTimerSec((prev) => (prev <= 0 ? 0 : prev - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [checkoutLeaveConfirmOpen]);
+
+  useEffect(() => {
+    if (!checkoutOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      setCheckoutLeaveConfirmOpen((prev) => !prev);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [checkoutOpen]);
   
   const renderStars = useCallback((_rating: number, size: string = 'w-4 h-4') => (
     <div className="flex text-brand-gold">
@@ -926,7 +1120,7 @@ function HomePage() {
     />
     </Suspense>
     <div
-      className="min-h-screen flex flex-col bg-bg touch-action-pan-y"
+      className="min-h-screen-dvh flex flex-col bg-bg touch-action-pan-y"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -955,7 +1149,7 @@ function HomePage() {
               deliveryTime: {
                 "@type": "ShippingDeliveryTime",
                 handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "d" },
-                transitTime: { "@type": "QuantitativeValue", minValue: 8, maxValue: 12, unitCode: "d" }
+                transitTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 7, unitCode: "d" }
               }
             },
             hasMerchantReturnPolicy: {
@@ -1069,8 +1263,8 @@ function HomePage() {
         </nav>
       </header>
 
-      {/* Scrolling promo strip – product features (seamless marquee) */}
-      <div className="storefront-promo-strip shrink-0">
+      {/* Scrolling promo strip – desktop only (frees mobile header vertical space) */}
+      <div className="storefront-promo-strip shrink-0 hidden md:block">
         <div className="storefront-promo-track">
           {[0, 1, 2, 3].map((copy) => (
             <div key={copy} className="storefront-promo-set" aria-hidden={copy > 0 ? true : undefined}>
@@ -1308,9 +1502,9 @@ function HomePage() {
       </div>
 
       {/* Products – one big section with inline variant selection */}
-      <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 md:py-14 flex-1">
-        <h2 className="revo-section-title text-center mb-2">{t.products}</h2>
-        <p className="revo-section-sub text-center mb-10 pl-6 pr-1">Tegul prasideda tikras vasaros mūšis! 🚀</p>
+      <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-8 flex-1">
+        <h2 className="revo-section-title text-center mb-1.5">{t.products}</h2>
+        <p className="revo-section-sub text-center mb-5 md:mb-6 pl-6 pr-1">Tegul prasideda tikras vasaros mūšis! 🚀</p>
         {productsSorted.length === 0 ? (
           <div className="text-center text-muted py-12">
             Šiuo metu nėra prekių. Pridėkite naujų įrašų – aš paruošiau vietą nuotraukoms ir aprašymams.
@@ -1333,74 +1527,123 @@ function HomePage() {
           const typeName = sizeGroups[0]?.sizes?.[typeIdx]?.name ?? '';
           const colorName = sizeGroups[1]?.sizes?.[colorIdx]?.name ?? '';
           const variantName = [typeName, colorName].filter(Boolean).join(' · ');
+          const featPreviewCount = 2;
+          const hasHiddenFeatures = product.features.length > featPreviewCount;
+          const featuresVisible = sectionFeaturesExpanded
+            ? product.features
+            : product.features.slice(0, featPreviewCount);
+          const discountPct = currentOriginal > currentPrice
+            ? Math.round((1 - currentPrice / currentOriginal) * 100)
+            : 0;
+          const savingsEur =
+            currentOriginal > currentPrice ? Math.max(0, currentOriginal - currentPrice) : 0;
+          const savingsFormattedLt =
+            savingsEur > 0 ? `${savingsEur.toFixed(2).replace('.', ',')} €` : '';
+          const stockLeft = computePdpStockLeft(combinedIndex);
+          const stockPct = computePdpStockPct(stockLeft);
+          const isLowStock = stockLeft <= 10;
           return (
-            <div className="product-section-card w-full max-w-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 h-full min-h-[min(75vh,750px)] lg:min-h-[min(80vh,900px)] w-full">
-                {/* Left: image updates by variant */}
-                <div className="product-section-image relative min-h-[320px] lg:min-h-0 lg:h-full w-full min-w-0 max-w-full flex flex-col items-center justify-center p-3 lg:p-4 overflow-hidden">
-                  {product.isNew && (
-                    <span className="absolute top-3 left-3 bg-success text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-                      {t.newBadge}
-                    </span>
-                  )}
-                  <div className="flex-1 w-full min-w-0 min-h-0 lg:min-h-[min(55vh,520px)] flex items-center justify-center overflow-hidden">
-                    <OptimizedImage
-                      src={currentImage}
-                      srcSet={productSrcSet(currentImage)}
-                      alt={`${product.name} – ${variantName}`}
-                      className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300"
-                      loading="eager"
-                      decoding="async"
-                      width={600}
-                      height={600}
-                      sizes="(max-width: 768px) 50vw, 550px"
-                    />
-                  </div>
-                  {currentVariantImages.length > 1 && (
-                    <div className="flex gap-2 mt-3 flex-wrap justify-center">
-                      {currentVariantImages.map((url: string, i: number) => (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => setSectionImageIndex(i)}
-                          className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 shadow-[0_4px_14px_rgba(0,0,0,0.08)] ${
-                            sectionImageIndex === i ? 'border-cta ring-4 ring-cta/50' : 'border-border'
-                          }`}
-                          aria-label={
-                            variantName
-                              ? `${product.name}, ${variantName}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
-                              : `${product.name}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
-                          }
-                          aria-pressed={sectionImageIndex === i}
-                        >
-                          <OptimizedImage src={resolveImagePath(url)} srcSet={productSrcSet(url)} alt="" className="w-full h-full object-cover" width={64} height={64} sizes="64px" />
-                        </button>
-                      ))}
+            <div className="product-section-card w-full max-w-full overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.72fr)] gap-0 w-full items-stretch">
+                <div className="product-section-image relative w-full min-w-0 max-w-full flex flex-col justify-center p-3 sm:p-4 lg:p-5 xl:p-6 overflow-hidden">
+                  <div className="w-full min-w-0 flex flex-col md:flex-row flex-1 gap-3 md:gap-4 items-stretch md:items-start max-w-[min(100%,1040px)] mx-auto">
+                    {currentVariantImages.length > 1 && (
+                      <nav
+                        className="order-2 md:order-1 flex flex-row md:flex-col gap-2 md:gap-2.5 shrink-0 justify-center md:justify-start overflow-x-auto md:overflow-y-auto md:overflow-x-visible w-full md:w-auto md:max-h-[min(62vh,560px)] py-1 md:py-0 md:pr-1 lg:sticky lg:top-6"
+                        aria-label="Produkto nuotraukos"
+                      >
+                        {currentVariantImages.map((url: string, i: number) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setSectionImageIndex(i)}
+                            className={`product-gallery-thumb relative w-16 h-16 sm:w-[72px] sm:h-[72px] flex-shrink-0 overflow-hidden bg-surface shadow-sm touch-manipulation active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta/45 focus-visible:ring-offset-2 ${
+                              sectionImageIndex === i ? 'product-gallery-thumb-active' : ''
+                            }`}
+                            aria-label={
+                              variantName
+                                ? `${product.name}, ${variantName}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
+                                : `${product.name}: nuotrauka ${i + 1} iš ${currentVariantImages.length}`
+                            }
+                            aria-current={sectionImageIndex === i ? 'true' : undefined}
+                          >
+                            <OptimizedImage
+                              src={resolveImagePath(url)}
+                              srcSet={productSrcSet(url)}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              width={72}
+                              height={72}
+                              sizes="72px"
+                            />
+                          </button>
+                        ))}
+                      </nav>
+                    )}
+                    <div className="order-1 md:order-2 relative flex-1 min-w-0 w-full flex flex-col justify-center">
+                      {product.isNew && (
+                        <span className="product-gallery-badge absolute top-3 right-3 sm:top-4 sm:right-4 z-20 inline-flex items-center gap-1.5 text-white text-[0.7rem] sm:text-xs font-extrabold uppercase tracking-[0.08em] px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-md">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white/90 shadow-[0_0_8px_rgba(255,255,255,0.7)]" aria-hidden="true"></span>
+                          {t.newBadge}
+                        </span>
+                      )}
+                      <div className="product-gallery-main-frame overflow-hidden group/gallery flex-1 flex flex-col min-h-0">
+                        <div className="relative flex-1 flex items-center justify-center aspect-square w-full max-h-[min(72vw,380px)] sm:max-h-[min(65vw,440px)] lg:max-h-[min(54vh,500px)] mx-auto min-h-0 p-4 sm:p-5 lg:p-6 box-border cursor-[zoom-in]">
+                          {discountPct > 0 && (
+                            <span
+                              className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none inline-flex items-center rounded-full bg-cta px-3 py-1.5 text-sm sm:text-base font-black text-white shadow-[0_6px_20px_rgba(245,99,26,0.45)] ring-2 ring-white/90 tabular-nums"
+                              aria-hidden="true"
+                            >
+                              −{discountPct}%
+                            </span>
+                          )}
+                          <span className="product-gallery-floor" aria-hidden="true"></span>
+                          <OptimizedImage
+                            src={currentImage}
+                            srcSet={productSrcSet(currentImage)}
+                            alt={`${product.name} – ${variantName}`}
+                            className="product-gallery-zoom relative max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-500 ease-out motion-safe:md:group-hover/gallery:scale-[1.06]"
+                            loading="eager"
+                            decoding="async"
+                            width={600}
+                            height={600}
+                            sizes="(max-width: 768px) 85vw, 55vw"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-                {/* Right: variant selector, price, qty, add to cart */}
-                <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center min-w-0">
-                  <div className="flex items-center gap-2.5 mb-4">
-                    {renderStars(product.rating, 'w-5 h-5')}
-                    <span className="text-base font-medium text-muted">{product.rating} ({product.reviews})</span>
                   </div>
-                  <h3 className="revo-product-card-title text-2xl sm:text-3xl mb-3">{product.name}</h3>
-                  <p className="text-muted text-base font-medium mb-4">{product.description}</p>
-                  {/* Features */}
-                  <div className="mb-5 space-y-2">
-                    {product.features.map((f: string, i: number) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-text font-medium">
-                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                </div>
+                <div className="product-section-commerce flex flex-col justify-start lg:justify-center min-w-0 p-4 sm:p-5 lg:py-6 lg:px-6 xl:px-8 lg:max-w-[28rem] xl:max-w-[30rem] lg:border-l lg:border-border/60">
+                  <div className="flex items-center gap-2 mb-2" aria-label={`Įvertinimas ${product.rating} iš 5`}>
+                    {renderStars(product.rating, 'w-4 h-4 sm:w-[18px] sm:h-[18px]')}
+                    <span className="text-sm font-medium text-muted">{product.rating} <span className="text-muted/70">({product.reviews})</span></span>
+                  </div>
+                  <h3 className="revo-product-card-title text-xl sm:text-2xl xl:text-[1.65rem] mb-1.5 leading-tight tracking-tight">{product.name}</h3>
+                  <p className="text-muted text-sm leading-snug font-medium mb-3">{product.description}</p>
+                  <div className="mb-3 space-y-1">
+                    {featuresVisible.map((f: string, i: number) => (
+                      <div key={i} className="flex items-start gap-2 text-sm text-text/90 font-medium">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
                         <span>{f}</span>
                       </div>
                     ))}
+                    {hasHiddenFeatures && (
+                      <button
+                        type="button"
+                        onClick={() => setSectionFeaturesExpanded(!sectionFeaturesExpanded)}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primaryDark mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                        aria-expanded={sectionFeaturesExpanded}
+                      >
+                        {sectionFeaturesExpanded ? t.pdpFeaturesLess : t.pdpFeaturesMore}
+                        <ChevronDown className={`w-4 h-4 transition-transform ${sectionFeaturesExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+                      </button>
+                    )}
                   </div>
-                  {/* Variant selectors */}
                   {sizeGroups.map((group: { label: string; sizes: { name: string; value: string }[] }, gIndex: number) => (
-                    <div key={gIndex} className="mb-4">
-                      <p className="text-base font-bold text-text mb-3">{group.label}</p>
-                      <div className="flex flex-wrap gap-3">
+                    <div key={gIndex} className="mb-3">
+                      <p className="text-[0.72rem] font-bold uppercase tracking-wider text-muted mb-1.5">{group.label}</p>
+                      <div className="flex flex-wrap gap-2">
                         {group.sizes?.map((v: { name: string; value: string }, idx: number) => (
                           <button
                             key={v.value}
@@ -1413,9 +1656,10 @@ function HomePage() {
                               });
                               setSectionImageIndex(0);
                             }}
-                            className={`product-section-variant px-5 py-3 rounded-xl text-base font-semibold border-2 border-border text-text ${
+                            className={`product-section-variant px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-border text-text sm:px-5 sm:py-3 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta/40 focus-visible:ring-offset-2 ${
                               (sectionSizesByGroup[gIndex] ?? 0) === idx ? 'active' : 'bg-bg'
                             }`}
+                            aria-pressed={(sectionSizesByGroup[gIndex] ?? 0) === idx}
                           >
                             {v.name}
                           </button>
@@ -1423,32 +1667,62 @@ function HomePage() {
                       </div>
                     </div>
                   ))}
-                  {/* Price */}
-                  <div className="flex items-center gap-4 mb-5">
-                    <span className="text-3xl font-bold text-cta">€{currentPrice.toFixed(2)}</span>
-                    {currentOriginal > currentPrice && (
-                      <>
-                        <span className="text-lg text-muted line-through">€{currentOriginal.toFixed(2)}</span>
-                        <span className="bg-cta text-white text-lg font-bold px-4 py-2 rounded-full shadow-md">-22%</span>
-                      </>
+                  <div className="mb-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                      <span className="text-3xl xl:text-[2rem] font-bold text-cta tracking-tight tabular-nums">
+                        €{currentPrice.toFixed(2)}
+                      </span>
+                      {currentOriginal > currentPrice && (
+                        <span className="text-base text-muted line-through tabular-nums">
+                          €{currentOriginal.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    {savingsEur > 0 && (
+                      <p className="mt-1 text-sm font-bold text-cta tabular-nums">
+                        Sutaupote {savingsFormattedLt}
+                      </p>
                     )}
                   </div>
-                  <p className="text-sm font-medium text-red-600 mb-4">⏳ Paskubėk, sandėlyje liko tik {typeIdx === 1 ? 16 : 12} vnt!</p>
-                  {/* Quantity + Add to cart */}
-                  <div className="flex flex-wrap items-center gap-4 mb-5">
-                    <div className="flex items-center rounded-xl border-2 border-border overflow-hidden">
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold mb-1.5">
+                      <span className={isLowStock ? 'text-red-600' : 'text-emerald-600'}>
+                        {isLowStock ? '⏳ Skubėk, baigiasi!' : '✓ Sandėlyje'}
+                      </span>
+                      <span
+                        className={
+                          isLowStock
+                            ? 'text-red-700 shrink-0 tabular-nums'
+                            : 'text-text/85 shrink-0 tabular-nums'
+                        }
+                      >
+                        Liko {stockLeft} vnt
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-border/70 overflow-hidden" role="progressbar" aria-valuenow={stockLeft} aria-valuemin={0} aria-valuemax={PDP_STOCK_CAP} aria-label="Likutis sandėlyje">
+                      <div
+                        className={`h-full rounded-full transition-[width] duration-500 ${isLowStock ? 'bg-gradient-to-r from-red-500 to-cta' : 'bg-gradient-to-r from-emerald-500 to-emerald-400'}`}
+                        style={{ width: `${stockPct}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-stretch gap-2 mb-2">
+                    <div className="inline-flex items-stretch rounded-xl border-2 border-border overflow-hidden bg-surface">
                       <button
                         type="button"
                         onClick={() => setSectionQuantity(Math.max(1, sectionQuantity - 1))}
-                        className="w-12 h-12 flex items-center justify-center bg-bg hover:bg-primary/10 text-text font-bold text-lg"
+                        className="w-11 sm:w-12 flex items-center justify-center text-text font-bold text-lg hover:bg-primary/10 disabled:opacity-40 transition-colors"
+                        aria-label="Sumažinti kiekį"
+                        disabled={sectionQuantity <= 1}
                       >
                         −
                       </button>
-                      <span className="w-12 h-12 flex items-center justify-center font-bold text-lg text-text border-x border-border">{sectionQuantity}</span>
+                      <span className="w-10 sm:w-12 flex items-center justify-center font-bold text-base text-text border-x border-border tabular-nums" aria-live="polite">{sectionQuantity}</span>
                       <button
                         type="button"
                         onClick={() => setSectionQuantity(sectionQuantity + 1)}
-                        className="w-12 h-12 flex items-center justify-center bg-bg hover:bg-primary/10 text-text font-bold text-lg"
+                        className="w-11 sm:w-12 flex items-center justify-center text-text font-bold text-lg hover:bg-primary/10 transition-colors"
+                        aria-label="Padidinti kiekį"
                       >
                         +
                       </button>
@@ -1469,30 +1743,32 @@ function HomePage() {
                         setSectionAddSuccess(true);
                         setTimeout(() => setSectionAddSuccess(false), 3000);
                       }}
-                      className="product-section-cta flex-1 min-w-[180px] py-4 px-6 rounded-xl text-white font-bold text-base border-0"
+                      className="product-section-cta group flex-1 min-w-[min(100%,180px)] inline-flex items-center justify-center gap-2 py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl text-white font-bold text-sm sm:text-base border-0"
                     >
-                      {t.addToCart}
+                      <span>{t.addToCart}</span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
                     </button>
                   </div>
-                  <div className="min-h-[1.75rem] mb-4">
+                  <div className="min-h-[1.25rem] mb-2" aria-live="polite">
                     {sectionAddSuccess && (
-                      <p className="text-green-600 font-semibold text-sm sm:text-base">
-                        Pridėta į krepšelį!
+                      <p className="text-emerald-600 font-semibold text-sm flex items-center gap-1.5">
+                        <Check className="w-4 h-4" aria-hidden="true" />
+                        {t.addedToCart}
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-4 text-sm text-text">
-                    <span className="flex items-center gap-1.5">
-                      <Package className="w-4 h-4 text-primary" />
-                      Greitas Pristatymas
+                  <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-border/60 text-[0.7rem] sm:text-xs text-muted">
+                    <span className="flex flex-col items-center gap-1 text-center">
+                      <Package className="w-4 h-4 text-primary" aria-hidden="true" />
+                      Greitas pristatymas
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                      Top pasirinkimas
+                    <span className="flex flex-col items-center gap-1 text-center">
+                      <span className="text-base leading-none" aria-hidden="true">⭐</span>
+                      TOP Pasirinkimas
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <Headphones className="w-4 h-4 text-primary" />
-                      24/7 Pagalba
+                    <span className="flex flex-col items-center gap-1 text-center">
+                      <Headphones className="w-4 h-4 text-primary" aria-hidden="true" />
+                      24/7 pagalba
                     </span>
                   </div>
                 </div>
@@ -1738,50 +2014,128 @@ function HomePage() {
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className={`fixed right-0 top-0 w-full max-w-md bg-white shadow-xl overflow-y-auto ${totalItems === 0 ? 'h-auto max-h-full' : 'h-full'}`}>
-            <div className="p-6">
+          <div
+            className={`fixed right-0 top-0 w-full max-w-md bg-white shadow-xl overflow-y-auto ${totalItems === 0 ? 'h-auto max-h-full' : 'h-full'}`}
+            style={{ fontFamily: '"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', color: '#1a1a1a' }}
+          >
+            <div style={{ padding: 18 }}>
               {/* Header */}
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">Krepšelis • {totalItems}</h2>
-                <button
-                  onClick={() => setCartOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Free Gift Progress */}
-              {totalItems > 0 && (
-                <div className="bg-brand-bg-alt p-4 rounded-lg mb-6">
-                  <p className="text-sm font-medium mb-2">Jūs esate €{(isFreeShipping ? 0 : Math.max(0, 80 - totalPrice)).toFixed(2)} nuo NEMOKAMO siuntimo!</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div 
-                      className="bg-brand-orange h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${isFreeShipping ? 100 : Math.min(100, (totalPrice / 80) * 100)}%` }}
-                    ></div>
+              {(() => {
+                const n = totalItems;
+                const mod10 = n % 10;
+                const mod100 = n % 100;
+                const itemsWord = (mod10 === 1 && mod100 !== 11)
+                  ? 'prekė'
+                  : (mod10 >= 2 && mod10 <= 9 && (mod100 < 10 || mod100 >= 20))
+                    ? 'prekės'
+                    : 'prekių';
+                return (
+                  <div className="flex justify-between items-center" style={{ marginBottom: 18 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <h2 style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em' }}>Krepšelis</h2>
+                      {n > 0 && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: '#F5631A',
+                            backgroundColor: '#fff1e8',
+                            padding: '3px 9px',
+                            borderRadius: 999,
+                            lineHeight: 1,
+                          }}
+                        >
+                          {n} {itemsWord}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setCartOpen(false)}
+                      className="hover:bg-gray-100"
+                      aria-label="Užverti krepšelį"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 8,
+                        backgroundColor: '#ffffff',
+                        color: '#6b7280',
+                      }}
+                    >
+                      <X style={{ width: 16, height: 16 }} />
+                    </button>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex items-center space-x-2">
-                      <Gift className="w-4 h-4 text-brand-orange" />
-                      <span className="text-xs text-gray-600">Nemokamas pristatymas</span>
+                );
+              })()}
+
+              {/* Free Shipping Progress – flat on white */}
+              {totalItems > 0 && (() => {
+                const remaining = Math.max(0, 80 - totalPrice);
+                const percent = isFreeShipping ? 100 : Math.min(100, (totalPrice / 80) * 100);
+                return (
+                  <div
+                    style={{
+                      marginBottom: 20,
+                      padding: '14px 14px 16px',
+                      borderRadius: 14,
+                      backgroundColor: '#fafafa',
+                      border: '1px solid rgba(226, 232, 240, 0.95)',
+                      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07)',
+                    }}
+                  >
+                    <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: isFreeShipping ? '#16a34a' : '#1a1a1a' }}>
+                      {isFreeShipping
+                        ? '🎉 Gavote nemokamą pristatymą!'
+                        : <>Dar <span style={{ fontWeight: 800 }}>€{remaining.toFixed(2)}</span> iki nemokamo pristatymo 🎉</>}
+                    </p>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: 5,
+                        borderRadius: 3,
+                        backgroundColor: '#e5e7eb',
+                        overflow: 'hidden',
+                        boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.08)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${percent}%`,
+                          height: '100%',
+                          borderRadius: 3,
+                          background: isFreeShipping ? '#16a34a' : 'linear-gradient(90deg, #f5a623, #16a34a)',
+                          transition: 'width 320ms cubic-bezier(0.16, 1, 0.3, 1), background-color 240ms ease',
+                          boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.25) inset',
+                        }}
+                      />
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
-              {/* Urgency in Cart - Only show when cart has items */}
-              {totalItems > 0 && (
-                <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-6">
-                  <div className="flex items-center space-x-2 text-orange-800">
-                    <Clock className="w-4 h-4" />
-                    <span className="font-semibold text-sm">Pasiūlymas baigiasi:</span>
-                    <span className="font-bold">
-                      {urgencyTimer.hours}:{urgencyTimer.minutes.toString().padStart(2, '0')}:{urgencyTimer.seconds.toString().padStart(2, '0')}
+              {/* Cart Reservation Timer – quiet inline note */}
+              {totalItems > 0 && (() => {
+                const totalSec = (urgencyTimer.hours * 3600) + (urgencyTimer.minutes * 60) + urgencyTimer.seconds;
+                const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+                const ss = String(totalSec % 60).padStart(2, '0');
+                const urgent = totalSec < 300;
+                return (
+                  <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b7280' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <span>Jūsų krepšelis rezervuotas</span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: urgent ? '#ef4444' : '#6b7280' }}>
+                      {mm}:{ss}
                     </span>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Cart Items */}
               {totalItems === 0 ? (
@@ -1790,79 +2144,146 @@ function HomePage() {
                   <p className="text-gray-500 mb-4">{t.emptyCart}</p>
                   <button
                     onClick={() => setCartOpen(false)}
-                    className="bg-brand-orange hover:bg-brand-orange-hover text-white px-4 py-2 rounded-lg text-sm"
+                    className="px-4 py-2 rounded-lg text-sm text-white"
+                    style={{ backgroundColor: '#F5631A' }}
                   >
                     {t.continueShopping}
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4 mb-6">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <img
-                        src={item.image}
-                        alt={`${item.name} - Krepšelyje`}
-                        className="w-20 h-20 object-cover rounded"
-                        loading="lazy"
-                        decoding="async"
-                        width="80"
-                        height="80"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-bold text-base">{item.name}</h3>
-                        {item.selectedColor && (
-                          <p className="text-sm font-semibold text-gray-700">Spalva: {item.selectedColor}</p>
-                        )}
-                        {item.selectedSize && (
-                          <p className="text-sm font-semibold text-gray-700">{item.sizeLabel || 'Dydis'}: {item.selectedSize}</p>
-                        )}
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xl font-extrabold text-brand-orange">€{Number(item.price).toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm hover:bg-gray-300"
-                            >
-                              -
-                            </button>
-                            <span className="text-sm font-medium">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm hover:bg-gray-300"
-                            >
-                              +
-                            </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 4 }}>
+                  {cartItems.filter((it: any) => it.productId !== MYSTERY_GIFT.productId).map((item: any) => {
+                    const variantBits: string[] = [];
+                    if (item.selectedColor) variantBits.push(item.selectedColor);
+                    if (item.selectedSize) variantBits.push(item.selectedSize);
+                    const lineTotal = Number(item.price) * Number(item.quantity || 1);
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 12,
+                          padding: '14px 14px 14px 12px',
+                          borderRadius: 14,
+                          backgroundColor: '#fafafa',
+                          border: '1px solid #E0E0E0',
+                          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07)',
+                        }}
+                      >
+                        <img
+                          src={item.image}
+                          alt={`${item.name} - Krepšelyje`}
+                          loading="lazy"
+                          decoding="async"
+                          width="72"
+                          height="72"
+                          style={{
+                            width: 72,
+                            height: 72,
+                            objectFit: 'cover',
+                            borderRadius: 10,
+                            backgroundColor: '#ffffff',
+                            flexShrink: 0,
+                            border: '1px solid #E0E0E0',
+                            boxShadow: '0 1px 4px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06)',
+                          }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.25, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {item.name}
+                            </h3>
+                            <span style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                              €{lineTotal.toFixed(2)}
+                            </span>
                           </div>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-brand-orange"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {variantBits.length > 0 && (
+                            <p style={{ fontSize: 11.5, color: '#9ca3af', marginTop: 2 }}>
+                              {variantBits.join(' · ')}
+                            </p>
+                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                            <div
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                height: 30,
+                                border: '1px solid #e5e7eb',
+                                borderRadius: 8,
+                                overflow: 'hidden',
+                                backgroundColor: '#ffffff',
+                                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06)',
+                              }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                aria-label="Sumažinti kiekį"
+                                style={{ width: 30, height: 30, fontSize: 14, color: '#1a1a1a', backgroundColor: 'transparent' }}
+                              >
+                                −
+                              </button>
+                              <span style={{ minWidth: 24, textAlign: 'center', fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                aria-label="Padidinti kiekį"
+                                style={{ width: 30, height: 30, fontSize: 14, color: '#1a1a1a', backgroundColor: 'transparent' }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Checkout Button */}
+              {/* Mystery Gift Upsell */}
               {totalItems > 0 && (
-                <div className="space-y-4">
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">{t.orderTotal}:</span>
-                      <span className="text-xl font-bold text-brand-orange">€{totalPrice.toFixed(2)}</span>
+                <MysteryGiftUpsell
+                  isInCart={mysteryInCart}
+                  onAdd={() => addItem({
+                    productId: MYSTERY_GIFT.productId,
+                    name: MYSTERY_GIFT.name,
+                    price: MYSTERY_GIFT.price,
+                    image: MYSTERY_GIFT.image,
+                    quantity: 1,
+                    selectedColor: MYSTERY_GIFT.selectedColor,
+                    selectedSize: MYSTERY_GIFT.selectedSize,
+                  })}
+                  onRemove={() => { if (mysteryGiftCartItem) removeItem(mysteryGiftCartItem.id); }}
+                />
+              )}
+
+              {/* Checkout Footer */}
+              {totalItems > 0 && (() => {
+                const orderTotalEur = orderCents / 100;
+                return (
+                  <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid #e5e7eb' }}>
+                    <style>{`
+                      .checkout-cta { transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, background-color 200ms ease; }
+                      .checkout-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(245, 99, 26, 0.38); background-color: #e35614; }
+                    `}</style>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>Viso mokėti</span>
+                      <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', fontVariantNumeric: 'tabular-nums' }}>
+                        €{orderTotalEur.toFixed(2)}
+                      </span>
                     </div>
-                    <button 
+                    <button
+                      type="button"
                       onClick={() => {
                         try {
                           const w: any = (typeof window !== 'undefined') ? window : null;
                           if (w && typeof w.fbq === 'function') {
                             w.fbq('track', 'InitiateCheckout', {
-                              value: Number(totalPrice.toFixed(2)),
+                              value: Number(orderTotalEur.toFixed(2)),
                               currency: 'EUR',
                               num_items: totalItems,
                             });
@@ -1870,35 +2291,265 @@ function HomePage() {
                         } catch {}
                         setCheckoutOpen(true);
                       }}
-                      className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white py-3 rounded-lg font-semibold transition min-h-[48px]"
+                      className="checkout-cta"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '14px 18px',
+                        borderRadius: 11,
+                        backgroundColor: '#F5631A',
+                        color: '#ffffff',
+                        boxShadow: '0 4px 20px rgba(245, 99, 26, 0.3)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        minHeight: 48,
+                      }}
                     >
-                      {t.checkout} • €{totalPrice.toFixed(2)}
+                      <span style={{ fontSize: 15, fontWeight: 700 }}>Atsiskaityti</span>
+                      <span style={{ fontSize: 16, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                        €{orderTotalEur.toFixed(2)}
+                      </span>
                     </button>
-                  </div>
 
-                  {/* Payment Logos */}
-                  <div className="flex justify-center space-x-3 pt-4">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
-                      className="h-6 opacity-60"
-                      alt="Mastercard"
-                    />
-                    <div className="bg-white border border-gray-300 px-2 py-1 rounded">
-                      <span className="text-blue-600 font-bold text-sm">VISA</span>
+                    <style>{`
+                      .checkout-pay-chip {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 32px;
+                        padding: 4px 11px;
+                        border-radius: 8px;
+                        background: #ffffff;
+                        border: 1px solid rgba(226, 232, 240, 0.95);
+                        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 7px 20px rgba(15, 23, 42, 0.06);
+                      }
+                      .checkout-ssl-banner {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 8px;
+                        margin-top: 12px;
+                        padding: 10px 14px;
+                        border-radius: 14px;
+                        background: #ffffff;
+                        border: 1px solid rgba(226, 232, 240, 0.95);
+                        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07);
+                      }
+                      .checkout-ssl-banner-cart {
+                        font-size: 10.5px;
+                        font-weight: 600;
+                        color: #374151;
+                      }
+                    `}</style>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 14 }}>
+                      <div className="checkout-pay-chip">
+                        <img
+                          src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+                          alt="Mastercard"
+                          loading="lazy"
+                          decoding="async"
+                          width={96}
+                          height={20}
+                          style={{ height: 20, width: 'auto', display: 'block' }}
+                        />
+                      </div>
+                      <div className="checkout-pay-chip">
+                        <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
+                      </div>
+                      <div className="checkout-pay-chip">
+                        <img
+                          src="/stripe-logo.svg"
+                          alt="Stripe"
+                          loading="lazy"
+                          decoding="async"
+                          width={80}
+                          height={20}
+                          style={{ height: 20, width: 'auto', display: 'block' }}
+                        />
+                      </div>
                     </div>
-                    <img
-                      src="/stripe-logo.svg"
-                      className="h-6 opacity-80"
-                      alt="Stripe"
-                      loading="lazy"
-                      decoding="async"
+
+                    <div className="checkout-ssl-banner">
+                      <Lock style={{ width: 14, height: 14, flexShrink: 0, color: '#16a34a' }} aria-hidden />
+                      <span className="checkout-ssl-banner-cart">256-bit SSL Secure Checkout</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Trust badges + mini reviews — below-fold trust block */}
+              {totalItems > 0 && (
+                <div style={{ marginTop: 28 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      marginBottom: 14,
+                      paddingLeft: 2,
+                      paddingRight: 2,
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{ flex: 1, minWidth: 12, height: 1, backgroundColor: '#e5e7eb', borderRadius: 1 }}
+                    />
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 10.5,
+                        fontWeight: 700,
+                        letterSpacing: '0.12em',
+                        color: '#9ca3af',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      KODĖL PIRKĖJAI MYLI MUS
+                    </p>
+                    <span
+                      aria-hidden
+                      style={{ flex: 1, minWidth: 12, height: 1, backgroundColor: '#e5e7eb', borderRadius: 1 }}
                     />
                   </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    {[
+                      { emoji: '🚀', tint: '#fff1e8', title: 'Greitas pristatymas', sub: '5–7 darbo dienos' },
+                      { emoji: '✅', tint: '#f0fdf4', title: 'Kokybės garantija', sub: 'Aukštos kokybės medžiagos' },
+                      { emoji: '🛡️', tint: '#e6f0ff', title: 'Saugus mokėjimas', sub: '256-bit šifravimas' },
+                    ].map((b) => (
+                      <div
+                        key={b.title}
+                        style={{
+                          padding: 12,
+                          borderRadius: 12,
+                          border: '1px solid #e5e7eb',
+                          backgroundColor: '#ffffff',
+                          textAlign: 'center',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <span
+                          aria-hidden
+                          style={{
+                            width: 34,
+                            height: 34,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: b.tint,
+                            borderRadius: 10,
+                            fontSize: 18,
+                          }}
+                        >
+                          {b.emoji}
+                        </span>
+                        <span style={{ fontSize: 11.5, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
+                          {b.title}
+                        </span>
+                        {b.sub ? (
+                          <span style={{ fontSize: 10.5, color: '#9ca3af', lineHeight: 1.2 }}>{b.sub}</span>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
 
-                  {/* SSL Secure */}
-                  <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
-                    <Lock className="w-4 h-4" />
-                    <span>SSL Secure Checkout | 256-bit Encryption</span>
+                  {/* Reviews summary */}
+                  <div style={{ marginTop: 22 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <span style={{ color: '#F5631A', fontSize: 13, letterSpacing: '-0.04em' }}>★★★★★</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>4.9</span>
+                      <span style={{ fontSize: 12, color: '#6b7280' }}>
+                        ({products?.[0]?.reviews ?? initialProducts[0]?.reviews ?? 53} atsiliepimai)
+                      </span>
+                      <span
+                        style={{
+                          marginLeft: 'auto',
+                          fontSize: 10.5,
+                          fontWeight: 700,
+                          color: '#16a34a',
+                          backgroundColor: '#ecfdf5',
+                          border: '1px solid #bbf7d0',
+                          padding: '2px 8px',
+                          borderRadius: 999,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <Check style={{ width: 10, height: 10 }} /> Tikri
+                      </span>
+                    </div>
+                    <style>{`
+                      .cart-reviews-scroll { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+                      .cart-reviews-scroll::-webkit-scrollbar { display: none; }
+                      .cart-reviews-scroll { scrollbar-width: none; }
+                      .cart-review-card { flex: 0 0 calc(50% - 5px); scroll-snap-align: start; }
+                    `}</style>
+                    <div
+                      ref={cartReviewsScrollRef}
+                      className="cart-reviews-scroll"
+                      onScroll={onCartReviewsScroll}
+                      role="region"
+                      aria-label="Pirkėjų atsiliepimų juosta"
+                    >
+                      {CART_DRAWER_REVIEWS.map((r) => (
+                        <div
+                          key={r.name}
+                          className="cart-review-card"
+                          style={{
+                            padding: 12,
+                            borderRadius: 12,
+                            border: '1px solid #e5e7eb',
+                            backgroundColor: '#ffffff',
+                            minWidth: 0,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                            <CartReviewerAvatar originalSrc={r.image} />
+                            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.1 }}>{r.name}</span>
+                              <span style={{ fontSize: 10.5, color: '#9ca3af', lineHeight: 1.1 }}>{r.location}</span>
+                            </div>
+                          </div>
+                          <span
+                            aria-hidden
+                            style={{ letterSpacing: '-0.04em', display: 'block', marginBottom: 4, fontSize: 10 }}
+                          >
+                            {[0, 1, 2, 3, 4].map((i) => (
+                              <span key={i} style={{ color: i < r.rating ? '#F5631A' : '#e5e7eb' }}>★</span>
+                            ))}
+                          </span>
+                          <p style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.4 }}>{r.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+                      {CART_DRAWER_REVIEWS.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => scrollCartReviewToIndex(i)}
+                          aria-label={`Rodyti atsiliepimą ${i + 1} iš ${CART_DRAWER_REVIEWS.length}`}
+                          aria-current={i === cartReviewDotIndex ? 'true' : undefined}
+                          style={{
+                            padding: 0,
+                            border: 'none',
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            width: i === cartReviewDotIndex ? 18 : 6,
+                            height: 6,
+                            borderRadius: 999,
+                            backgroundColor: i === cartReviewDotIndex ? '#F5631A' : '#e5e7eb',
+                            transition: 'width 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease',
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -2372,8 +3023,15 @@ function HomePage() {
 
       {/* Checkout Modal */}
       {checkoutOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={requestCheckoutClose}
+          role="presentation"
+        >
+          <div
+            className="bg-surface rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-4">
               {STRIPE_PK ? (
               <Suspense fallback={<div className="flex items-center justify-center py-12 text-gray-600">Kraunama...</div>}>
@@ -2401,8 +3059,10 @@ function HomePage() {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Apmokėjimas</h2>
                 <button
-                  onClick={() => setCheckoutOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  type="button"
+                  onClick={requestCheckoutClose}
+                  className="p-2 hover:bg-gray-100 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  aria-label="Užverti apmokėjimą"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2557,29 +3217,72 @@ function HomePage() {
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Užsakymo Santrauka</h3>
                   
                   {/* Products in Order */}
-                  <div className="space-y-3 sm:space-y-4 mb-3 sm:mb-4 max-h-56 overflow-y-auto">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-3">
+                  <div className="space-y-3 sm:space-y-4 mb-3 sm:mb-4">
+                    {cartItems.map((item) => {
+                      const isMystery = item.productId === MYSTERY_GIFT.productId;
+                      return (
+                      <div
+                        key={item.id}
+                        className={
+                          isMystery
+                            ? 'flex items-center gap-3 rounded-xl border border-emerald-300/55 bg-emerald-50 p-3 shadow-[0_1px_2px_rgba(15,23,42,0.05),0_6px_20px_rgba(15,23,42,0.04)]'
+                            : 'flex items-center gap-3 rounded-xl border border-[#E0E0E0] bg-white p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_10px_28px_rgba(15,23,42,0.07)]'
+                        }
+                      >
+                        {isMystery ? (
+                          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-emerald-300/25 bg-emerald-50 shadow-[0_1px_4px_rgba(15,23,42,0.08),0_4px_12px_rgba(15,118,110,0.1)] sm:h-14 sm:w-14">
+                            <img
+                              src={MYSTERY_GIFT.image}
+                              alt={item.name}
+                              className="h-full w-full object-cover object-center scale-[1.18]"
+                              style={{ transformOrigin: 'center center' }}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </div>
+                        ) : (
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded"
+                          className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg border border-[#E0E0E0] bg-white object-cover shadow-[0_1px_4px_rgba(15,23,42,0.08),0_4px_12px_rgba(15,23,42,0.06)]"
                           loading="lazy"
                           decoding="async"
                         />
+                        )}
                         <div className="flex-1">
                           <h4 className="font-semibold text-sm sm:text-base line-clamp-1">{item.name}</h4>
-                          <p className="text-xs sm:text-sm font-semibold text-gray-700">Kiekis: {item.quantity}</p>
-                          {item.selectedColor && (
-                            <p className="text-xs text-gray-600 font-semibold">Spalva: {item.selectedColor}</p>
+                          {isMystery ? (
+                            <div className="mt-0.5 space-y-0.5 text-[11px] text-gray-600 sm:text-xs">
+                              <p className="font-medium leading-snug">Tipas: {MYSTERY_GIFT.selectedSize}</p>
+                              <p className="font-medium leading-snug">Spalva: {MYSTERY_GIFT.selectedColor}</p>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-xs sm:text-sm font-semibold text-gray-700">Kiekis: {item.quantity}</p>
+                              {item.selectedColor && (
+                                <p className="text-xs text-gray-600 font-semibold">Spalva: {item.selectedColor}</p>
+                              )}
+                              {item.selectedSize && (
+                                <p className="text-xs text-gray-600 font-semibold">Šautuvo tipas: {(item.selectedSize as string).split(', ')[0] || item.selectedSize}</p>
+                              )}
+                            </>
                           )}
-                          {item.selectedSize && (
-                            <p className="text-xs text-gray-600 font-semibold">Šautuvo tipas: {(item.selectedSize as string).split(', ')[0] || item.selectedSize}</p>
+                          {isMystery ? (
+                            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                              <span className="text-[11px] font-medium text-gray-400 line-through sm:text-xs">
+                                €{MYSTERY_GIFT.originalPrice.toFixed(2)}
+                              </span>
+                              <span className="text-sm font-extrabold text-red-600 sm:text-base">
+                                €{(item.price * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="font-bold text-red-600 text-sm sm:text-base">€{(item.price * item.quantity).toFixed(2)}</p>
                           )}
-                          <p className="font-bold text-red-600 text-sm sm:text-base">€{(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Price Breakdown */}
@@ -2777,30 +3480,57 @@ function HomePage() {
                     {loading ? t.processing : t.placeOrder}
                   </button>
 
-                  {/* Payment Logos */}
-                  <div className="flex justify-center space-x-3 mb-3">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
-                      className="h-6 opacity-60"
-                      alt="Mastercard"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="bg-white border border-gray-300 px-2 py-1 rounded">
-                      <span className="text-blue-600 font-bold text-sm">VISA</span>
+                  <style>{`
+                    .checkout-pay-chip {
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      min-height: 32px;
+                      padding: 4px 11px;
+                      border-radius: 8px;
+                      background: #ffffff;
+                      border: 1px solid rgba(226, 232, 240, 0.95);
+                      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 7px 20px rgba(15, 23, 42, 0.06);
+                    }
+                    .checkout-ssl-banner {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 8px;
+                      margin-bottom: 1rem;
+                      padding: 10px 14px;
+                      border-radius: 14px;
+                      background: #ffffff;
+                      border: 1px solid rgba(226, 232, 240, 0.95);
+                      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07);
+                    }
+                  `}</style>
+                  <div className="flex justify-center gap-2 mb-2.5">
+                    <div className="checkout-pay-chip">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+                        className="h-5 w-auto"
+                        alt="Mastercard"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
-                    <img
-                      src="/stripe-logo.svg"
-                      className="h-6 opacity-80"
-                      alt="Stripe"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <div className="checkout-pay-chip">
+                      <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
+                    </div>
+                    <div className="checkout-pay-chip">
+                      <img
+                        src="/stripe-logo.svg"
+                        className="h-5 w-auto"
+                        alt="Stripe"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
                   </div>
 
-                  {/* SSL Security Badge */}
-                  <div className="flex items-center justify-center space-x-2 mb-4 bg-gray-100 rounded-lg py-2">
-                    <Lock className="w-4 h-4 text-brand-green" />
+                  <div className="checkout-ssl-banner">
+                    <Lock className="w-4 h-4 text-brand-green flex-shrink-0" />
                     <span className="text-xs text-gray-700 font-semibold">256-bit SSL Secure Checkout</span>
                   </div>
 
@@ -2826,6 +3556,119 @@ function HomePage() {
         </div>
       )}
 
+      {checkoutOpen && checkoutLeaveConfirmOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/65 backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="checkout-leave-title"
+          aria-describedby="checkout-leave-desc"
+          onClick={() => setCheckoutLeaveConfirmOpen(false)}
+        >
+          <div
+            className="relative bg-surface rounded-2xl max-w-[420px] w-full overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)] border-2 border-cta/45 ring-1 ring-cta/20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="checkout-leave-confetti pointer-events-none absolute inset-x-0 top-0 h-28 overflow-hidden" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div className={`relative px-5 sm:px-7 pt-8 pb-5 ${mysteryInCart ? 'pt-10' : ''}`}>
+              <div className="flex justify-center mb-4">
+                {mysteryInCart ? (
+                  <div className="relative">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-200/90 bg-gradient-to-b from-amber-50 to-amber-100/90 shadow-inner">
+                      <Gift className="h-8 w-8 text-cta" strokeWidth={2} aria-hidden="true" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary/20 bg-gradient-to-b from-sky-50 to-white shadow-inner">
+                    <Sparkles className="h-8 w-8 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+              <h3 id="checkout-leave-title" className="text-center text-xl font-extrabold text-text leading-tight tracking-tight">
+                {t.checkoutLeaveAlmostDone}
+              </h3>
+              <p id="checkout-leave-desc" className="text-sm text-muted mt-3 leading-relaxed text-center">
+                {language === 'lt' ? (
+                  mysteryInCart ? (
+                    <>
+                      Tavo{' '}
+                      <strong className="font-bold text-cta">{MYSTERY_GIFT.name}</strong> ir užsakymas jau supakuoti.
+                      Išėjus dabar, tavo rezervacija bus anuliuota po{' '}
+                      <span className="font-mono font-bold text-red-600 tabular-nums text-[0.95em]">
+                        {formatCheckoutLeaveTimer(checkoutLeaveTimerSec)}
+                      </span>{' '}
+                      min.
+                    </>
+                  ) : (
+                    <>
+                      Tavo užsakymas jau paruoštas. Išėjus dabar, rezervacija bus anuliuota po{' '}
+                      <span className="font-mono font-bold text-red-600 tabular-nums text-[0.95em]">
+                        {formatCheckoutLeaveTimer(checkoutLeaveTimerSec)}
+                      </span>{' '}
+                      min.
+                    </>
+                  )
+                ) : mysteryInCart ? (
+                  <>
+                    Your <strong className="font-bold text-cta">Mystery Gift</strong> and order are ready to go. If you
+                    leave now, your spot is released after{' '}
+                    <span className="font-mono font-bold text-red-600 tabular-nums text-[0.95em]">
+                      {formatCheckoutLeaveTimer(checkoutLeaveTimerSec)}
+                    </span>{' '}
+                    min.
+                  </>
+                ) : (
+                  <>
+                    Your order is ready. If you leave now, your reservation ends in{' '}
+                    <span className="font-mono font-bold text-red-600 tabular-nums text-[0.95em]">
+                      {formatCheckoutLeaveTimer(checkoutLeaveTimerSec)}
+                    </span>{' '}
+                    min.
+                  </>
+                )}
+              </p>
+              <div className="mt-6 flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCheckoutLeaveConfirmOpen(false)}
+                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-[#ff9426] via-cta to-[#e05f00] px-5 py-4 text-center shadow-[0_14px_40px_-6px_rgba(255,122,0,0.75),0_4px_0_rgba(0,0,0,0.08)_inset] transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 motion-safe:animate-pulse sm:py-[1.15rem]"
+                >
+                  <span className="flex items-center justify-center gap-2 text-base font-extrabold uppercase tracking-wide text-white drop-shadow-sm sm:text-lg">
+                    {mysteryInCart ? t.checkoutLeaveStayMystery : t.checkoutLeaveStayCta}
+                    <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2.5} aria-hidden="true" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={closeCheckoutConfirmed}
+                  className="w-full py-1.5 text-center text-[11px] font-normal leading-snug text-muted/45 transition hover:text-muted/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-border/60 rounded-md sm:text-xs"
+                >
+                  {mysteryInCart ? t.checkoutLeaveExitMystery : t.checkoutLeaveConfirm}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 border-t border-border/70 bg-slate-50/95 px-5 py-3.5 sm:px-7">
+              <div className="flex shrink-0 -space-x-2" aria-hidden="true">
+                <span className="inline-block h-8 w-8 rounded-full border-2 border-surface bg-primary shadow-sm" />
+                <span className="inline-block h-8 w-8 rounded-full border-2 border-surface bg-emerald-500 shadow-sm" />
+                <span className="inline-block h-8 w-8 rounded-full border-2 border-surface bg-amber-400 shadow-sm" />
+              </div>
+              <p className="min-w-0 text-[10px] font-bold uppercase leading-snug tracking-[0.06em] text-muted sm:text-[11px]">
+                {t.checkoutLeaveSocialProof.replace('{n}', String(checkoutLiveBuyersCount))}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Thank You Modal – lazy loaded, only shown after checkout */}
       {thankYouModalOpen ? (
@@ -2841,6 +3684,9 @@ function HomePage() {
 
       {/* Cookie Consent Banner */}
       {showCookie ? <Suspense fallback={null}><CookieConsent /></Suspense> : null}
+
+      {/* Social Proof Toast */}
+      <SocialProofToast cartCount={totalItems} checkoutOpen={checkoutOpen} isMobile={isMobile} displayedStockLeft={pdpDisplayedStockLeft} />
     </div>
     </>
   );
