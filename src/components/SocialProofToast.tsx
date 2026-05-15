@@ -27,7 +27,6 @@ function buildMessages(displayedStockLeft?: number): readonly string[] {
   ];
 }
 
-const SHOW_DELAY_MS = 3000;
 const CYCLE_MS = 5000;
 const SPRING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -65,7 +64,6 @@ export const SocialProofToast: React.FC<SocialProofToastProps> = ({
       return;
     }
 
-    const delayMs = isMobile ? 0 : SHOW_DELAY_MS;
     delayTimer.current = window.setTimeout(() => {
       setVisible(true);
       cycleTimer.current = window.setInterval(() => {
@@ -75,14 +73,14 @@ export const SocialProofToast: React.FC<SocialProofToastProps> = ({
           setPhase('in');
         }, 280);
       }, CYCLE_MS);
-    }, delayMs);
+    }, 0);
 
     return () => {
       if (delayTimer.current) window.clearTimeout(delayTimer.current);
       if (cycleTimer.current) window.clearInterval(cycleTimer.current);
       if (outTimer.current) window.clearTimeout(outTimer.current);
     };
-  }, [eligible, messages.length, isMobile]);
+  }, [eligible, messages.length]);
 
   const handleDismiss = () => {
     setDismissed(true);
