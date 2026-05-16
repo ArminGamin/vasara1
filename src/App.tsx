@@ -32,6 +32,7 @@ import { initialProducts } from "./data/products";
 import { MYSTERY_GIFT } from "./data/mysteryGift";
 import { MysteryGiftUpsell } from "./components/MysteryGiftUpsell";
 import { SocialProofToast } from "./components/SocialProofToast";
+import { BRAND } from "./config/brand";
 import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from "./data/storefrontReviews";
 import { SITE_NAME, DEFAULT_DESC } from './components/PageWrapper';
 import { ReviewsSection } from "./components/ReviewsSection";
@@ -1244,9 +1245,111 @@ function HomePage() {
       <header className="relative storefront-header ios-safe-area shrink-0">
         <div className="storefront-announcement" role="status" aria-live="polite">
           <div className="storefront-header-track">
-            <span>{language === 'lt' ? 'Nemokamas pristatymas nuo 80 € visoje Lietuvoje' : 'Free shipping on orders over €80 across Lithuania'}</span>
+            <span>{language === 'lt' ? 'Nemokamas pristatymas nuo 80 € visoje Lietuvoje!' : 'Free shipping on orders over €80 across Lithuania!'}</span>
           </div>
         </div>
+        {mobileNavOpen && (
+          <>
+            <div
+              role="presentation"
+              className="storefront-mobile-nav-backdrop md:hidden"
+              aria-hidden="true"
+              onClick={() => setMobileNavOpen(false)}
+            />
+            <div
+              id="storefront-mobile-nav"
+              role="dialog"
+              aria-modal="true"
+              aria-label={language === "lt" ? "Pagrindinis meniu" : "Main menu"}
+              className="storefront-mobile-nav-panel md:hidden"
+            >
+              <div className="storefront-mobile-nav-panel-head">
+                <span className="storefront-mobile-nav-title">{language === "lt" ? "Meniu" : "Menu"}</span>
+                <button
+                  type="button"
+                  className="storefront-mobile-nav-close"
+                  onClick={() => setMobileNavOpen(false)}
+                  aria-label={language === "lt" ? "Uždaryti meniu" : "Close menu"}
+                >
+                  <X className="h-5 w-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                </button>
+              </div>
+              <nav className="storefront-mobile-nav-links" aria-label={language === "lt" ? "Pagrindinė navigacija" : "Main navigation"}>
+                <NavLink
+                  className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                  to="/"
+                  end
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {language === "lt" ? "Pagrindinis" : "Home"}
+                </NavLink>
+                <NavLink
+                  className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                  to="/kontaktai"
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {language === "lt" ? "Kontaktai" : "Contact"}
+                </NavLink>
+                <a
+                  href="#products"
+                  className={[
+                    "storefront-nav-link storefront-mobile-nav-link",
+                    location.pathname === "/" && location.hash === "#products" ? "storefront-nav-link-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {language === "lt" ? "Šautuvai" : "Products"}
+                </a>
+              </nav>
+              <div className="storefront-mobile-nav-foot">
+                <p className="storefront-mobile-nav-foot-ship">
+                  {language === "lt" ? "Nemokamas pristatymas nuo 80 €! 🚚" : "Free shipping on orders over €80! 🚚"}
+                </p>
+                <div className="storefront-mobile-nav-foot-social" aria-label={language === "lt" ? "Socialiniai tinklai" : "Social"}>
+                  <a
+                    href="https://www.instagram.com/vasaroskampelis/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="storefront-mobile-nav-social-btn"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@vasaroskampelis"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="storefront-mobile-nav-social-btn"
+                    aria-label="TikTok"
+                  >
+                    <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                    </svg>
+                  </a>
+                </div>
+                <p className="storefront-mobile-nav-foot-help">
+                  {language === "lt" ? (
+                    <>
+                      Turite klausimų?{" "}
+                      <a href={`mailto:${BRAND.email}`} className="storefront-mobile-nav-foot-mail">
+                        {BRAND.email}
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      Questions?{" "}
+                      <a href={`mailto:${BRAND.email}`} className="storefront-mobile-nav-foot-mail">
+                        {BRAND.email}
+                      </a>
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
         <div className="storefront-header-body">
           <div className="storefront-header-track storefront-header-bar">
             <div className="storefront-logo-cell">
@@ -1292,9 +1395,9 @@ function HomePage() {
                 {language === 'lt' ? 'Šautuvai' : 'Products'}
               </a>
             </nav>
-            <div className="storefront-actions-cell flex items-center gap-0.5 sm:gap-1 md:min-h-[40px]">
+            <div className="storefront-actions-cell flex items-center gap-0.5 sm:gap-1 md:min-h-[30px]">
               <button
-                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:h-10 md:w-10 md:p-2"
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:p-1"
                 type="button"
                 onClick={() => setWishlistOpen((s) => !s)}
                 title={t.wishlist}
@@ -1307,7 +1410,7 @@ function HomePage() {
                 )}
               </button>
               <button
-                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:h-10 md:w-10 md:p-2"
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:p-1"
                 type="button"
                 onClick={() => setCartOpen(true)}
                 title={t.cart}
@@ -1336,64 +1439,6 @@ function HomePage() {
               </button>
             </div>
           </div>
-          {mobileNavOpen && (
-            <>
-              <div
-                role="presentation"
-                className="storefront-mobile-nav-backdrop md:hidden"
-                aria-hidden="true"
-                onClick={() => setMobileNavOpen(false)}
-              />
-              <div
-                id="storefront-mobile-nav"
-                role="dialog"
-                aria-modal="true"
-                aria-label={language === "lt" ? "Pagrindinis meniu" : "Main menu"}
-                className="storefront-mobile-nav-panel md:hidden"
-              >
-                <div className="storefront-mobile-nav-panel-head">
-                  <span className="storefront-mobile-nav-title">{language === "lt" ? "Meniu" : "Menu"}</span>
-                  <button
-                    type="button"
-                    className="storefront-mobile-nav-close"
-                    onClick={() => setMobileNavOpen(false)}
-                    aria-label={language === "lt" ? "Uždaryti meniu" : "Close menu"}
-                  >
-                    <X className="h-5 w-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-                  </button>
-                </div>
-                <nav className="storefront-mobile-nav-links" aria-label={language === "lt" ? "Pagrindinė navigacija" : "Main navigation"}>
-                  <NavLink
-                    className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
-                    to="/"
-                    end
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    {language === "lt" ? "Pagrindinis" : "Home"}
-                  </NavLink>
-                  <NavLink
-                    className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
-                    to="/kontaktai"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    {language === "lt" ? "Kontaktai" : "Contact"}
-                  </NavLink>
-                  <a
-                    href="#products"
-                    className={[
-                      "storefront-nav-link storefront-mobile-nav-link",
-                      location.pathname === "/" && location.hash === "#products" ? "storefront-nav-link-active" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    {language === "lt" ? "Šautuvai" : "Products"}
-                  </a>
-                </nav>
-              </div>
-            </>
-          )}
         </div>
       </header>
 
@@ -2035,9 +2080,9 @@ function HomePage() {
 
       {/* Footer – inside section 9; footer color */}
       <footer className="relative overflow-hidden border-t border-border bg-bg text-text">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex w-full flex-col items-center gap-10 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-5 lg:text-left xl:gap-8">
-            <div className="flex w-full shrink-0 flex-col items-center gap-4 lg:mx-auto lg:max-w-[17rem] lg:items-center lg:gap-6 lg:text-center">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 md:py-8 lg:px-8">
+          <div className="flex w-full flex-col items-center gap-6 text-center md:gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-5 lg:text-left xl:gap-8">
+            <div className="flex w-full shrink-0 flex-col items-center gap-2.5 md:gap-4 lg:mx-auto lg:max-w-[17rem] lg:items-center lg:gap-6 lg:text-center">
               <Link
                 to="/"
                 className="block rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
@@ -2060,8 +2105,8 @@ function HomePage() {
               </p>
             </div>
             <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
-              <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Nuorodos</h4>
-              <ul className="space-y-1.5 text-sm font-medium">
+              <h4 className="mb-2 text-2xl font-extrabold tracking-tight text-text md:mb-4">Nuorodos</h4>
+              <ul className="space-y-2 text-base font-medium leading-snug md:space-y-1.5 md:text-sm">
                 <li>
                   <Link to="/apie-mus" className="cursor-pointer text-text hover:text-primary">
                     Apie mus
@@ -2080,8 +2125,8 @@ function HomePage() {
               </ul>
             </div>
               <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
-                <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Teisinė informacija</h4>
-                <ul className="space-y-1.5 text-sm font-medium">
+                <h4 className="mb-2 text-2xl font-extrabold tracking-tight text-text md:mb-4">Teisinė informacija</h4>
+                <ul className="space-y-2 text-base font-medium leading-snug md:space-y-1.5 md:text-sm">
                   <li>
                     <Link to="/pristatymo-info" className="cursor-pointer text-text hover:text-primary">
                       Pristatymo Info
@@ -2105,8 +2150,8 @@ function HomePage() {
                 </ul>
               </div>
               <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
-                <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Kontaktai</h4>
-                <ul className="space-y-1.5 text-sm font-medium text-text">
+                <h4 className="mb-2 text-2xl font-extrabold tracking-tight text-text md:mb-4">Kontaktai</h4>
+                <ul className="space-y-2 text-base font-medium leading-snug text-text md:space-y-1.5 md:text-sm">
                   <li>
                     <a
                       href="mailto:vasaroskampelis@gmail.com"
@@ -2149,8 +2194,8 @@ function HomePage() {
               </div>
             </div>
         </div>
-        <div className="mx-auto w-full max-w-6xl border-t border-border px-4 pb-6 pt-5 sm:px-6 lg:px-8">
-          <div className="flex w-full flex-col items-center gap-3 text-center">
+        <div className="mx-auto w-full max-w-6xl border-t border-border px-4 pb-4 pt-3 sm:px-6 md:pb-6 md:pt-5 lg:px-8">
+          <div className="flex w-full flex-col items-center gap-2 text-center md:gap-3">
             <div className="flex flex-wrap items-center justify-center gap-2">
               <span className="sr-only">
                 {language === 'lt'
@@ -3907,7 +3952,7 @@ function HomePage() {
       {showCookie ? <Suspense fallback={null}><CookieConsent /></Suspense> : null}
 
       {/* Social Proof Toast */}
-      <SocialProofToast cartCount={totalItems} checkoutOpen={checkoutOpen} isMobile={isMobile} displayedStockLeft={pdpDisplayedStockLeft} />
+      <SocialProofToast checkoutOpen={checkoutOpen} isMobile={isMobile} displayedStockLeft={pdpDisplayedStockLeft} />
     </div>
     </>
   );

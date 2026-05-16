@@ -13,29 +13,29 @@ const COPY: Record<
 > = {
   lt: {
     title: 'Paprasta pirkimo eiga',
-    sub: 'Trys aiškūs žingsniai nuo krepšelio iki pristatymo',
+    sub: 'Trys aiškūs žingsniai nuo krepšelio iki pristatymo! 🚚',
     steps: [
       {
-        title: 'Išsirinkite prekes',
-        body: 'Įdėkite modelius į krepšelį ir patikrinkite kiekį – rodome likutį ir pagrindinius skirtumus vienoje vietoje.',
+        title: 'Greitas ir paprastas pasirinkimas',
+        body: 'Raskite tinkamą variantą sau vos per kelias minutes.',
       },
       {
         title: 'Greitas ir saugus mokėjimas',
-        body: 'Atsiskaitykite banko kortele per saugią mokėjimo sesiją ir gaukite patvirtinimą iškart po apmokėjimo.',
+        body: 'Apmokėkite patogiai banko kortele ir iškart gaukite užsakymo patvirtinimą.',
       },
       {
         title: 'Pristatymas iki durų',
-        body: 'Siunčiame Lietuvoje pasirinktu būdu ir pranešame apie eigą – kad žinotumėte, kada siunta bus pas jus.',
+        body: 'Siunčiame visoje Lietuvoje ir informuojame apie kiekvieną užsakymo etapą.',
       },
     ],
   },
   en: {
     title: 'Simple purchase flow',
-    sub: 'Three clear steps from cart to delivery',
+    sub: 'Three clear steps from cart to delivery! 🚚',
     steps: [
       {
-        title: 'Pick your gear',
-        body: 'Add models to cart and verify quantities—we show availability and core differences in one place.',
+        title: 'Fast, simple picks',
+        body: 'Find the right variant in minutes.',
       },
       {
         title: 'Fast, secure checkout',
@@ -54,12 +54,10 @@ const ICONS = [ShoppingCart, CreditCard, Truck] as const;
 export function WhyChooseUs({ language }: WhyChooseUsProps) {
   const c = COPY[language];
   return (
-    <section className="border-y border-border/80 bg-bg/80 px-4 py-8 backdrop-blur-[2px] sm:px-6 md:py-10">
+    <section className="overflow-visible border-y border-border/80 bg-bg/80 px-4 py-8 sm:px-6 md:py-10">
       <div className="mx-auto max-w-6xl">
-        <h2 className="mb-1.5 text-center text-2xl font-extrabold tracking-tight text-text md:text-[1.75rem]">
-          {c.title}
-        </h2>
-        <p className="mb-8 text-center text-sm font-semibold text-muted md:mb-10 md:text-[0.9375rem]">{c.sub}</p>
+        <h2 className="revo-section-title revo-section-title-sm mb-1.5 text-center">{c.title}</h2>
+        <p className="revo-section-sub text-center mb-8 md:mb-10">{c.sub}</p>
         <div className="grid gap-4 sm:grid-cols-3 sm:gap-5 lg:gap-6">
           {c.steps.map((step, i) => {
             const Icon = ICONS[i];
@@ -68,15 +66,9 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
                 key={step.title}
                 className="relative flex flex-col items-center rounded-[1.25rem] border border-border bg-surface px-5 pb-8 pt-7 text-center shadow-[0_1px_3px_rgba(15,23,42,0.06)]"
               >
-                <div className="mb-4 flex flex-col items-center gap-4">
-                  <div
-                    className="flex h-9 min-w-[2.25rem] items-center justify-center rounded-full bg-primary px-3 text-[0.8125rem] font-black tabular-nums text-white shadow-sm"
-                    aria-hidden
-                  >
-                    {i + 1}
-                  </div>
+                <div className="mb-4 flex justify-center">
                   <Icon
-                    className="h-9 w-9 shrink-0 text-primary"
+                    className="h-10 w-10 shrink-0 text-primary"
                     strokeWidth={1.5}
                     strokeLinecap="round"
                     strokeLinejoin="round"

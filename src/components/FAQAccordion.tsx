@@ -5,21 +5,36 @@ import { BRAND } from '../config/brand';
 const faqs = [
   {
     q: 'Ar prekės saugios vaikams?',
-    a: 'Taip. Mūsų vandens ginklai sukurti smagiam ir saugiam žaidimui lauke - be pavojingų elementų, tik linksmi vasaros nuotykiai.',
+    a: 'Taip. Mūsų vandens ginklai sukurti vaikų linksmybėms ir saugiam žaidimui su draugais bei šeima. ☀️',
   },
   {
     q: 'Kokio amžiaus vaikams tinka?',
-    a: 'Tinka vaikams nuo 5 metų. Mažesniems vaikams rekomenduojama naudoti prižiūrint suaugusiesiems.',
+    a: `Tinka vaikams nuo 5 metų.
+Mažesniems vaikams rekomenduojame žaisti prižiūrint suaugusiesiems, kad pramogos būtų saugios ir be rūpesčių. 💙`,
   },
   {
     q: 'Kiek laiko trunka pristatymas?',
-    a: 'Įprastai užsakymą pristatome per 5–7 darbo dienų, priklausomai nuo užsakymo kiekio ir pristatymo vietos. Dedame visas pastangas, kad prekė jus pasiektų kuo greičiau. Didesnio užimtumo laikotarpiais pristatymas gali užtrukti šiek tiek ilgiau. Užsakymams virš 80€ - nemokamas pristatymas.',
+    a: `Užsakymus pristatome per 5-7 darbo dienas.
+Stengiamės, kad jūsų siunta jus pasiektų kuo greičiau. 🚀
+
+🔹 Užsakymams nuo 80 € - pristatymas nemokamas.
+🔹 Didesnio užimtumo metu pristatymas gali šiek tiek užtrukti.`,
   },
   {
     q: 'Kokie mokėjimo būdai?',
-    a: 'Priimame Visa ir Mastercard. Visi mokėjimai apdorojami per saugius mokėjimų tiekėjus.',
+    a: `Galite atsiskaityti Visa ir Mastercard kortelėmis.
+Visi mokėjimai yra saugūs ir užšifruoti, todėl galite atsiskaityti saugiai ir patogiai. 🔒`,
   },
 ] as const;
+
+/** Non-breaking space before emoji at line / string end so it won’t orphan on its own line. */
+function glueTrailingEmoji(text: string): string {
+  return text.replace(/([^\s])\s+([🔒💙🚀☀️])(?=\s*(\n|$))/gu, '$1\u00A0$2');
+}
+
+function FaqAnswerBody({ text }: { text: string }) {
+  return <span className="whitespace-pre-line">{glueTrailingEmoji(text)}</span>;
+}
 
 export function FAQAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -36,7 +51,7 @@ export function FAQAccordion() {
               Dažniausiai užduodami klausimai
             </h2>
             <p className="text-base text-muted font-normal leading-relaxed mb-5 md:mb-6">
-              Neradote atsakymo? Susisiekite ir atsakysime greitai.
+              Neradote atsakymo? Susisiekite ir atsakysime greitai!
             </p>
             <a
               href={`mailto:${BRAND.email}`}
@@ -91,7 +106,7 @@ export function FAQAccordion() {
                       />
                       <div className="bg-transparent pt-4 pb-5 pl-5 pr-5 md:pt-5 md:pb-6 md:pl-6 md:pr-6">
                         <p className="border-l-[3px] border-primary pl-5 md:pl-6 pr-1 text-[15px] font-normal leading-[1.6] text-[#4B5563]">
-                          {faq.a}
+                          <FaqAnswerBody text={faq.a} />
                         </p>
                       </div>
                     </>

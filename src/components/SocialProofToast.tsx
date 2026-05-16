@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 interface SocialProofToastProps {
-  cartCount: number;
   checkoutOpen: boolean;
   isMobile: boolean;
   /** Sync with PDP scarcity; when set, stock message uses this number. */
@@ -31,7 +30,6 @@ const CYCLE_MS = 5000;
 const SPRING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 export const SocialProofToast: React.FC<SocialProofToastProps> = ({
-  cartCount,
   checkoutOpen,
   isMobile,
   displayedStockLeft,
@@ -48,7 +46,7 @@ export const SocialProofToast: React.FC<SocialProofToastProps> = ({
   const cycleTimer = useRef<number | null>(null);
   const outTimer = useRef<number | null>(null);
 
-  const eligible = !dismissed && !checkoutOpen && cartCount > 0;
+  const eligible = !dismissed && !checkoutOpen;
 
   useEffect(() => {
     setIndex((i) => Math.min(i, messages.length - 1));
