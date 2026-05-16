@@ -168,9 +168,6 @@ export const CartSidebar = React.memo(({
                   <div className="checkout-pay-chip">
                     <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
                   </div>
-                  <div className="checkout-pay-chip">
-                    <img src="/stripe-logo.svg" className="h-5 w-auto" alt="Stripe" loading="lazy" decoding="async" />
-                  </div>
                 </div>
 
                 <div className="checkout-ssl-banner">

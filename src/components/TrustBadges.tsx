@@ -27,12 +27,6 @@ export function TrustBadges() {
           <div className="bg-surface border border-border px-2 py-1 rounded">
             <span className="text-primary font-bold text-xs">VISA</span>
           </div>
-          <img
-            src="/stripe-logo.svg"
-            alt="Stripe"
-            className="h-6 opacity-80 object-contain"
-            loading="lazy"
-          />
         </div>
       </div>
     </section>

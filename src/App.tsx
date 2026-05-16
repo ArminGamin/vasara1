@@ -2,12 +2,11 @@ import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, laz
 import {
   ShoppingCart,
   Heart,
+  Menu,
   X,
   Star,
   Mail,
-  Truck,
-  Shield,
-  RotateCcw,
+  Instagram,
   Headphones,
   Trash2,
   Check,
@@ -23,7 +22,7 @@ import {
   Gift,
   ArrowRight,
 } from "lucide-react";
-import { Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Link, Navigate, NavLink, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
 import { LazyVideo } from "./components/LazyVideo";
 // Loaded on idle via simple state gating below to avoid layout thrash
@@ -237,6 +236,7 @@ function HomePage() {
   const { products } = useProductStore();
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkoutLeaveConfirmOpen, setCheckoutLeaveConfirmOpen] = useState(false);
   const [checkoutLeaveTimerSec, setCheckoutLeaveTimerSec] = useState(300);
@@ -374,6 +374,37 @@ function HomePage() {
       }
     }
   }, [location.pathname, products]);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => {
+      if (mq.matches) setMobileNavOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
 
   // Per-route SEO injection removed per request
   const [checkoutFormData, setCheckoutFormData] = useState({
@@ -1210,78 +1241,161 @@ function HomePage() {
           }),
         }}
       />
-      <header className="storefront-header ios-safe-area shrink-0">
-        <div className="storefront-header-emoji-deco" aria-hidden>
-          <span>☀️</span>
-          <span>🌴</span>
-          <span>💦</span>
-          <span>🌊</span>
-          <span>🏖️</span>
-          <span>🍉</span>
-          <span>🌻</span>
-          <span>⛱️</span>
-          <span>🍋</span>
-          <span>🐚</span>
-          <span>🌴</span>
-          <span>☀️</span>
-          <span>🌊</span>
-        </div>
-        <div className="storefront-header-top">
-          <div className="min-h-[44px]" aria-hidden />
-          <Link to="/" className="storefront-logo">{t.shopName}</Link>
-          <div className="flex items-center justify-end gap-1 sm:gap-2 min-h-[44px]">
-            <button
-              className="relative min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl text-muted hover:text-cta hover:bg-promoBg/50 transition"
-              onClick={() => setWishlistOpen((s) => !s)}
-              title={t.wishlist}
-            >
-              <Heart className="w-5 h-5" />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
-                  {wishlist.length}
-                </span>
-              )}
-            </button>
-            <button
-              className="relative min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl text-muted hover:text-cta hover:bg-promoBg/50 transition"
-              onClick={() => setCartOpen(true)}
-              title={t.cart}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              )}
-            </button>
+      <header className="relative storefront-header ios-safe-area shrink-0">
+        <div className="storefront-announcement" role="status" aria-live="polite">
+          <div className="storefront-header-track">
+            <span>{language === 'lt' ? 'Nemokamas pristatymas nuo 80 € visoje Lietuvoje' : 'Free shipping on orders over €80 across Lithuania'}</span>
           </div>
         </div>
-        <nav className="storefront-nav-row" aria-label={language === 'lt' ? 'Pagrindinė navigacija' : 'Main navigation'}>
-          <Link to="/">{language === 'lt' ? '☀️ Pagrindinis' : '☀️ Home'}</Link>
-          <Link to="/kontaktai">{language === 'lt' ? '💬 Kontaktai' : '💬 Contact'}</Link>
-          <a href="#products">{language === 'lt' ? '💦 Šautuvai' : '💦 Products'}</a>
-        </nav>
-      </header>
-
-      {/* Scrolling promo strip – desktop only (frees mobile header vertical space) */}
-      <div className="storefront-promo-strip shrink-0 hidden md:block">
-        <div className="storefront-promo-track">
-          {[0, 1, 2, 3].map((copy) => (
-            <div key={copy} className="storefront-promo-set" aria-hidden={copy > 0 ? true : undefined}>
-              <span>💦 Šaudo iki 10 metrų atstumu</span>
-              <span>➔</span>
-              <span>🚀 Pilnai automatinis režimas</span>
-              <span>➔</span>
-              <span>💧 Didelė vandens talpa</span>
-              <span>➔</span>
-              <span>🖐 Stabilus ir patogus laikymas</span>
-              <span>➔</span>
-              <span>🎯 Lengvas taktinio stiliaus dizainas</span>
-              <span>➔</span>
+        <div className="storefront-header-body">
+          <div className="storefront-header-track storefront-header-bar">
+            <div className="storefront-logo-cell">
+              <Link to="/" className="storefront-logo" aria-label={`${t.shopName} — pradžia`}>
+                <span className="storefront-logo-mark-wrap">
+                  <img
+                    src="/logo.png"
+                    alt=""
+                    width={96}
+                    height={96}
+                    className="storefront-logo-mark"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                  />
+                </span>
+                <span className="storefront-logo-wordmark truncate">{t.shopName}</span>
+              </Link>
             </div>
-          ))}
+            <nav className="storefront-nav-row" aria-label={language === 'lt' ? 'Pagrindinė navigacija' : 'Main navigation'}>
+              <NavLink
+                className={({ isActive }) => ['storefront-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                to="/"
+                end
+              >
+                {language === 'lt' ? 'Pagrindinis' : 'Home'}
+              </NavLink>
+              <NavLink
+                className={({ isActive }) => ['storefront-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                to="/kontaktai"
+              >
+                {language === 'lt' ? 'Kontaktai' : 'Contact'}
+              </NavLink>
+              <a
+                href="#products"
+                className={[
+                  'storefront-nav-link',
+                  location.pathname === '/' && location.hash === '#products' ? 'storefront-nav-link-active' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                {language === 'lt' ? 'Šautuvai' : 'Products'}
+              </a>
+            </nav>
+            <div className="storefront-actions-cell flex items-center gap-0.5 sm:gap-1 md:min-h-[40px]">
+              <button
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:h-10 md:w-10 md:p-2"
+                type="button"
+                onClick={() => setWishlistOpen((s) => !s)}
+                title={t.wishlist}
+              >
+                <Heart className="w-5 h-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
+                    {wishlist.length}
+                  </span>
+                )}
+              </button>
+              <button
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:h-10 md:w-10 md:p-2"
+                type="button"
+                onClick={() => setCartOpen(true)}
+                title={t.cart}
+              >
+                <ShoppingCart className="w-5 h-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+              <button
+                className="storefront-mobile-nav-trigger relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:hidden"
+                type="button"
+                aria-expanded={mobileNavOpen}
+                aria-controls="storefront-mobile-nav"
+                aria-haspopup="dialog"
+                onClick={() => setMobileNavOpen((o) => !o)}
+                title={language === "lt" ? "Meniu" : "Menu"}
+              >
+                {mobileNavOpen ? (
+                  <X className="h-6 w-6" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
+                ) : (
+                  <Menu className="h-6 w-6" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
+                )}
+              </button>
+            </div>
+          </div>
+          {mobileNavOpen && (
+            <>
+              <div
+                role="presentation"
+                className="storefront-mobile-nav-backdrop md:hidden"
+                aria-hidden="true"
+                onClick={() => setMobileNavOpen(false)}
+              />
+              <div
+                id="storefront-mobile-nav"
+                role="dialog"
+                aria-modal="true"
+                aria-label={language === "lt" ? "Pagrindinis meniu" : "Main menu"}
+                className="storefront-mobile-nav-panel md:hidden"
+              >
+                <div className="storefront-mobile-nav-panel-head">
+                  <span className="storefront-mobile-nav-title">{language === "lt" ? "Meniu" : "Menu"}</span>
+                  <button
+                    type="button"
+                    className="storefront-mobile-nav-close"
+                    onClick={() => setMobileNavOpen(false)}
+                    aria-label={language === "lt" ? "Uždaryti meniu" : "Close menu"}
+                  >
+                    <X className="h-5 w-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                  </button>
+                </div>
+                <nav className="storefront-mobile-nav-links" aria-label={language === "lt" ? "Pagrindinė navigacija" : "Main navigation"}>
+                  <NavLink
+                    className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                    to="/"
+                    end
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    {language === "lt" ? "Pagrindinis" : "Home"}
+                  </NavLink>
+                  <NavLink
+                    className={({ isActive }) => ['storefront-nav-link storefront-mobile-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
+                    to="/kontaktai"
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    {language === "lt" ? "Kontaktai" : "Contact"}
+                  </NavLink>
+                  <a
+                    href="#products"
+                    className={[
+                      "storefront-nav-link storefront-mobile-nav-link",
+                      location.pathname === "/" && location.hash === "#products" ? "storefront-nav-link-active" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    {language === "lt" ? "Šautuvai" : "Products"}
+                  </a>
+                </nav>
+              </div>
+            </>
+          )}
         </div>
-      </div>
+      </header>
 
       {/* Scroll-snap slideshow container – full viewport sections with entrance animations */}
       <div ref={scrollContainerRef} className="snap-scroll-container">
@@ -1500,6 +1614,10 @@ function HomePage() {
           </div>
         </div>
       </div>
+
+      <Suspense fallback={null}>
+        <WhyChooseUs language={language} />
+      </Suspense>
 
       {/* Products – one big section with inline variant selection */}
       <main id="products" className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-8 flex-1">
@@ -1793,16 +1911,23 @@ function HomePage() {
       <FAQAccordion />
 
       {/* Newsletter */}
-      <section className="relative bg-primary text-white py-8 md:py-10 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
+      <section className="relative bg-bg pt-0 pb-6 md:pb-8 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
         <div className="max-w-6xl mx-auto">
-          <Mail className="mx-auto mb-3 w-10 h-10" />
-          <h3 className="text-2xl font-bold mb-2">
-            Sužinokite pirmi apie naujienas!
-          </h3>
-          <p className="text-sm mb-4">
-            Užsiprenumeruokite naujienlaiškį - informuosime apie akcijas ir naujausius vasaros pasiūlymus.
-          </p>
-          <form
+          <div
+            className="rounded-3xl border border-white/20 text-white p-6 md:p-8 shadow-[0_20px_50px_rgba(14,165,233,0.25)]"
+            style={{
+              backgroundImage:
+                'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primaryDark) 45%, #0369a1 100%), radial-gradient(ellipse 80% 60% at 100% 0%, rgba(255,255,255,0.12) 0%, transparent 55%)',
+            }}
+          >
+            <Mail className="mx-auto mb-2 w-9 h-9 opacity-95" />
+            <h3 className="text-2xl font-bold mb-1.5">
+              Sužinokite pirmi apie naujienas!
+            </h3>
+            <p className="text-sm mb-3 text-white/90">
+              Užsiprenumeruokite naujienlaiškį - informuosime apie akcijas ir naujausius vasaros pasiūlymus.
+            </p>
+            <form
             onSubmit={async (e) => {
               e.preventDefault();
               if (!validateEmail(email)) {
@@ -1870,138 +1995,190 @@ function HomePage() {
             }}
             className="flex flex-col sm:flex-row gap-3 justify-center mx-auto max-w-2xl"
           >
-            <input
-              placeholder="Įveskite savo el. paštą"
-              className="w-full sm:flex-1 px-4 py-3 rounded-md text-black shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {/* Honeypot for additional spam protection */}
-            <input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
-            <button disabled={isSubmittingNewsletter} className={`bg-surface text-primaryDark font-semibold px-6 py-3 rounded-md hover:bg-border min-h-[48px] shadow-[0_4px_14px_rgba(0,0,0,0.08)] ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
-              Prenumeruoti
-            </button>
-          </form>
-          <p className="mt-3 text-sm text-white/80 text-center max-w-xl mx-auto">
-            Įvesdamas el. paštą sutinku gauti „Vasaros Kampelio“ pasiūlymus ir naujienas.
-          </p>
-          {newsletterMsg && (
-            <div className={`mt-4 max-w-xl mx-auto rounded-lg border px-4 py-3 text-sm font-semibold shadow ${
-              newsletterMsg.type === 'success'
-                ? 'bg-promoBg border-success text-text'
-                : 'bg-promoBg border-promoBorder text-text'
-            }`}>
-              <div className="flex items-center gap-2 justify-center">
-                {newsletterMsg.type === 'success' ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4" />
-                )}
-                <span>{newsletterMsg.text}</span>
+              <input
+                placeholder="Įveskite savo el. paštą"
+                className="w-full sm:flex-1 px-4 py-3 rounded-md text-black shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              {/* Honeypot for additional spam protection */}
+              <input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+              <button disabled={isSubmittingNewsletter} className={`bg-cta text-white font-semibold px-6 py-3 rounded-md hover:bg-ctaHover min-h-[48px] shadow-[0_4px_14px_rgba(0,0,0,0.15)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 ${isSubmittingNewsletter ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                Prenumeruoti
+              </button>
+            </form>
+            <p className="mt-3 text-sm text-white/80 text-center max-w-xl mx-auto">
+              Įvesdamas el. paštą sutinku gauti „Vasaros Kampelio“ pasiūlymus ir naujienas.
+            </p>
+            {newsletterMsg && (
+              <div className={`mt-4 max-w-xl mx-auto rounded-lg border px-4 py-3 text-sm font-semibold shadow ${
+                newsletterMsg.type === 'success'
+                  ? 'bg-promoBg border-success text-text'
+                  : 'bg-promoBg border-promoBorder text-text'
+              }`}>
+                <div className="flex items-center gap-2 justify-center">
+                  {newsletterMsg.type === 'success' ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4" />
+                  )}
+                  <span>{newsletterMsg.text}</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
 
       {/* Footer – inside section 9; footer color */}
-      <footer className="relative bg-footer text-white overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center md:justify-items-start text-center md:text-left">
-          <div>
-            <h4 className="font-bold text-lg mb-3">{t.shopName}</h4>
-            <p>
-              <Link to="/apie-mus" className="hover:text-white cursor-pointer font-semibold text-white/90">
-                Apie mus
+      <footer className="relative overflow-hidden border-t border-border bg-bg text-text">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex w-full flex-col items-center gap-10 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-5 lg:text-left xl:gap-8">
+            <div className="flex w-full shrink-0 flex-col items-center gap-4 lg:mx-auto lg:max-w-[17rem] lg:items-center lg:gap-6 lg:text-center">
+              <Link
+                to="/"
+                className="block rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                aria-label={`${t.shopName} — pradžia`}
+              >
+                <img
+                  src="/logo.png"
+                  alt=""
+                  width={176}
+                  height={56}
+                  className="mx-auto h-14 w-auto max-w-[220px] object-contain object-center opacity-95 md:h-[4rem]"
+                  loading="lazy"
+                  decoding="async"
+                />
               </Link>
-            </p>
-            <p className="mt-1">
-              <Link to="/blog" className="hover:text-white cursor-pointer font-semibold text-white/90">
-                Blogas
-              </Link>
-            </p>
-            <p className="mt-1">
-              <Link to="/kontaktai" className="hover:text-white cursor-pointer font-semibold text-white/90">
-                Kontaktai
-              </Link>
-            </p>
-          </div>
-          <div>
-            <h5 className="font-bold mb-3">Teisinė informacija</h5>
-            <ul className="text-sm space-y-2 text-white/80">
-              <li>
-                <Link to="/pristatymo-info" className="hover:text-white cursor-pointer font-semibold">
-                  Pristatymo Info
-                </Link>
-              </li>
-              <li>
-                <Link to="/grazinimai" className="hover:text-white cursor-pointer font-semibold">
-                  Grąžinimai
-                </Link>
-              </li>
-              <li>
-                <Link to="/privatumo-politika" className="hover:text-white cursor-pointer font-semibold">
-                  Privatumo Politika
-                </Link>
-              </li>
-              <li>
-                <Link to="/slapuku-politika" className="hover:text-white cursor-pointer font-semibold">
-                  Slapukų politika
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold mb-3">Kontaktai</h5>
-            <ul className="text-sm space-y-2 text-white/80">
-              <li className="flex items-center gap-3 py-1">
-                <Mail className="w-5 h-5 block shrink-0" />
-                <span className="inline-flex items-center h-5 font-semibold">vasaroskampelis@gmail.com</span>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="https://www.instagram.com/vasaroskampelis/" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
-                  vasaroskampelis
-                </a>
-              </li>
-              <li className="flex items-center gap-3 py-1">
-                <img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok" className="w-5 h-5 block shrink-0" loading="lazy" decoding="async" />
-                <a href="https://www.tiktok.com/@vasaroskampelis" target="_blank" rel="noopener noreferrer" className="hover:text-white inline-flex items-center h-5 font-semibold">
-                  vasaroskampelis
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="pt-3 pb-6 text-center text-sm text-white/80">
-          {/* Payment processor logos only */}
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5">
-            <img
-              src="/Mastercard-logo.png"
-              alt="Mastercard"
-              className="h-5 object-contain opacity-90"
-              width={32}
-              height={20}
-              loading="lazy"
-            />
-            <div className="bg-white/10 border border-white/20 px-2 py-1 rounded">
-              <span className="text-white font-bold text-xs">VISA</span>
+              <p className="mx-auto max-w-[18rem] text-[15px] font-normal leading-snug text-text/[0.72] lg:max-w-[17rem]">
+                {language === 'lt'
+                  ? 'Vandens šautuvai ir lauko žaidimai visai šeimai!'
+                  : 'Water blasters & outdoor splash fun for families.'}
+              </p>
             </div>
-            <img
-              src="/stripe-logo.svg"
-              alt="Stripe"
-              className="h-5 object-contain opacity-90"
-              width={60}
-              height={20}
-              loading="lazy"
-            />
-          </div>
-          <p className="text-xs text-white/80">© 2026 Vasaros Kampelis. Visos teisės saugomos.</p>
-          <div className="flex items-center justify-center gap-2 mt-2 text-white/80">
-            <Lock className="w-4 h-4" aria-hidden />
-            <span className="text-xs font-semibold">SSL Secure Checkout | 256-bit Encryption</span>
+            <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
+              <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Nuorodos</h4>
+              <ul className="space-y-1.5 text-sm font-medium">
+                <li>
+                  <Link to="/apie-mus" className="cursor-pointer text-text hover:text-primary">
+                    Apie mus
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/blog" className="cursor-pointer text-text hover:text-primary">
+                    Blogas
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/kontaktai" className="cursor-pointer text-text hover:text-primary">
+                    Kontaktai
+                  </Link>
+                </li>
+              </ul>
+            </div>
+              <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
+                <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Teisinė informacija</h4>
+                <ul className="space-y-1.5 text-sm font-medium">
+                  <li>
+                    <Link to="/pristatymo-info" className="cursor-pointer text-text hover:text-primary">
+                      Pristatymo Info
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/grazinimai" className="cursor-pointer text-text hover:text-primary">
+                      Grąžinimai
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/privatumo-politika" className="cursor-pointer text-text hover:text-primary">
+                      Privatumo Politika
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/slapuku-politika" className="cursor-pointer text-text hover:text-primary">
+                      Slapukų politika
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+              <div className="w-full shrink-0 text-center lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0 lg:text-left">
+                <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-text">Kontaktai</h4>
+                <ul className="space-y-1.5 text-sm font-medium text-text">
+                  <li>
+                    <a
+                      href="mailto:vasaroskampelis@gmail.com"
+                      className="flex min-h-8 flex-wrap items-center justify-center gap-3 py-0.5 font-medium text-text transition-colors hover:text-primary lg:justify-start"
+                    >
+                      <span className="inline-flex size-[18px] shrink-0 items-center justify-center [&>svg]:block" aria-hidden>
+                        <Mail className="size-[18px]" strokeWidth={1.375} strokeLinecap="round" strokeLinejoin="round" />
+                      </span>
+                      <span className="leading-tight">vasaroskampelis@gmail.com</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.instagram.com/vasaroskampelis/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-h-8 flex-wrap items-center justify-center gap-3 py-0.5 font-medium text-text transition-colors hover:text-primary lg:justify-start"
+                    >
+                      <span className="inline-flex size-[18px] shrink-0 items-center justify-center text-current [&>svg]:block" aria-hidden>
+                        <Instagram className="size-[18px] stroke-[1.75]" strokeLinecap="round" strokeLinejoin="round" />
+                      </span>
+                      <span className="leading-tight">vasaroskampelis</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.tiktok.com/@vasaroskampelis"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-h-8 flex-wrap items-center justify-center gap-3 py-0.5 font-medium text-text transition-colors hover:text-primary lg:justify-start"
+                    >
+                      <span
+                        aria-hidden
+                        className="inline-flex size-[18px] shrink-0 bg-current [-webkit-mask-image:url('https://cdn.simpleicons.org/tiktok/ffffff')] [-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain] [mask-image:url('https://cdn.simpleicons.org/tiktok/ffffff')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain]"
+                      />
+                      <span className="leading-tight">vasaroskampelis</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+        </div>
+        <div className="mx-auto w-full max-w-6xl border-t border-border px-4 pb-6 pt-5 sm:px-6 lg:px-8">
+          <div className="flex w-full flex-col items-center gap-3 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <span className="sr-only">
+                {language === 'lt'
+                  ? 'Saugūs mokėjimai: Visa ir Mastercard.'
+                  : 'Secure payments via Visa and Mastercard.'}
+              </span>
+              <div
+                className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
+                aria-hidden
+              >
+                <img src="/Mastercard-logo.png" alt="" className="max-h-[1rem] w-auto max-w-[3.125rem] object-contain opacity-95" loading="lazy" decoding="async" />
+              </div>
+              <div
+                className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
+                aria-hidden
+              >
+                <span className="font-[system-ui,sans-serif] text-[11px] font-extrabold tracking-[0.12em] text-[#1A1F71] sm:text-[12px]">
+                  VISA
+                </span>
+              </div>
+            </div>
+            <p className="mx-auto max-w-xl text-xs leading-snug text-muted">
+              © 2026 Vasaros Kampelis. Visos teisės saugomos.
+            </p>
+            <div className="flex w-full max-w-xl flex-row flex-wrap items-center justify-center gap-2 leading-snug text-muted">
+              <Lock className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              <span className="text-xs font-semibold">SSL Secure Checkout | 256-bit Encryption</span>
+            </div>
           </div>
         </div>
       </footer>
@@ -2314,16 +2491,48 @@ function HomePage() {
                     </button>
 
                     <style>{`
-                      .checkout-pay-chip {
-                        display: inline-flex;
+                      .checkout-pay-row {
+                        display: flex;
+                        flex-wrap: wrap;
                         align-items: center;
                         justify-content: center;
-                        min-height: 32px;
-                        padding: 4px 11px;
-                        border-radius: 8px;
+                        gap: 10px;
+                        width: 100%;
+                        box-sizing: border-box;
+                      }
+                      .checkout-pay-chip {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex: 0 0 auto;
+                        box-sizing: border-box;
+                        height: 38px;
+                        min-width: 3.25rem;
+                        padding: 0 12px;
+                        border-radius: 10px;
                         background: #ffffff;
                         border: 1px solid rgba(226, 232, 240, 0.95);
                         box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 7px 20px rgba(15, 23, 42, 0.06);
+                      }
+                      .checkout-pay-chip img {
+                        height: 20px;
+                        width: auto;
+                        max-height: 20px;
+                        display: block;
+                        object-fit: contain;
+                        margin: 0;
+                      }
+                      .checkout-pay-chip__visa {
+                        margin: 0;
+                        padding: 0;
+                        color: #1a1f71;
+                        font-weight: 800;
+                        font-size: 13px;
+                        letter-spacing: 0.08em;
+                        line-height: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                       }
                       .checkout-ssl-banner {
                         display: flex;
@@ -2343,7 +2552,7 @@ function HomePage() {
                         color: #374151;
                       }
                     `}</style>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 14 }}>
+                    <div className="checkout-pay-row mt-3.5">
                       <div className="checkout-pay-chip">
                         <img
                           src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
@@ -2352,22 +2561,10 @@ function HomePage() {
                           decoding="async"
                           width={96}
                           height={20}
-                          style={{ height: 20, width: 'auto', display: 'block' }}
                         />
                       </div>
                       <div className="checkout-pay-chip">
-                        <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
-                      </div>
-                      <div className="checkout-pay-chip">
-                        <img
-                          src="/stripe-logo.svg"
-                          alt="Stripe"
-                          loading="lazy"
-                          decoding="async"
-                          width={80}
-                          height={20}
-                          style={{ height: 20, width: 'auto', display: 'block' }}
-                        />
+                        <span className="checkout-pay-chip__visa">VISA</span>
                       </div>
                     </div>
 
@@ -3481,16 +3678,48 @@ function HomePage() {
                   </button>
 
                   <style>{`
-                    .checkout-pay-chip {
-                      display: inline-flex;
+                    .checkout-pay-row {
+                      display: flex;
+                      flex-wrap: wrap;
                       align-items: center;
                       justify-content: center;
-                      min-height: 32px;
-                      padding: 4px 11px;
-                      border-radius: 8px;
+                      gap: 10px;
+                      width: 100%;
+                      box-sizing: border-box;
+                    }
+                    .checkout-pay-chip {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex: 0 0 auto;
+                      box-sizing: border-box;
+                      height: 38px;
+                      min-width: 3.25rem;
+                      padding: 0 12px;
+                      border-radius: 10px;
                       background: #ffffff;
                       border: 1px solid rgba(226, 232, 240, 0.95);
                       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 7px 20px rgba(15, 23, 42, 0.06);
+                    }
+                    .checkout-pay-chip img {
+                      height: 20px;
+                      width: auto;
+                      max-height: 20px;
+                      display: block;
+                      object-fit: contain;
+                      margin: 0;
+                    }
+                    .checkout-pay-chip__visa {
+                      margin: 0;
+                      padding: 0;
+                      color: #1a1f71;
+                      font-weight: 800;
+                      font-size: 13px;
+                      letter-spacing: 0.08em;
+                      line-height: 1;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
                     }
                     .checkout-ssl-banner {
                       display: flex;
@@ -3505,27 +3734,19 @@ function HomePage() {
                       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07);
                     }
                   `}</style>
-                  <div className="flex justify-center gap-2 mb-2.5">
+                  <div className="checkout-pay-row mb-2.5">
                     <div className="checkout-pay-chip">
                       <img
                         src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
-                        className="h-5 w-auto"
                         alt="Mastercard"
                         loading="lazy"
                         decoding="async"
+                        width={96}
+                        height={20}
                       />
                     </div>
                     <div className="checkout-pay-chip">
-                      <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>
-                    </div>
-                    <div className="checkout-pay-chip">
-                      <img
-                        src="/stripe-logo.svg"
-                        className="h-5 w-auto"
-                        alt="Stripe"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <span className="checkout-pay-chip__visa">VISA</span>
                     </div>
                   </div>
 

@@ -9,7 +9,7 @@
   --color-surface: #FFFFFF;
   --color-primary: #0EA5E9;
   --color-primaryDark: #0284C7;
-  --color-footer: #0B1220;
+  --color-footer: #0f172a;
   --color-cta: #FF7A00;
   --color-ctaHover: #E66D00;
   --color-success: #22C55E;
@@ -65,7 +65,7 @@ body {
   flex: 1 1 0;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
-  background-color: var(--color-footer);
+  background-color: var(--color-bg);
 }
 
 /* Each section: full viewport height, content centered */
