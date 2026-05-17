@@ -1286,21 +1286,47 @@
   background: var(--color-surface);
 }
 
+@keyframes wb-topbar-breathe-flow {
+  0%,
+  100% {
+    background-position: 12% 50%;
+    background-size: 208% 100%;
+  }
+  50% {
+    background-position: 88% 50%;
+    background-size: 232% 100%;
+  }
+}
+
 .wb-nav-topbar {
-  background: var(--color-primary);
+  position: relative;
+  overflow: hidden;
+  background-image: var(--gradient-cta-ui);
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  background-position: 45% 50%;
+  animation: wb-topbar-breathe-flow 14s ease-in-out infinite;
   color: #fff;
   text-align: center;
-  padding-block: 12px;
+  padding-block: 10px;
   padding-inline: var(--space-2);
-  font-size: 15px;
+  font-size: 14.75px;
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.35;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .wb-nav-topbar {
+    animation: none;
+    background-size: 100% 100%;
+    background-position: 50% 50%;
+  }
+}
+
 @media (max-width: 1023px) {
   .wb-nav-topbar {
-    padding-block: 8px;
+    padding-block: 7px;
     padding-inline: max(10px, env(safe-area-inset-left, 0px))
       max(10px, env(safe-area-inset-right, 0px));
     font-size: 13px;
@@ -1389,7 +1415,7 @@
 
 @media (min-width: 1024px) {
   .wb-nav-topbar {
-    padding-block: 11px;
+    padding-block: 9px;
     font-size: 14.75px;
   }
 
