@@ -163,7 +163,7 @@ export const CartSidebar = React.memo(({
                 `}</style>
                 <div className="flex justify-center gap-2 pt-4 flex-wrap">
                   <div className="checkout-pay-chip">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" width={32} height={20} className="h-5 w-auto" alt="Mastercard" loading="lazy" decoding="async" />
+                    <img src="/mastercard.svg" width={28} height={20} className="h-5 w-auto" alt="Mastercard" loading="lazy" decoding="async" />
                   </div>
                   <div className="checkout-pay-chip">
                     <span style={{ color: '#1a1f71', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>VISA</span>

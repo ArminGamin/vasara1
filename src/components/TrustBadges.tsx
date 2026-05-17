@@ -19,9 +19,9 @@ export function TrustBadges() {
             <span className="text-sm font-semibold">Visa, Mastercard</span>
           </div>
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+            src="/mastercard.svg"
             alt="Mastercard"
-            width={38}
+            width={34}
             height={24}
             className="h-6 opacity-70 object-contain"
             loading="lazy"

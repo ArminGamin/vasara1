@@ -90,7 +90,7 @@
       };
     </script>
 
-    <!-- Load analytics on first interaction (scroll/click/key) or after 5s – avoids competing with LCP -->
+    <!-- Load analytics 3s after window load, or on first interaction – never competes with LCP -->
     <script>
       (function loadAnalyticsOnInteraction(){
         var done = false;
@@ -113,7 +113,9 @@
         ['scroll','click','keydown','touchstart'].forEach(function(ev){
           window.addEventListener(ev, onInteraction, { passive: true, once: true });
         });
-        setTimeout(inject, 5000);
+        function scheduleAfterLoad(){ setTimeout(inject, 3000); }
+        if (document.readyState === 'complete') scheduleAfterLoad();
+        else window.addEventListener('load', scheduleAfterLoad, { once: true });
       })();
     </script>
     

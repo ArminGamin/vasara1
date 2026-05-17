@@ -1052,8 +1052,22 @@ function HomePage() {
   // Lazy-load the product modal stylesheet on first open – keeps ~5 KB of CSS off initial load
   useEffect(() => {
     if (!productModalOpen) return;
+    // @ts-ignore CSS side-effect import resolved by Vite
     import('./styles/product-modal.css').catch(() => {});
   }, [productModalOpen]);
+
+  // Load below-hero "Promo Shorts" CSS on idle so initial paint never blocks on it
+  useEffect(() => {
+    // @ts-ignore CSS side-effect import resolved by Vite
+    const load = () => { import('./styles/promo-shorts.css').catch(() => {}); };
+    const w: any = typeof window !== 'undefined' ? window : null;
+    if (w && 'requestIdleCallback' in w) {
+      const id = w.requestIdleCallback(load, { timeout: 2500 });
+      return () => { if ('cancelIdleCallback' in w) w.cancelIdleCallback(id); };
+    }
+    const t = setTimeout(load, 1200);
+    return () => clearTimeout(t);
+  }, []);
 
   // Tab title: when user switches to another tab, flash between site name and "come back" message
   const TAB_TITLE_DEFAULT = 'Vasaros Kampelis | Vandens šautuvai ir vasaros žaidimai';
@@ -2228,7 +2242,7 @@ function HomePage() {
                 className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
                 aria-hidden
               >
-                <img src="/Mastercard-logo.png" alt="" width={50} height={16} className="max-h-[1rem] w-auto max-w-[3.125rem] object-contain opacity-95" loading="lazy" decoding="async" />
+                <img src="/mastercard.svg" alt="" width={28} height={20} className="h-5 w-auto object-contain opacity-95" loading="lazy" decoding="async" />
               </div>
               <div
                 className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
@@ -2624,11 +2638,11 @@ function HomePage() {
                     <div className="checkout-pay-row mt-3.5">
                       <div className="checkout-pay-chip">
                         <img
-                          src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+                          src="/mastercard.svg"
                           alt="Mastercard"
                           loading="lazy"
                           decoding="async"
-                          width={96}
+                          width={28}
                           height={20}
                         />
                       </div>
@@ -3806,11 +3820,11 @@ function HomePage() {
                   <div className="checkout-pay-row mb-2.5">
                     <div className="checkout-pay-chip">
                       <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+                        src="/mastercard.svg"
                         alt="Mastercard"
                         loading="lazy"
                         decoding="async"
-                        width={96}
+                        width={28}
                         height={20}
                       />
                     </div>

@@ -1221,77 +1221,7 @@
   color: var(--color-muted);
 }
 
-/* ---- Reviews: full-width marquee (fills left & right like promo strip) ---- */
-.revo-reviews-marquee-wrap {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-}
-.revo-reviews-marquee {
-  overflow: hidden;
-  padding: var(--space-2) 0 var(--space-1);
-  padding-left: var(--space-4);
-}
-/* Mobile: swipeable horizontal scroll */
-@media (max-width: 767px) {
-  .revo-reviews-marquee {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding-left: var(--space-4);
-    padding-right: var(--space-4);
-  }
-  .revo-reviews-track {
-    animation: none;
-    padding-right: var(--space-4);
-  }
-  .revo-review-card {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-  }
-}
-.revo-reviews-track {
-  display: flex;
-  width: max-content;
-  animation: reviews-marquee 70s linear infinite;
-  will-change: transform;
-}
-@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
-  .revo-reviews-track {
-    animation: none;
-  }
-}
-.revo-reviews-set {
-  display: flex;
-  flex-shrink: 0;
-  gap: var(--space-4);
-  padding-right: var(--space-4);
-}
-@keyframes reviews-marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.revo-review-card {
-  flex: 0 0 auto;
-  min-width: min(320px, 85vw);
-  max-width: 320px;
-  background: var(--color-surface);
-  border-radius: 16px;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
-.revo-review-card .revo-review-text {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-top: var(--space-2);
-}
+/* ---- Reviews marquee styles live in src/components/ReviewsSection.css (lazy chunk) ---- */
 .revo-section-divider {
   height: 4px;
   background: linear-gradient(90deg, var(--color-primary), var(--color-cta));
@@ -1299,52 +1229,7 @@
   margin: 0;
 }
 
-/* ---- Promo Shorts showcase ---- */
-.promo-shorts-section {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  background: linear-gradient(165deg, #0B1220 0%, #0c2d4a 40%, #0EA5E9 100%);
-  padding: var(--space-8) 0;
-  margin-bottom: var(--space-4);
-}
-.promo-shorts-heading {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 800;
-  color: white;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-.promo-shorts-sub {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: var(--space-1);
-}
-.promo-shorts-card {
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 0 40px rgba(14, 165, 233, 0.35),
-    0 12px 40px rgba(0, 0, 0, 0.5);
-  background: #000;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-  will-change: transform;
-}
-.promo-shorts-card:hover {
-  transform: scale(1.03);
-  box-shadow:
-    0 0 50px rgba(14, 165, 233, 0.45),
-    0 12px 40px rgba(0, 0, 0, 0.5);
-}
+/* ---- Promo Shorts styles live in src/styles/promo-shorts.css (idle-loaded chunk) ---- */
 
 /* ---- Footer bold ---- */
 .revo-footer-title {

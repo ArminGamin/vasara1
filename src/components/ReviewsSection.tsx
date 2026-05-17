@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from '../data/storefrontReviews';
+import './ReviewsSection.css';
 
 function ReviewCard({ r }: { r: (typeof STOREFRONT_REVIEWS)[0] }) {
   const [imgSrc, setImgSrc] = React.useState(r.image);
@@ -40,16 +41,28 @@ export function ReviewsSection() {
     if (!el) return;
 
     let half = el.scrollWidth / 2;
+    let pos = el.scrollLeft;
+    let pendingResize = false;
     const ro = typeof ResizeObserver !== 'undefined'
-      ? new ResizeObserver(() => { half = el.scrollWidth / 2; })
+      ? new ResizeObserver(() => {
+          if (pendingResize) return;
+          pendingResize = true;
+          requestAnimationFrame(() => {
+            half = el.scrollWidth / 2;
+            pos = el.scrollLeft;
+            pendingResize = false;
+          });
+        })
       : null;
     ro?.observe(el);
 
     let raf: number;
     const scroll = () => {
-      if (paused || !el) return;
-      el.scrollLeft += 0.4;
-      if (el.scrollLeft >= half - 1) el.scrollLeft = 0;
+      if (paused) return;
+      let next = pos + 0.4;
+      if (next >= half - 1) next = 0;
+      pos = next;
+      el.scrollLeft = next;
       raf = requestAnimationFrame(scroll);
     };
     raf = requestAnimationFrame(scroll);
