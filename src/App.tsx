@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { Routes, Route, Link, Navigate, NavLink, useNavigate, useLocation } from "react-router-dom";
 import OptimizedImage from "./components/OptimizedImage";
+import { NewHero } from "./components/NewHero";
+import { WaterBattleHeader } from "./components/WaterBattleHeader";
 import { LazyVideo } from "./components/LazyVideo";
 // Loaded on idle via simple state gating below to avoid layout thrash
 import { useCartStore } from "./store/cartStore";
@@ -74,10 +76,6 @@ const BlogPostKaVeiktiSuVaikaisVasara = lazy(() => import("./pages/blog/BlogPost
 const BlogPostVandensSautuvasVsPistoletas = lazy(() => import("./pages/blog/BlogPostVandensSautuvasVsPistoletas").then(m => ({ default: m.default })));
 const BlogPostVasarosDovanosVaikams = lazy(() => import("./pages/blog/BlogPostVasarosDovanosVaikams").then(m => ({ default: m.default })));
 
-function heroSrcSet(base: string) {
-  const b = base.replace(/\.webp$/, '');
-  return `${b}-480w.webp 480w, ${b}-768w.webp 768w, ${b}-1024w.webp 1024w, ${base} 1920w`;
-}
 // Product images (blue1.webp, pink2.webp, etc.) have 240/306/512/612/1024w variants from prebuild
 const PRODUCT_WIDTHS = [240, 306, 512, 612, 1024];
 function productSrcSet(path: string): string | undefined {
@@ -120,92 +118,6 @@ function formatCheckoutLeaveTimer(totalSec: number): string {
   const r = s % 60;
   return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
 }
-const HERO_IMAGES = [
-  { src: '/hero-pink-ar.webp', alt: 'Elektrinis vandens šautuvas – rožinis' },
-  { src: '/hero-blue-ar.webp', alt: 'Elektrinis vandens šautuvas – mėlynas' },
-  { src: '/hero-pink-glock.webp', alt: 'Elektrinis vandens pistoletas – rožinis' },
-  { src: '/hero-blue-glock.webp', alt: 'Elektrinis vandens pistoletas – mėlynas' },
-];
-
-const SWIPE_THRESHOLD = 50;
-
-const HeroSlideshow = React.memo(function HeroSlideshow({ language }: { language: string }) {
-  const [idx, setIdx] = useState(0);
-  const len = HERO_IMAGES.length;
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef(0);
-
-  const go = useCallback((n: number) => {
-    setIdx((n % len + len) % len);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => setIdx(i => (i + 1) % len), 5000);
-  }, [len]);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => setIdx(i => (i + 1) % len), 5000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [len]);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    const dx = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-    if (dx > 0) go(idx + 1);      // swipe left -> next
-    else go(idx - 1);              // swipe right -> prev
-  }, [idx, go]);
-
-  return (
-    <>
-      <div
-        className="hero-carousel"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {HERO_IMAGES.map((img, i) => (
-          <img
-            key={i}
-            src={img.src}
-            srcSet={heroSrcSet(img.src)}
-            sizes="100vw"
-            alt={img.alt}
-            className={`hero-carousel-img ${i === idx ? 'active' : ''}`}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            fetchPriority={i === 0 ? 'high' : undefined}
-            draggable={false}
-          />
-        ))}
-        <div className="hero-dots">
-          {HERO_IMAGES.map((_, i) => (
-            <button key={i} className={`hero-dot ${i === idx ? 'on' : ''}`} onClick={() => go(i)} aria-label={`Slide ${i + 1}`} />
-          ))}
-        </div>
-      </div>
-      <div className="hero-overlay">
-        <div className="hero-overlay-inner">
-          <h1 className="hero-overlay-title">
-            {language === 'lt' ? 'Vasaros mūšis!' : 'Summer battle!'}
-          </h1>
-          <p className="hero-overlay-sub">
-            {language === 'lt'
-              ? '💦 Vandens šautuvai, kurie šaudo iki 10 metrų. Tikras veiksmas! 💥'
-              : '💦 Water blasters that shoot up to 10m. Real action!'}
-          </p>
-          <button
-            type="button"
-            onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
-            className="hero-overlay-cta"
-          >
-            {language === 'lt' ? 'PIRK DABAR' : 'SHOP NOW'}
-          </button>
-        </div>
-      </div>
-    </>
-  );
-});
-
 const CART_DRAWER_REVIEW_NAMES = ['Tomas V.', 'Giedrė J.', 'Mantas K.', 'Rūta L.', 'Jonas P.'] as const;
 const CART_DRAWER_REVIEWS = CART_DRAWER_REVIEW_NAMES.map((name) =>
   STOREFRONT_REVIEWS.find((r) => r.name === name)
@@ -233,6 +145,7 @@ function CartReviewerAvatar({ originalSrc }: { originalSrc: string }) {
 // --- Main Shop Page ---
 function HomePage() {
   const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = `${SITE_NAME} | Vandens šautuvai ir vasaros žaidimai Lietuvoje`;
     const m = document.querySelector('meta[name="description"]');
@@ -259,6 +172,23 @@ function HomePage() {
   const [quantity, setQuantity] = useState(1);
   const [sectionSizesByGroup, setSectionSizesByGroup] = useState<number[]>([0, 0]);
   const [sectionImageIndex, setSectionImageIndex] = useState(0);
+  const applyProductsGunNav = useCallback((choice: 'all' | 'automatas' | 'pistoletas') => {
+    setSectionSizesByGroup((prev) => {
+      const colorIdx = prev[1] ?? 0;
+      const typeIdx = choice === 'pistoletas' ? 1 : 0;
+      return [typeIdx, colorIdx];
+    });
+    setSectionImageIndex(0);
+  }, []);
+
+  useEffect(() => {
+    const st = location.state as { productsGunNav?: string } | null | undefined;
+    if (!st || typeof st !== 'object' || !('productsGunNav' in st)) return;
+    const choice = st.productsGunNav;
+    if (choice !== 'all' && choice !== 'automatas' && choice !== 'pistoletas') return;
+    applyProductsGunNav(choice);
+    navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: {} });
+  }, [location.state, location.pathname, location.search, location.hash, applyProductsGunNav, navigate]);
   const [sectionQuantity, setSectionQuantity] = useState(1);
   const [sectionAddSuccess, setSectionAddSuccess] = useState(false);
   const [sectionFeaturesExpanded, setSectionFeaturesExpanded] = useState(false);
@@ -389,6 +319,16 @@ function HomePage() {
 
   useEffect(() => {
     setMobileNavOpen(false);
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+    const id = location.hash.replace(/^#/, '');
+    if (!id) return;
+    const t = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+    return () => window.clearTimeout(t);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
@@ -1211,7 +1151,7 @@ function HomePage() {
               deliveryTime: {
                 "@type": "ShippingDeliveryTime",
                 handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "d" },
-                transitTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 7, unitCode: "d" }
+                transitTime: { "@type": "QuantitativeValue", minValue: 4, maxValue: 6, unitCode: "d" }
               }
             },
             hasMerchantReturnPolicy: {
@@ -1273,11 +1213,6 @@ function HomePage() {
         }}
       />
       <header className="relative storefront-header ios-safe-area shrink-0">
-        <div className="storefront-announcement" role="status" aria-live="polite">
-          <div className="storefront-header-track">
-            <span>{language === 'lt' ? 'Nemokamas pristatymas nuo 80 € visoje Lietuvoje!' : 'Free shipping on orders over €80 across Lithuania!'}</span>
-          </div>
-        </div>
         {mobileNavOpen && (
           <>
             <div
@@ -1320,18 +1255,61 @@ function HomePage() {
                 >
                   {language === "lt" ? "Kontaktai" : "Contact"}
                 </NavLink>
-                <a
-                  href="#products"
+                <Link
+                  to={location.pathname === "/" ? "#products" : "/#products"}
                   className={[
                     "storefront-nav-link storefront-mobile-nav-link",
                     location.pathname === "/" && location.hash === "#products" ? "storefront-nav-link-active" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  onClick={() => setMobileNavOpen(false)}
+                  onClick={(e) => {
+                    applyProductsGunNav('all');
+                    if (location.pathname === "/") {
+                      e.preventDefault();
+                      document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                    setMobileNavOpen(false);
+                  }}
                 >
                   {language === "lt" ? "Šautuvai" : "Products"}
-                </a>
+                </Link>
+                <Link
+                  to={location.pathname === "/" ? "#faq" : "/#faq"}
+                  className={[
+                    "storefront-nav-link storefront-mobile-nav-link",
+                    location.pathname === "/" && location.hash === "#faq" ? "storefront-nav-link-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={(e) => {
+                    if (location.pathname === "/") {
+                      e.preventDefault();
+                      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                    setMobileNavOpen(false);
+                  }}
+                >
+                  {language === "lt" ? "DUK" : "FAQ"}
+                </Link>
+                <Link
+                  to={location.pathname === "/" ? "#reviews" : "/#reviews"}
+                  className={[
+                    "storefront-nav-link storefront-mobile-nav-link",
+                    location.pathname === "/" && location.hash === "#reviews" ? "storefront-nav-link-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={(e) => {
+                    if (location.pathname === "/") {
+                      e.preventDefault();
+                      document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                    setMobileNavOpen(false);
+                  }}
+                >
+                  {language === "lt" ? "Atsiliepimai" : "Reviews"}
+                </Link>
               </nav>
               <div className="storefront-mobile-nav-foot">
                 <p className="storefront-mobile-nav-foot-ship">
@@ -1380,97 +1358,25 @@ function HomePage() {
             </div>
           </>
         )}
-        <div className="storefront-header-body">
-          <div className="storefront-header-track storefront-header-bar">
-            <div className="storefront-logo-cell">
-              <Link to="/" className="storefront-logo" aria-label={`${t.shopName} — pradžia`}>
-                <span className="storefront-logo-mark-wrap">
-                  <img
-                    src="/logo-32.webp"
-                    srcSet="/logo-32.webp 1x, /logo-64.webp 2x"
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="storefront-logo-mark"
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="high"
-                  />
-                </span>
-                <span className="storefront-logo-wordmark truncate">{t.shopName}</span>
-              </Link>
-            </div>
-            <nav className="storefront-nav-row" aria-label={language === 'lt' ? 'Pagrindinė navigacija' : 'Main navigation'}>
-              <NavLink
-                className={({ isActive }) => ['storefront-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
-                to="/"
-                end
-              >
-                {language === 'lt' ? 'Pagrindinis' : 'Home'}
-              </NavLink>
-              <NavLink
-                className={({ isActive }) => ['storefront-nav-link', isActive ? 'storefront-nav-link-active' : ''].filter(Boolean).join(' ')}
-                to="/kontaktai"
-              >
-                {language === 'lt' ? 'Kontaktai' : 'Contact'}
-              </NavLink>
-              <a
-                href="#products"
-                className={[
-                  'storefront-nav-link',
-                  location.pathname === '/' && location.hash === '#products' ? 'storefront-nav-link-active' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {language === 'lt' ? 'Šautuvai' : 'Products'}
-              </a>
-            </nav>
-            <div className="storefront-actions-cell flex items-center gap-0.5 sm:gap-1 md:min-h-[30px]">
-              <button
-                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:p-1"
-                type="button"
-                onClick={() => setWishlistOpen((s) => !s)}
-                title={t.wishlist}
-              >
-                <Heart className="w-5 h-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
-                    {wishlist.length}
-                  </span>
-                )}
-              </button>
-              <button
-                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:p-1"
-                type="button"
-                onClick={() => setCartOpen(true)}
-                title={t.cart}
-              >
-                <ShoppingCart className="w-5 h-5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-cta text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
-              <button
-                className="storefront-mobile-nav-trigger relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1.5 text-primary transition hover:bg-primary/10 hover:text-primaryDark md:hidden"
-                type="button"
-                aria-expanded={mobileNavOpen}
-                aria-controls="storefront-mobile-nav"
-                aria-haspopup="dialog"
-                onClick={() => setMobileNavOpen((o) => !o)}
-                title={language === "lt" ? "Meniu" : "Menu"}
-              >
-                {mobileNavOpen ? (
-                  <X className="h-6 w-6" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
-                ) : (
-                  <Menu className="h-6 w-6" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <WaterBattleHeader
+          language={language}
+          shopName={t.shopName}
+          location={location}
+          wishlistCount={wishlist.length}
+          totalItems={totalItems}
+          wishlistTitle={t.wishlist}
+          cartTitle={t.cart}
+          onWishlistClick={() => setWishlistOpen((s) => !s)}
+          onCartClick={() => setCartOpen(true)}
+          mobileNavOpen={mobileNavOpen}
+          setMobileNavOpen={setMobileNavOpen}
+          announcementText={
+            language === "lt"
+              ? "Nemokamas pristatymas nuo 80 € visoje Lietuvoje!"
+              : "Free shipping on orders over €80 across Lithuania!"
+          }
+          onProductsGunNav={applyProductsGunNav}
+        />
       </header>
 
       {/* Scroll-snap slideshow container – full viewport sections with entrance animations */}
@@ -1481,7 +1387,7 @@ function HomePage() {
           className="snap-slide hero-section"
         >
           <div className="slide-content w-full h-full">
-            <HeroSlideshow language={language} />
+            <NewHero language={language} />
           </div>
         </section>
 
@@ -1544,6 +1450,7 @@ function HomePage() {
 
         {/* Section 2: Pillow-style Why – two columns: text left, comparison table right */}
         <section
+          id="why"
           ref={(el) => {
             sectionRefs.current[1] = el;
           }}
@@ -1645,7 +1552,7 @@ function HomePage() {
       )}
 
       {/* Tikros akimirkos – full-width showcase */}
-      <div className="promo-shorts-section">
+      <div className="promo-shorts-section" id="clips">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="promo-shorts-heading">Tikros akimirkos iš vasaros mūšių</h2>
           <p className="promo-shorts-sub">Pažiūrėk, kaip atrodo tikras veiksmas su mūsų ginklais! 👀</p>
@@ -1785,7 +1692,7 @@ function HomePage() {
                         <div className="relative flex-1 flex items-center justify-center aspect-square w-full max-h-[min(72vw,380px)] sm:max-h-[min(65vw,440px)] lg:max-h-[min(54vh,500px)] mx-auto min-h-0 p-4 sm:p-5 lg:p-6 box-border cursor-[zoom-in]">
                           {discountPct > 0 && (
                             <span
-                              className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none inline-flex items-center rounded-full bg-cta px-3 py-1.5 text-sm sm:text-base font-black text-white shadow-[0_6px_20px_rgba(245,99,26,0.45)] ring-2 ring-white/90 tabular-nums"
+                              className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none inline-flex items-center rounded-full bg-cta px-3 py-1.5 text-sm sm:text-base font-black text-white shadow-[0_6px_20px_color-mix(in_srgb,var(--color-cta)_45%,transparent)] ring-2 ring-white/90 tabular-nums"
                               aria-hidden="true"
                             >
                               −{discountPct}%
@@ -1975,7 +1882,7 @@ function HomePage() {
         </section>
 
         {/* Section 5: Reviews */}
-        <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
+        <section id="reviews" ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
           <div className="slide-content w-full">
       <Suspense fallback={null}>
         <ReviewsSection />
@@ -1984,7 +1891,7 @@ function HomePage() {
         </section>
 
         {/* Section 6: FAQ + Newsletter + Footer – no bottom padding so footer is last */}
-        <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
+        <section id="faq" ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
           <div className="slide-content w-full">
       <Suspense fallback={null}>
         <FAQAccordion />
@@ -2695,7 +2602,7 @@ function HomePage() {
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                     {[
-                      { emoji: '🚀', tint: '#fff1e8', title: 'Greitas pristatymas', sub: '5–7 darbo dienos' },
+                      { emoji: '🚀', tint: '#fff1e8', title: 'Greitas pristatymas', sub: '4–6 dienas' },
                       { emoji: '✅', tint: '#f0fdf4', title: 'Kokybės garantija', sub: 'Aukštos kokybės medžiagos' },
                       { emoji: '🛡️', tint: '#e6f0ff', title: 'Saugus mokėjimas', sub: '256-bit šifravimas' },
                     ].map((b) => (
@@ -2744,7 +2651,7 @@ function HomePage() {
                       <span style={{ color: '#F5631A', fontSize: 13, letterSpacing: '-0.04em' }}>★★★★★</span>
                       <span style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>4.9</span>
                       <span style={{ fontSize: 12, color: '#6b7280' }}>
-                        ({products?.[0]?.reviews ?? initialProducts[0]?.reviews ?? 53} atsiliepimai)
+                        ({products?.[0]?.reviews ?? initialProducts[0]?.reviews ?? 127} atsiliepimai)
                       </span>
                       <span
                         style={{
@@ -3944,7 +3851,7 @@ function HomePage() {
                 <button
                   type="button"
                   onClick={() => setCheckoutLeaveConfirmOpen(false)}
-                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-[#ff9426] via-cta to-[#e05f00] px-5 py-4 text-center shadow-[0_14px_40px_-6px_rgba(255,122,0,0.75),0_4px_0_rgba(0,0,0,0.08)_inset] transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 motion-safe:animate-pulse sm:py-[1.15rem]"
+                  className="group relative checkout-leave-stay-btn w-full overflow-hidden rounded-xl px-5 py-4 text-center transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 motion-safe:animate-pulse sm:py-[1.15rem]"
                 >
                   <span className="flex items-center justify-center gap-2 text-base font-extrabold uppercase tracking-wide text-white drop-shadow-sm sm:text-lg">
                     {mysteryInCart ? t.checkoutLeaveStayMystery : t.checkoutLeaveStayCta}

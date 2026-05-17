@@ -10,8 +10,31 @@
   --color-primary: #0EA5E9;
   --color-primaryDark: #0284C7;
   --color-footer: #0f172a;
-  --color-cta: #FF7A00;
-  --color-ctaHover: #E66D00;
+  --color-cta: #d9486f;
+  --color-ctaHover: #c4375d;
+  /* Site CTA fills — softened pink ⇄ coral ⇄ amber (shared with WB hero button) */
+  --gradient-cta-ui: linear-gradient(
+    112deg,
+    #ddb0d8 0%,
+    #e895be 14%,
+    #f098a5 32%,
+    #f89f82 54%,
+    #fb974e 73%,
+    #ff9740 89%,
+    #ff982f 100%
+  );
+  --gradient-cta-ui-hover: linear-gradient(
+    112deg,
+    #c98fb5 0%,
+    #d97aa3 18%,
+    #e87386 38%,
+    #ed7658 56%,
+    #f06922 74%,
+    #ea6310 89%,
+    #dd4f0f 100%
+  );
+  --gradient-cta-wb: var(--gradient-cta-ui);
+  --gradient-cta-wb-hover: var(--gradient-cta-ui-hover);
   --color-success: #22C55E;
   --color-text: #0F172A;
   --color-muted: #64748B;
@@ -144,4 +167,30 @@ body {
   :root {
     --container-padding: var(--space-4);
   }
+}
+
+.bg-brand-orange,
+.bg-cta {
+  background-color: transparent !important;
+  background-image: var(--gradient-cta-ui) !important;
+  background-repeat: no-repeat !important;
+  background-size: 142% 100% !important;
+  background-position: 38% 50% !important;
+}
+
+.hover\:bg-brand-orange-hover:hover,
+.hover\:bg-ctaHover:hover {
+  background-color: transparent !important;
+  background-image: var(--gradient-cta-ui-hover) !important;
+}
+
+.checkout-leave-stay-btn {
+  box-shadow:
+    0 14px 40px -6px color-mix(in srgb, var(--color-cta) 52%, transparent),
+    0 4px 0 rgba(0, 0, 0, 0.08) inset;
+  background-color: transparent !important;
+  background-image: var(--gradient-cta-ui) !important;
+  background-repeat: no-repeat !important;
+  background-size: 142% 100% !important;
+  background-position: 38% 50% !important;
 }

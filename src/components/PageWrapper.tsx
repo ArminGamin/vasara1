@@ -4,13 +4,13 @@ import { BLOG_AUTHOR } from '../data/blogMeta';
 import { resolveRelatedBlogEntries } from '../data/blogEntries';
 
 const SITE_NAME = 'Vasaros Kampelis';
-const DEFAULT_DESC = 'Galingi vandens šautuvai ir blasteriai iki 10m šūvio. Mėlyna ir rožinė spalva. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 5–7 d.';
+const DEFAULT_DESC = 'Galingi vandens šautuvai ir blasteriai iki 10m šūvio. Mėlyna ir rožinė spalva. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 4–6 dienas.';
 const SITE_ORIGIN = 'https://vasaroskampelis.com';
 const DEFAULT_OG_TITLE = 'Vasaros Kampelis – Vandens šautuvai ir blasteriai Lietuvoje';
 const DEFAULT_INDEX_AUTHOR = 'Vasaros Kampelis';
 const BLOG_META_SCRIPT_ID = 'blog-posting-schema';
 const DEFAULT_OG_DESCRIPTION =
-  'Galingi vandens šautuvai iki 10m. Mėlyna ir rožinė. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 5–7 d.';
+  'Galingi vandens šautuvai iki 10m. Mėlyna ir rožinė. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 4–6 dienas.';
 const DEFAULT_OG_IMAGE = 'https://vasaroskampelis.com/hero-pink-ar.webp';
 
 export { SITE_NAME, DEFAULT_DESC };

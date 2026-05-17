@@ -72,7 +72,7 @@ a:focus-visible,
 .bg-cta:focus-visible,
 button.bg-cta:focus-visible,
 a.bg-cta:focus-visible {
-  box-shadow: 0 0 0 3px var(--color-surface, #fff), 0 0 0 5px var(--color-cta, #FF7A00);
+  box-shadow: 0 0 0 3px var(--color-surface, #fff), 0 0 0 5px var(--color-cta, #d9486f);
 }
 
 /* Mobile-specific optimizations */
@@ -428,9 +428,15 @@ button, a, .transition {
 
 /* Hero CTA – orange primary */
 @keyframes kk-cta-glow {
-  0%   { box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3), 0 0 0 rgba(255,106,0,0); }
-  50%  { box-shadow: 0 12px 36px rgba(255, 106, 0, 0.4), 0 0 12px rgba(255,106,0,0.25); }
-  100% { box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3), 0 0 0 rgba(255,106,0,0); }
+  0% {
+    box-shadow: 0 8px 24px rgba(217, 72, 111, 0.3), 0 0 0 rgba(217, 72, 111, 0);
+  }
+  50% {
+    box-shadow: 0 12px 36px rgba(217, 72, 111, 0.42), 0 0 12px rgba(217, 72, 111, 0.24);
+  }
+  100% {
+    box-shadow: 0 8px 24px rgba(217, 72, 111, 0.3), 0 0 0 rgba(217, 72, 111, 0);
+  }
 }
 
 .cta-glow {
@@ -469,7 +475,7 @@ button, a, .transition {
   position: absolute;
   inset: -6px;
   border-radius: inherit;
-  box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.35);
+  box-shadow: 0 0 0 3px rgba(217, 72, 111, 0.38);
   animation: kk-pulse-ring 2s ease-out infinite;
 }
 

@@ -14,7 +14,7 @@ Mažesniems vaikams rekomenduojame žaisti prižiūrint suaugusiesiems, kad pram
   },
   {
     q: 'Kiek laiko trunka pristatymas?',
-    a: `Užsakymus pristatome per 5-7 darbo dienas.
+    a: `Užsakymus pristatome per 4–6 dienas.
 Stengiamės, kad jūsų siunta jus pasiektų kuo greičiau. 🚀
 
 🔹 Užsakymams nuo 80 € - pristatymas nemokamas.
