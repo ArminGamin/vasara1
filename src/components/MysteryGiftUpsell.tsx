@@ -19,10 +19,7 @@ export const MysteryGiftUpsell: React.FC<MysteryGiftUpsellProps> = ({ isInCart, 
     <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e5e7eb' }}>
       <style>{`
         .mgu-card { transition: background-color 240ms ${SPRING}, border-color 240ms ${SPRING}; }
-        .mgu-btn {
-          transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
-        }
-        .mgu-btn:hover { background-color: #F5631A !important; color: #ffffff !important; border-color: #F5631A !important; }
+        .mgu-btn { transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, background-image 160ms ease, filter 160ms ease; }
       `}</style>
 
       <div
@@ -74,7 +71,7 @@ export const MysteryGiftUpsell: React.FC<MysteryGiftUpsellProps> = ({ isInCart, 
             <span style={{ fontSize: 11.5, color: '#9ca3af', textDecoration: 'line-through' }}>
               €{MYSTERY_GIFT.originalPrice.toFixed(2)}
             </span>
-            <span style={{ fontSize: 13, fontWeight: 800, color: '#F5631A' }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-cta)' }}>
               €{MYSTERY_GIFT.price.toFixed(2)}
             </span>
           </div>
@@ -96,7 +93,7 @@ export const MysteryGiftUpsell: React.FC<MysteryGiftUpsellProps> = ({ isInCart, 
         <button
           type="button"
           onClick={handleClick}
-          className="mgu-btn"
+          className={`mgu-btn ${isInCart ? '' : 'mgu-add'}`}
           style={{
             flexShrink: 0,
             height: 34,

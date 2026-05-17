@@ -385,7 +385,9 @@ export const SocialProofToast: React.FC<SocialProofToastProps> = ({
             aria-hidden
             className="absolute left-0 bottom-0 h-0.5 w-full origin-left"
             style={{
-              backgroundColor: '#F97316',
+              backgroundImage: 'var(--gradient-cta-ui)',
+              backgroundSize: '240% 100%',
+              backgroundPosition: 'left center',
               animation: `sp-progress ${displayMs}ms linear forwards`,
             }}
           />

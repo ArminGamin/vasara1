@@ -21,7 +21,7 @@ function ReviewCard({ r }: { r: (typeof STOREFRONT_REVIEWS)[0] }) {
       <span className="sr-only">{`Vertinimas: ${r.rating} iš 5 žvaigždžių`}</span>
       <div className="flex gap-0.5 mt-2" aria-hidden="true">
         {[...Array(5)].map((_, j) => (
-          <Star key={j} className={`w-4 h-4 ${j < r.rating ? 'text-cta fill-cta' : 'text-border'}`} />
+          <Star key={j} className={`w-4 h-4 ${j < r.rating ? 'text-brand-gold fill-brand-gold' : 'text-border fill-none'}`} />
         ))}
       </div>
       <p className="revo-review-text">{r.text}</p>

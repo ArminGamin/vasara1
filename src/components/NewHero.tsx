@@ -84,18 +84,18 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
         lineDark: 'Elektrinis',
         lineBlueA: 'vandens',
         lineBlueB: 'šautuvas',
-        sub: 'Galingas. Automatinis. Iki 10 m šūvio nuotolis.',
+        sub: 'Galingas. Taiklus. Automatinis.',
         feats: [
           { val: 'IKI 10M', lab: 'šūvio nuotolis' },
-          { val: '800 ML', lab: 'talpos rezervuaras' },
+          { val: '800 ML', lab: 'talpos bakelis' },
           { val: 'AUTOMATINIS', lab: 'elektrinis veikimas' },
-          { val: 'SAUGUS', lab: 'ir patikimas' },
+          { val: 'SAUGUS', lab: 'ir patogus' },
         ],
         cta: 'Pirkti dabar',
         socialStrong: '+99',
         socialSpan: 'Laimingų klientų',
         glass: [
-          { title: 'Greitas pristatymas', sub: '4–6 dienas visoje Lietuvoje' },
+          { title: 'Greitas pristatymas', sub: '4–6 dienos visoje Lietuvoje' },
           { title: 'Kokybės garantija', sub: 'Aukštos kokybės medžiagos' },
           { title: 'Saugus apmokėjimas', sub: '100 % apsaugoti duomenys' },
         ],
@@ -107,7 +107,7 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
         lineDark: 'Electric',
         lineBlueA: 'water',
         lineBlueB: 'blaster',
-        sub: 'Powerful. Automatic. Up to 10 m shooting range.',
+        sub: 'Powerful. Precise. Automatic.',
         feats: [
           { val: 'UP TO 10M', lab: 'shooting range' },
           { val: '800 ML', lab: 'tank capacity' },
@@ -215,10 +215,10 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
 
         <div className="wb-hero-features">
           {copy.feats.map((f, i) => (
-            <div key={f.val} className="wb-hero-feature">
+            <div key={`feat-${i}`} className="wb-hero-feature">
               {FEATURE_ICONS[i]}
               <div className="wb-hero-feature-val wb-heading-font">{f.val}</div>
-              <div className="wb-hero-feature-label wb-ui-font">{f.lab}</div>
+              {f.lab ? <div className="wb-hero-feature-label wb-ui-font">{f.lab}</div> : null}
             </div>
           ))}
         </div>

@@ -32,7 +32,7 @@ export default {
         "brand-urgency": "var(--color-cta)",
         "brand-guarantee": "rgba(34, 197, 94, 0.2)",
         "brand-faq": "var(--color-surface)",
-        "brand-gold": "#eab308",
+        "brand-gold": "var(--color-review-star)",
         "brand-gray": "var(--color-muted)",
       },
       fontSize: {

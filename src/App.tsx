@@ -698,9 +698,9 @@ function HomePage() {
   }, [checkoutOpen]);
   
   const renderStars = useCallback((_rating: number, size: string = 'w-4 h-4') => (
-    <div className="flex text-brand-gold">
+    <div className="flex">
       {[...Array(5)].map((_, i) => (
-        <Star key={i} className={`${size} fill-brand-gold`} />
+        <Star key={i} className={`${size} text-brand-gold fill-brand-gold`} />
       ))}
     </div>
   ), []);
@@ -2199,18 +2199,10 @@ function HomePage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <h2 style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em' }}>Krepšelis</h2>
                       {n > 0 && (
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 700,
-                            color: '#F5631A',
-                            backgroundColor: '#fff1e8',
-                            padding: '3px 9px',
-                            borderRadius: 999,
-                            lineHeight: 1,
-                          }}
-                        >
-                          {n} {itemsWord}
+                        <span className="cart-item-count-badge">
+                          <span className="cart-item-count-badge__text">
+                            {n} {itemsWord}
+                          </span>
                         </span>
                       )}
                     </div>
@@ -2268,14 +2260,8 @@ function HomePage() {
                       }}
                     >
                       <div
-                        style={{
-                          width: `${percent}%`,
-                          height: '100%',
-                          borderRadius: 3,
-                          background: isFreeShipping ? '#16a34a' : 'linear-gradient(90deg, #f5a623, #16a34a)',
-                          transition: 'width 320ms cubic-bezier(0.16, 1, 0.3, 1), background-color 240ms ease',
-                          boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.25) inset',
-                        }}
+                        className={`cart-shipping-progress-fill ${isFreeShipping ? 'cart-shipping-progress-fill--complete' : 'cart-shipping-progress-fill--active'}`}
+                        style={{ width: `${percent}%` }}
                       />
                     </div>
                   </div>
@@ -2309,8 +2295,8 @@ function HomePage() {
                   <p className="text-gray-500 mb-4">{t.emptyCart}</p>
                   <button
                     onClick={() => setCartOpen(false)}
-                    className="px-4 py-2 rounded-lg text-sm text-white"
-                    style={{ backgroundColor: '#F5631A' }}
+                    type="button"
+                    className="cta-fill-gradient px-4 py-2 rounded-lg text-sm font-semibold min-h-[48px] w-full max-w-xs mx-auto"
                   >
                     {t.continueShopping}
                   </button>
@@ -2433,10 +2419,6 @@ function HomePage() {
                 const orderTotalEur = orderCents / 100;
                 return (
                   <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid #e5e7eb' }}>
-                    <style>{`
-                      .checkout-cta { transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, background-color 200ms ease; }
-                      .checkout-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(245, 99, 26, 0.38); background-color: #e35614; }
-                    `}</style>
                     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
                       <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>Viso mokėti</span>
                       <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', fontVariantNumeric: 'tabular-nums' }}>
@@ -2458,7 +2440,7 @@ function HomePage() {
                         } catch {}
                         setCheckoutOpen(true);
                       }}
-                      className="checkout-cta"
+                      className="checkout-cta cta-fill-gradient"
                       style={{
                         width: '100%',
                         display: 'flex',
@@ -2466,9 +2448,7 @@ function HomePage() {
                         justifyContent: 'space-between',
                         padding: '14px 18px',
                         borderRadius: 11,
-                        backgroundColor: '#F5631A',
                         color: '#ffffff',
-                        boxShadow: '0 4px 20px rgba(245, 99, 26, 0.3)',
                         border: 'none',
                         cursor: 'pointer',
                         minHeight: 48,
@@ -2602,7 +2582,7 @@ function HomePage() {
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                     {[
-                      { emoji: '🚀', tint: '#fff1e8', title: 'Greitas pristatymas', sub: '4–6 dienas' },
+                      { emoji: '🚀', tint: '#fdf2f8', title: 'Greitas pristatymas', sub: '4–6 dienos' },
                       { emoji: '✅', tint: '#f0fdf4', title: 'Kokybės garantija', sub: 'Aukštos kokybės medžiagos' },
                       { emoji: '🛡️', tint: '#e6f0ff', title: 'Saugus mokėjimas', sub: '256-bit šifravimas' },
                     ].map((b) => (
@@ -2648,7 +2628,7 @@ function HomePage() {
                   {/* Reviews summary */}
                   <div style={{ marginTop: 22 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <span style={{ color: '#F5631A', fontSize: 13, letterSpacing: '-0.04em' }}>★★★★★</span>
+                      <span style={{ color: 'var(--color-review-star)', fontSize: 13, letterSpacing: '-0.04em' }}>★★★★★</span>
                       <span style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>4.9</span>
                       <span style={{ fontSize: 12, color: '#6b7280' }}>
                         ({products?.[0]?.reviews ?? initialProducts[0]?.reviews ?? 127} atsiliepimai)
@@ -2708,7 +2688,7 @@ function HomePage() {
                             style={{ letterSpacing: '-0.04em', display: 'block', marginBottom: 4, fontSize: 10 }}
                           >
                             {[0, 1, 2, 3, 4].map((i) => (
-                              <span key={i} style={{ color: i < r.rating ? '#F5631A' : '#e5e7eb' }}>★</span>
+                              <span key={i} style={{ color: i < r.rating ? 'var(--color-review-star)' : 'var(--color-review-star-empty)' }}>★</span>
                             ))}
                           </span>
                           <p style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.4 }}>{r.text}</p>
@@ -2731,8 +2711,16 @@ function HomePage() {
                             width: i === cartReviewDotIndex ? 18 : 6,
                             height: 6,
                             borderRadius: 999,
-                            backgroundColor: i === cartReviewDotIndex ? '#F5631A' : '#e5e7eb',
-                            transition: 'width 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease',
+                            ...(i === cartReviewDotIndex
+                              ? {
+                                  backgroundColor: 'transparent',
+                                  backgroundImage: 'var(--gradient-cta-ui)',
+                                  backgroundSize: '220% 100%',
+                                  backgroundPosition: 'center',
+                                }
+                              : { backgroundColor: '#e5e7eb' }),
+                            transition:
+                              'width 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, background-image 200ms ease',
                           }}
                         />
                       ))}
@@ -2843,7 +2831,7 @@ function HomePage() {
                       {[...Array(5)].map((_, i) => {
                         const filled = i < Math.round(selectedProduct.rating);
                         return (
-                          <Star key={i} className={`w-4 h-4 ${filled ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
+                          <Star key={i} className={`w-4 h-4 ${filled ? 'text-brand-gold fill-brand-gold' : 'text-gray-300 fill-none'}`} />
                         );
                       })}
                     </div>
@@ -3193,7 +3181,7 @@ function HomePage() {
                       <span>Greitas Pristatymas</span>
                     </div>
                     <div className="product-modal-guarantee-item">
-                      <Star className="w-5 h-5 text-amber-400 fill-amber-400 flex-shrink-0" />
+                      <Star className="w-5 h-5 text-brand-gold fill-brand-gold flex-shrink-0" />
                       <span>Top pasirinkimas</span>
                     </div>
                     <div className="product-modal-guarantee-item">
