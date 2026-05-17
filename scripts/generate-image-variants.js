@@ -11,11 +11,18 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 
 // Hero: 480w, 768w, 1024w for mobile/tablet/desktop
 const HERO_WIDTHS = [480, 768, 1024];
-// Product: 306w (thumb/card), 512w (medium), 612w (detail), 1024w (large)
-const PRODUCT_WIDTHS = [306, 512, 612, 1024];
+// Product: 240w (small mobile gallery), 306w (thumb/card), 512w (medium), 612w (detail), 1024w (large)
+const PRODUCT_WIDTHS = [240, 306, 512, 612, 1024];
 // Review avatars: 88w for 44px display at 2x retina (used in ReviewsSection)
 const AVATAR_WIDTH = 88;
 const REVIEW_AVATARS = ['giedre1.png', 'tomas2.png', 'mantas1.jpg', 'ruta1.jpg', 'jonas1.jpg', 'andrius3.jpg'];
+// Logo variants: 32/64 for the 32px header mark (1x/2x), 220/440 for the 176px footer (1x/2x).
+const LOGO_VARIANTS = [
+  { width: 32, name: 'logo-32.webp' },
+  { width: 64, name: 'logo-64.webp' },
+  { width: 220, name: 'logo-220.webp' },
+  { width: 440, name: 'logo-440.webp' },
+];
 
 async function ensureVariant(srcPath, formatExt) {
   const dir = path.dirname(srcPath);
@@ -102,6 +109,24 @@ async function processReviewAvatars() {
   }
 }
 
+async function processLogoVariants() {
+  const srcPath = path.join(PUBLIC_DIR, 'logo.png');
+  if (!fs.existsSync(srcPath)) return;
+  for (const { width, name } of LOGO_VARIANTS) {
+    const out = path.join(PUBLIC_DIR, name);
+    if (fs.existsSync(out)) continue;
+    try {
+      await sharp(srcPath)
+        .resize({ width, fit: 'inside', withoutEnlargement: false })
+        .toFormat('webp', { quality: 88 })
+        .toFile(out);
+      console.log('Generated', out.replace(ROOT, ''));
+    } catch (e) {
+      console.warn('Skip logo variant', name, e?.message || e);
+    }
+  }
+}
+
 async function processHeroAndProductImages() {
   if (!fs.existsSync(PUBLIC_DIR)) return;
   const files = fs.readdirSync(PUBLIC_DIR);
@@ -130,6 +155,7 @@ async function main() {
   }
   tasks.push(processHeroAndProductImages());
   tasks.push(processReviewAvatars());
+  tasks.push(processLogoVariants());
   await Promise.all(tasks).catch((e) => {
     console.error('Image variant generation failed:', e);
     process.exit(0);

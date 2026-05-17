@@ -13,33 +13,37 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 # Cache Control for Static Assets (images, JS, CSS)
+# NOTE: This file is a fallback for Netlify-style hosts. Production runs on Vercel
+# and the rules in vercel.json take precedence. Keep the two in sync.
+# Hashed build output under /assets/* is safe to cache forever.
+# Unhashed root files (e.g. /blue1.webp, /logo-32.webp) stay at 30 days so swap-outs invalidate.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
-  
+
 /*.js
   Cache-Control: public, max-age=31536000, immutable
-  
+
 /*.css
   Cache-Control: public, max-age=31536000, immutable
 
 /*.jpg
   Cache-Control: public, max-age=2592000
-  
+
 /*.jpeg
   Cache-Control: public, max-age=2592000
-  
+
 /*.png
   Cache-Control: public, max-age=2592000
-  
+
 /*.webp
   Cache-Control: public, max-age=2592000
-  
+
 /*.svg
   Cache-Control: public, max-age=2592000
-  
+
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
-  
+
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 

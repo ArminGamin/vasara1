@@ -21,8 +21,11 @@ export function TrustBadges() {
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
             alt="Mastercard"
+            width={38}
+            height={24}
             className="h-6 opacity-70 object-contain"
             loading="lazy"
+            decoding="async"
           />
           <div className="bg-surface border border-border px-2 py-1 rounded">
             <span className="text-primary font-bold text-xs">VISA</span>

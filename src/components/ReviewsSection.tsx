@@ -39,16 +39,24 @@ export function ReviewsSection() {
     const el = scrollRef.current;
     if (!el) return;
 
+    let half = el.scrollWidth / 2;
+    const ro = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => { half = el.scrollWidth / 2; })
+      : null;
+    ro?.observe(el);
+
     let raf: number;
     const scroll = () => {
       if (paused || !el) return;
-      const half = el.scrollWidth / 2;
       el.scrollLeft += 0.4;
       if (el.scrollLeft >= half - 1) el.scrollLeft = 0;
       raf = requestAnimationFrame(scroll);
     };
     raf = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro?.disconnect();
+    };
   }, [paused]);
 
   const handleTouchStart = () => {

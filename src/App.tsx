@@ -30,14 +30,14 @@ import { useCartStore } from "./store/cartStore";
 import { useProductStore } from "./store/productStore";
 import { initialProducts } from "./data/products";
 import { MYSTERY_GIFT } from "./data/mysteryGift";
-import { MysteryGiftUpsell } from "./components/MysteryGiftUpsell";
-import { SocialProofToast } from "./components/SocialProofToast";
 import { BRAND } from "./config/brand";
 import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from "./data/storefrontReviews";
 import { SITE_NAME, DEFAULT_DESC } from './components/PageWrapper';
-import { ReviewsSection } from "./components/ReviewsSection";
-import { FAQAccordion } from "./components/FAQAccordion";
 // Lazy-load below-fold components – defers framer-motion and reduces main-thread work
+const MysteryGiftUpsell = lazy(() => import("./components/MysteryGiftUpsell").then((m) => ({ default: m.MysteryGiftUpsell })));
+const SocialProofToast = lazy(() => import("./components/SocialProofToast").then((m) => ({ default: m.SocialProofToast })));
+const ReviewsSection = lazy(() => import("./components/ReviewsSection").then((m) => ({ default: m.ReviewsSection })));
+const FAQAccordion = lazy(() => import("./components/FAQAccordion").then((m) => ({ default: m.FAQAccordion })));
 const CookieConsent = lazy(() => import("./components/CookieConsent").then((m) => ({ default: m.default })));
 const LanguageDetectionPopup = lazy(() => import("./components/LanguageDetectionPopup").then((m) => ({ default: m.LanguageDetectionPopup })));
 const ComparisonTable = lazy(() => import("./components/ComparisonTable").then((m) => ({ default: m.ComparisonTable })));
@@ -78,13 +78,18 @@ function heroSrcSet(base: string) {
   const b = base.replace(/\.webp$/, '');
   return `${b}-480w.webp 480w, ${b}-768w.webp 768w, ${b}-1024w.webp 1024w, ${base} 1920w`;
 }
-// Product images (blue1.webp, pink2.webp, etc.) have 306/512/612/1024w variants from prebuild
-const PRODUCT_WIDTHS = [306, 512, 612, 1024];
+// Product images (blue1.webp, pink2.webp, etc.) have 240/306/512/612/1024w variants from prebuild
+const PRODUCT_WIDTHS = [240, 306, 512, 612, 1024];
 function productSrcSet(path: string): string | undefined {
   const normalized = path.startsWith('/') ? path : '/' + path;
   if (!/^\/(blue|pink|bluepistol|pinkpistol)\d+\.webp$/i.test(normalized)) return undefined;
   const base = normalized.replace(/\.webp$/i, '');
   return PRODUCT_WIDTHS.map((w) => `${base}-${w}w.webp ${w}w`).join(', ');
+}
+function productSmallestSrc(path: string): string {
+  const normalized = path.startsWith('/') ? path : '/' + path;
+  if (!/^\/(blue|pink|bluepistol|pinkpistol)\d+\.webp$/i.test(normalized)) return normalized;
+  return normalized.replace(/\.webp$/i, `-${PRODUCT_WIDTHS[0]}w.webp`);
 }
 
 const PDP_STOCK_CAP = 24;
@@ -279,38 +284,44 @@ function HomePage() {
   const scrollCartReviewToIndex = useCallback((i: number) => {
     const el = cartReviewsScrollRef.current;
     if (!el) return;
-    const card = el.children.item(i) as HTMLElement | null;
-    if (!card) return;
-    el.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
-    setCartReviewDotIndex(i);
+    requestAnimationFrame(() => {
+      const card = el.children.item(i) as HTMLElement | null;
+      if (!card) return;
+      const targetLeft = card.offsetLeft;
+      el.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      setCartReviewDotIndex(i);
+    });
   }, []);
 
   const onCartReviewsScroll = useCallback(() => {
     const el = cartReviewsScrollRef.current;
     if (!el || el.children.length === 0) return;
-    const n = el.children.length;
-    const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
-    const left = el.scrollLeft;
-    const tol = 4;
-    let best = 0;
-    if (maxScroll <= tol) {
-      best = 0;
-    } else if (left >= maxScroll - tol) {
-      best = n - 1;
-    } else if (left <= tol) {
-      best = 0;
-    } else {
-      let bestDist = Infinity;
-      for (let j = 0; j < n; j++) {
-        const c = el.children.item(j) as HTMLElement;
-        const dist = Math.abs(c.offsetLeft - left);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = j;
+    requestAnimationFrame(() => {
+      // Batch every layout read into one rAF window to avoid forced reflow when scroll fires mid-paint.
+      const n = el.children.length;
+      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+      const left = el.scrollLeft;
+      const tol = 4;
+      let best = 0;
+      if (maxScroll <= tol) {
+        best = 0;
+      } else if (left >= maxScroll - tol) {
+        best = n - 1;
+      } else if (left <= tol) {
+        best = 0;
+      } else {
+        let bestDist = Infinity;
+        for (let j = 0; j < n; j++) {
+          const c = el.children.item(j) as HTMLElement;
+          const dist = Math.abs(c.offsetLeft - left);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = j;
+          }
         }
       }
-    }
-    setCartReviewDotIndex((prev) => (prev !== best ? best : prev));
+      setCartReviewDotIndex((prev) => (prev !== best ? best : prev));
+    });
   }, []);
 
   useEffect(() => {
@@ -437,13 +448,12 @@ function HomePage() {
 
     let index = 0;
     const burst = () => {
-      // Prefetch in small bursts to avoid blocking other requests
       for (let k = 0; k < 3 && index < sources.length; k++, index++) {
         const src = sources[index];
         const img = new Image();
         (img as any).loading = 'eager';
         img.decoding = 'async';
-        img.src = src;
+        img.src = productSmallestSrc(src);
       }
       if (index < sources.length) setTimeout(burst, 200);
     };
@@ -1039,6 +1049,12 @@ function HomePage() {
     };
   }, [isMobile, productModalOpen, cartOpen]);
 
+  // Lazy-load the product modal stylesheet on first open – keeps ~5 KB of CSS off initial load
+  useEffect(() => {
+    if (!productModalOpen) return;
+    import('./styles/product-modal.css').catch(() => {});
+  }, [productModalOpen]);
+
   // Tab title: when user switches to another tab, flash between site name and "come back" message
   const TAB_TITLE_DEFAULT = 'Vasaros Kampelis | Vandens šautuvai ir vasaros žaidimai';
   useEffect(() => {
@@ -1356,10 +1372,11 @@ function HomePage() {
               <Link to="/" className="storefront-logo" aria-label={`${t.shopName} — pradžia`}>
                 <span className="storefront-logo-mark-wrap">
                   <img
-                    src="/logo.png"
+                    src="/logo-32.webp"
+                    srcSet="/logo-32.webp 1x, /logo-64.webp 2x"
                     alt=""
-                    width={96}
-                    height={96}
+                    width={32}
+                    height={32}
                     className="storefront-logo-mark"
                     loading="eager"
                     decoding="async"
@@ -1770,7 +1787,7 @@ function HomePage() {
                             decoding="async"
                             width={600}
                             height={600}
-                            sizes="(max-width: 768px) 85vw, 55vw"
+                            sizes="(max-width: 768px) min(72vw, 380px), (max-width: 1024px) 45vw, 500px"
                           />
                         </div>
                       </div>
@@ -1946,14 +1963,18 @@ function HomePage() {
         {/* Section 5: Reviews */}
         <section ref={(el) => { sectionRefs.current[3] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
           <div className="slide-content w-full">
-      <ReviewsSection />
+      <Suspense fallback={null}>
+        <ReviewsSection />
+      </Suspense>
           </div>
         </section>
 
         {/* Section 6: FAQ + Newsletter + Footer – no bottom padding so footer is last */}
         <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-slide snap-auto bg-bg" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
           <div className="slide-content w-full">
-      <FAQAccordion />
+      <Suspense fallback={null}>
+        <FAQAccordion />
+      </Suspense>
 
       {/* Newsletter */}
       <section className="relative bg-bg pt-0 pb-6 md:pb-8 px-4 sm:px-6 lg:px-8 text-center overflow-hidden cv-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
@@ -2089,7 +2110,8 @@ function HomePage() {
                 aria-label={`${t.shopName} — pradžia`}
               >
                 <img
-                  src="/logo.png"
+                  src="/logo-220.webp"
+                  srcSet="/logo-220.webp 1x, /logo-440.webp 2x"
                   alt=""
                   width={176}
                   height={56}
@@ -2206,7 +2228,7 @@ function HomePage() {
                 className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
                 aria-hidden
               >
-                <img src="/Mastercard-logo.png" alt="" className="max-h-[1rem] w-auto max-w-[3.125rem] object-contain opacity-95" loading="lazy" decoding="async" />
+                <img src="/Mastercard-logo.png" alt="" width={50} height={16} className="max-h-[1rem] w-auto max-w-[3.125rem] object-contain opacity-95" loading="lazy" decoding="async" />
               </div>
               <div
                 className="flex h-[2.375rem] min-w-[3.625rem] items-center justify-center rounded-[10px] border border-white/90 bg-white/75 px-2.5 shadow-[0_1px_4px_rgba(15,23,42,0.07)] backdrop-blur-[8px]"
@@ -2468,19 +2490,21 @@ function HomePage() {
 
               {/* Mystery Gift Upsell */}
               {totalItems > 0 && (
-                <MysteryGiftUpsell
-                  isInCart={mysteryInCart}
-                  onAdd={() => addItem({
-                    productId: MYSTERY_GIFT.productId,
-                    name: MYSTERY_GIFT.name,
-                    price: MYSTERY_GIFT.price,
-                    image: MYSTERY_GIFT.image,
-                    quantity: 1,
-                    selectedColor: MYSTERY_GIFT.selectedColor,
-                    selectedSize: MYSTERY_GIFT.selectedSize,
-                  })}
-                  onRemove={() => { if (mysteryGiftCartItem) removeItem(mysteryGiftCartItem.id); }}
-                />
+                <Suspense fallback={null}>
+                  <MysteryGiftUpsell
+                    isInCart={mysteryInCart}
+                    onAdd={() => addItem({
+                      productId: MYSTERY_GIFT.productId,
+                      name: MYSTERY_GIFT.name,
+                      price: MYSTERY_GIFT.price,
+                      image: MYSTERY_GIFT.image,
+                      quantity: 1,
+                      selectedColor: MYSTERY_GIFT.selectedColor,
+                      selectedSize: MYSTERY_GIFT.selectedSize,
+                    })}
+                    onRemove={() => { if (mysteryGiftCartItem) removeItem(mysteryGiftCartItem.id); }}
+                  />
+                </Suspense>
               )}
 
               {/* Checkout Footer */}
@@ -3952,7 +3976,9 @@ function HomePage() {
       {showCookie ? <Suspense fallback={null}><CookieConsent /></Suspense> : null}
 
       {/* Social Proof Toast */}
-      <SocialProofToast checkoutOpen={checkoutOpen} isMobile={isMobile} displayedStockLeft={pdpDisplayedStockLeft} />
+      <Suspense fallback={null}>
+        <SocialProofToast checkoutOpen={checkoutOpen} isMobile={isMobile} displayedStockLeft={pdpDisplayedStockLeft} />
+      </Suspense>
     </div>
     </>
   );
