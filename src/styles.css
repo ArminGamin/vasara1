@@ -200,6 +200,7 @@ body {
 
 /** Overrides inline orange (#F5631A…) on cart drawer & checkout ribbon */
 .cta-fill-gradient {
+  color: #ffffff;
   background-color: transparent !important;
   background-image: var(--gradient-cta-ui) !important;
   background-repeat: no-repeat !important;
