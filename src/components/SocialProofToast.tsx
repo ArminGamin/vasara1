@@ -157,7 +157,7 @@ function sliceLine(slice: ToastSlice, viewersNow: number): string {
   if (slice.kind === 'viewers')
     return `${slice.icon} ${viewersNow} ${lt(viewersNow, 'žmogus', 'žmonės', 'žmonių')} šiuo metu žiūri`;
   if (slice.kind === 'package')
-    return `${slice.icon} Pirktas prieš ${slice.mins} min iš ${slice.city}`;
+    return `${slice.icon} Pirkta prieš ${slice.mins} min iš ${slice.city}`;
   return `${slice.icon} ${slice.text}`;
 }
 

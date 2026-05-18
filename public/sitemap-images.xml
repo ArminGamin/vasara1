@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://vasaroskampelis.com/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     
     <image:image>
       <image:loc>https://vasaroskampelis.com/logo.png</image:loc>
@@ -11,23 +11,13 @@
     </image:image>
 
     <image:image>
-      <image:loc>https://vasaroskampelis.com/hero-pink-ar.webp</image:loc>
-      <image:title>Vandens šautuvas – rožinis</image:title>
+      <image:loc>https://vasaroskampelis.com/hero-blue-11.webp</image:loc>
+      <image:title>Vandens šautuvas – hero</image:title>
     </image:image>
 
     <image:image>
-      <image:loc>https://vasaroskampelis.com/hero-blue-ar.webp</image:loc>
-      <image:title>Vandens šautuvas – mėlynas</image:title>
-    </image:image>
-
-    <image:image>
-      <image:loc>https://vasaroskampelis.com/hero-pink-glock.webp</image:loc>
-      <image:title>Vandens pistoletas – rožinis</image:title>
-    </image:image>
-
-    <image:image>
-      <image:loc>https://vasaroskampelis.com/hero-blue-glock.webp</image:loc>
-      <image:title>Vandens pistoletas – mėlynas</image:title>
+      <image:loc>https://vasaroskampelis.com/hero-blue-22.webp</image:loc>
+      <image:title>Vandens šautuvas – hero variantas</image:title>
     </image:image>
 
     <image:image>

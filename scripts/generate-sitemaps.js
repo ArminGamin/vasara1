@@ -111,10 +111,8 @@ const productsXml = `<?xml version="1.0" encoding="UTF-8"?>
 // sitemap-images.xml – only images used by the site
 const images = [
   { loc: `${SITE_ORIGIN}/logo.png`, title: 'Vasaros Kampelis logotipas' },
-  { loc: `${SITE_ORIGIN}/hero-pink-ar.webp`, title: 'Vandens šautuvas – rožinis' },
-  { loc: `${SITE_ORIGIN}/hero-blue-ar.webp`, title: 'Vandens šautuvas – mėlynas' },
-  { loc: `${SITE_ORIGIN}/hero-pink-glock.webp`, title: 'Vandens pistoletas – rožinis' },
-  { loc: `${SITE_ORIGIN}/hero-blue-glock.webp`, title: 'Vandens pistoletas – mėlynas' },
+  { loc: `${SITE_ORIGIN}/hero-blue-11.webp`, title: 'Vandens šautuvas – hero' },
+  { loc: `${SITE_ORIGIN}/hero-blue-22.webp`, title: 'Vandens šautuvas – hero variantas' },
   { loc: `${SITE_ORIGIN}/blue1.webp`, title: 'Vandens šautuvas mėlyna spalva' },
 ];
 const imagesXml = `<?xml version="1.0" encoding="UTF-8"?>

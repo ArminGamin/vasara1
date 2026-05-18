@@ -15,7 +15,7 @@ export default function BlogPostKaVeiktiSuVaikaisVasara() {
       }
       publishedAt={BLOG_PUBLISHED.kaVeiktiSuVaikaisVasara}
       modifiedAt={BLOG_MODIFIED.kaVeiktiSuVaikaisVasara}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.kaVeiktiSuVaikaisVasara}
       wordCount={895}
       keywords="ką veikti su vaikais vasarą, veikla vaikams vasarą, vasaros idėjos šeimai, pramogos vaikams lauke"

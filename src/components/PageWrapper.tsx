@@ -11,7 +11,7 @@ const DEFAULT_INDEX_AUTHOR = 'Vasaros Kampelis';
 const BLOG_META_SCRIPT_ID = 'blog-posting-schema';
 const DEFAULT_OG_DESCRIPTION =
   'Galingi vandens šautuvai iki 10m. Mėlyna ir rožinė. Nemokamas pristatymas nuo 80€. Pristatymas į visą Lietuvą per 4–6 dienas.';
-const DEFAULT_OG_IMAGE = 'https://vasaroskampelis.com/hero-pink-ar.webp';
+const DEFAULT_OG_IMAGE = 'https://vasaroskampelis.com/hero-blue-11.webp';
 
 export { SITE_NAME, DEFAULT_DESC };
 

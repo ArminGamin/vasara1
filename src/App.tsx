@@ -1757,8 +1757,10 @@ function HomePage() {
                               });
                               setSectionImageIndex(0);
                             }}
-                            className={`product-section-variant px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-border text-text sm:px-5 sm:py-3 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta/40 focus-visible:ring-offset-2 ${
-                              (sectionSizesByGroup[gIndex] ?? 0) === idx ? 'active' : 'bg-bg'
+                            className={`product-section-variant px-4 py-2.5 rounded-xl text-sm font-semibold sm:px-5 sm:py-3 sm:text-base border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/50 focus-visible:ring-offset-0 ${
+                              (sectionSizesByGroup[gIndex] ?? 0) === idx
+                                ? 'active border-transparent text-white'
+                                : 'border-border bg-bg text-text'
                             }`}
                             aria-pressed={(sectionSizesByGroup[gIndex] ?? 0) === idx}
                           >

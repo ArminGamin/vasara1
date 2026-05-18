@@ -15,7 +15,7 @@ export default function BlogPostVasaraBeStreso() {
       }
       publishedAt={BLOG_PUBLISHED.vasaraBeStreso}
       modifiedAt={BLOG_MODIFIED.vasaraBeStreso}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.vasaraBeStreso}
       wordCount={807}
       keywords="pasiruošimas vasarai, vasaros planas, vandens žaidimų rinkinys, kiemo pasiruošimas, vasara be streso, šeimos organizacija"

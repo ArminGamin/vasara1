@@ -15,7 +15,7 @@ export default function BlogPostKiemasVandens() {
       }
       publishedAt={BLOG_PUBLISHED.kiemasVandens}
       modifiedAt={BLOG_MODIFIED.kiemasVandens}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.kiemasVandens}
       wordCount={859}
       keywords="kiemo puošimas vandeniui, vandens žaidimai kieme, mažas kiemas, vasaros zona kieme, refill zona, vandens įranga vaikams"

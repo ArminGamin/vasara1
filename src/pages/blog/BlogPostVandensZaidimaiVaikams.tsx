@@ -15,7 +15,7 @@ export default function BlogPostVandensZaidimaiVaikams() {
       }
       publishedAt={BLOG_PUBLISHED.vandensZaidimaiVaikams}
       modifiedAt={BLOG_MODIFIED.vandensZaidimaiVaikams}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.vandensZaidimaiVaikams}
       wordCount={806}
       keywords="vandens žaidimai, vasaros žaidimai vaikams, vandens žaidimai lauke, vandens žaidimai kieme, vasaros pramogos vaikams, lauko žaidimai vasarą"

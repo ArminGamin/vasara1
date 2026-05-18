@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { StorefrontReview } from '../data/storefrontReviews';
 import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from '../data/storefrontReviews';
 
-const HERO_SLIDE_SRC = ['/hero-blue-1.png', '/hero-blue-2.png'] as const;
+import { WbShoppingBagIcon } from './icons/WbShoppingBagIcon';
+
+const HERO_SLIDE_SRC = ['/hero-blue-11.webp', '/hero-blue-22.webp'] as const;
 const SLIDE_INTERVAL_MS = 5000;
 const SWIPE_THRESHOLD = 50;
 
@@ -88,7 +90,7 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
         feats: [
           { val: 'IKI 10M', lab: 'šūvio nuotolis' },
           { val: '800 ML', lab: 'talpos bakelis' },
-          { val: 'AUTOMATINIS', lab: 'elektrinis veikimas' },
+          { val: 'AUTOMATINIS', lab: 'elektrinis režimas' },
           { val: 'SAUGUS', lab: 'ir patogus' },
         ],
         cta: 'Pirkti dabar',
@@ -111,7 +113,7 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
         feats: [
           { val: 'UP TO 10M', lab: 'shooting range' },
           { val: '800 ML', lab: 'tank capacity' },
-          { val: 'AUTO', lab: 'electric action' },
+          { val: 'AUTO', lab: 'electric mode' },
           { val: 'SAFE', lab: 'and reliable' },
         ],
         cta: 'Shop now',
@@ -226,11 +228,7 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
         <div className="wb-hero-cta-row">
           <button type="button" className="wb-btn-cta wb-btn-hero wb-heading-font" onClick={scrollToProducts}>
             {copy.cta}
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden>
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
+            <WbShoppingBagIcon size={16} strokeWidth={2.5} />
           </button>
 
           <div className="wb-hero-social-proof wb-ui-font">

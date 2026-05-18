@@ -15,7 +15,7 @@ export default function BlogPostVasarosDovanosVaikams() {
       }
       publishedAt={BLOG_PUBLISHED.vasarosDovanosVaikams}
       modifiedAt={BLOG_MODIFIED.vasarosDovanosVaikams}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.vasarosDovanosVaikams}
       wordCount={874}
       keywords="vasaros dovanos vaikams, dovanos vaikams vasarai, gimtadienio dovana vaikui, lauko žaislai vaikams"

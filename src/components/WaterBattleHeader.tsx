@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { ShoppingCart, Heart, Menu, X } from 'lucide-react';
+import { Heart, Menu, X } from 'lucide-react';
+import { WbShoppingBagIcon } from './icons/WbShoppingBagIcon';
 import type { Location } from 'react-router-dom';
 
 type HashNavProps = {
@@ -313,12 +314,24 @@ export function WaterBattleHeader({
 
         <div className="wb-nav-actions">
           <div className="wb-nav-actions-inline">
-            <button className="wb-nav-icon-btn" type="button" onClick={onWishlistClick} title={wishlistTitle} aria-label={wishlistTitle}>
+            <button
+              className="wb-nav-icon-btn wb-nav-icon-btn--glow-hover"
+              type="button"
+              onClick={onWishlistClick}
+              title={wishlistTitle}
+              aria-label={wishlistTitle}
+            >
               <Heart className="wb-nav-icon-svg" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
               {wishlistCount > 0 ? <span className="wb-nav-badge wb-heading-font">{wishlistCount}</span> : null}
             </button>
-            <button className="wb-nav-icon-btn" type="button" onClick={onCartClick} title={cartTitle} aria-label={cartTitle}>
-              <ShoppingCart className="wb-nav-icon-svg" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden />
+            <button
+              className="wb-nav-icon-btn wb-nav-icon-btn--cart wb-nav-icon-btn--glow-hover"
+              type="button"
+              onClick={onCartClick}
+              title={cartTitle}
+              aria-label={cartTitle}
+            >
+              <WbShoppingBagIcon className="wb-nav-icon-svg" size={23} strokeWidth={2.25} />
               {totalItems > 0 ? <span className="wb-nav-badge wb-heading-font">{totalItems}</span> : null}
             </button>
 

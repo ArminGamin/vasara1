@@ -15,7 +15,7 @@ export default function BlogPostPiknikoIdejos() {
       }
       publishedAt={BLOG_PUBLISHED.pikniko}
       modifiedAt={BLOG_MODIFIED.pikniko}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       description={BLOG_DESCRIPTION.pikniko}
       wordCount={807}
       keywords="piknikas vasarą, pikniko idėjos, išvyka su vaikais, maistas lauke, vandens žaidimai piknike, vasaros iškyla"

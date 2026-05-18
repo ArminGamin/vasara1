@@ -16,7 +16,7 @@ export default function BlogPostVasaraNamuose() {
       }
       publishedAt={BLOG_PUBLISHED.vasaraNamuose}
       modifiedAt={BLOG_MODIFIED.vasaraNamuose}
-      ogImage="/hero-pink-ar.webp"
+      ogImage="/hero-blue-11.webp"
       wordCount={807}
       keywords="vasaros nuotaika namuose, vasaros dekoras, kiemo idėjos, vasara su vaikais, vasaros kampelis, lauko erdvė namuose"
       relatedPostPaths={[
