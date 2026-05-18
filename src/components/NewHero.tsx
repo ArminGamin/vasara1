@@ -5,6 +5,8 @@ import { STOREFRONT_REVIEWS, REVIEW_IMAGE_FALLBACK } from '../data/storefrontRev
 import { WbShoppingBagIcon } from './icons/WbShoppingBagIcon';
 
 const HERO_SLIDE_SRC = ['/hero-blue-11.webp', '/hero-blue-22.webp'] as const;
+/** Must match index.html <link rel="preload"> and LCP placeholder src */
+export const HERO_LCP_SRC = HERO_SLIDE_SRC[0];
 const SLIDE_INTERVAL_MS = 5000;
 const SWIPE_THRESHOLD = 50;
 
@@ -170,21 +172,24 @@ export const NewHero = React.memo(function NewHero({ language }: { language: str
     <section className="wb-hero" aria-labelledby="wb-hero-heading">
       <div className="wb-hero-photo" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="wb-hero-photo-stack">
-          {HERO_SLIDE_SRC.map((src, i) => (
-            <img
-              key={src}
-              src={src}
-              alt={i === idx ? slideAlts[i] : ''}
-              aria-hidden={i !== idx}
-              className={`wb-hero-photo-img ${i === idx ? 'wb-hero-photo-img--active' : ''}`}
-              width={1600}
-              height={1067}
-              loading="eager"
-              fetchPriority={i === 0 ? 'high' : 'low'}
-              decoding="async"
-              draggable={false}
-            />
-          ))}
+          {HERO_SLIDE_SRC.map((src, i) => {
+            const isFirstSlide = i === 0;
+            return (
+              <img
+                key={src}
+                src={src}
+                alt={i === idx ? slideAlts[i] : ''}
+                aria-hidden={i !== idx}
+                className={`wb-hero-photo-img ${i === idx ? 'wb-hero-photo-img--active' : ''}`}
+                width={1600}
+                height={1067}
+                loading={isFirstSlide ? 'eager' : 'lazy'}
+                fetchPriority={isFirstSlide ? 'high' : 'low'}
+                decoding={isFirstSlide ? 'sync' : 'async'}
+                draggable={false}
+              />
+            );
+          })}
         </div>
         <div className="wb-hero-dots" role="tablist" aria-label={copy.dotsLabel}>
           {HERO_SLIDE_SRC.map((_, i) => (

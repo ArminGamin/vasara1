@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- LCP: hero image -->
-    <link rel="preload" as="image" href="/hero-blue-11.webp" fetchpriority="high" />
-    <!-- Promo videos: preload first video so it starts buffering early (section is just below hero) -->
-    <link rel="preload" href="/Promo111.mp4" as="video" type="video/mp4" fetchpriority="high" />
+    <!-- LCP: first hero slide (must match HERO_LCP_SRC in NewHero.tsx) -->
+    <link rel="preload" as="image" href="/hero-blue-11.webp" type="image/webp" fetchpriority="high" />
+    <!-- Promo video: low priority so it does not compete with hero LCP -->
+    <link rel="preload" href="/Promo111.mp4" as="video" type="video/mp4" fetchpriority="low" />
     <!-- Primary Meta Tags -->
     <title>Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje</title>
     <meta name="title" content="Vasaros Kampelis | Vandens šautuvai, blasteriai ir vasaros žaidimai Lietuvoje" />
@@ -166,7 +166,7 @@
     <a href="#products" class="skip-link">Pereiti prie produktų</a>
     <div id="root"></div>
     <!-- LCP: static hero on top until React mounts – avoids 5.3s element render delay from JS -->
-    <img class="lcp-hero-placeholder" src="/hero-blue-11.webp" sizes="100vw" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="async" width="1600" height="1067" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
+    <img class="lcp-hero-placeholder" src="/hero-blue-11.webp" sizes="100vw" alt="Vasaros Kampelis – Vandens šautuvai" fetchpriority="high" loading="eager" decoding="sync" width="1600" height="1067" style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:9999;pointer-events:none" />
     <script type="module" src="/src/main.tsx"></script>
     <!-- JSON-LD at body end to avoid blocking LCP parse -->
     <script type="application/ld+json">
