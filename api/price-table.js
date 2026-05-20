@@ -4,6 +4,10 @@
  * Client sends only: productId, selectedSize, selectedColor, quantity.
  * Amount is ALWAYS computed server-side from this table.
  */
+/** Keep in sync with src/data/mysteryGift.ts */
+const MYSTERY_GIFT_PRODUCT_ID = 9001;
+const MYSTERY_GIFT_PRICE_EUR = 8.99;
+
 const PRICE_TABLE = {
   // productId 1001: Vandens šautuvai – Vasaros Kampelis
   // sizeGroups[0]=Šautuvo Tipas (Automatas, Pistoletas), sizeGroups[1]=Spalva (Mėlyna, Rožinė)
@@ -12,6 +16,9 @@ const PRICE_TABLE = {
     pricesByVariant: [35.99, 35.99, 27.99, 27.99], // [Automatas+Mėlyna, Automatas+Rožinė, Pistoletas+Mėlyna, Pistoletas+Rožinė]
     typeValues: ['Automatas', 'Pistoletas'],
     colorValues: ['Mėlyna', 'Rožinė'],
+  },
+  [MYSTERY_GIFT_PRODUCT_ID]: {
+    fixedPrice: MYSTERY_GIFT_PRICE_EUR,
   },
 };
 
@@ -31,6 +38,7 @@ function getVariantIndex(productId, selectedSize, selectedColor) {
 function getPrice(productId, selectedSize, selectedColor) {
   const p = PRICE_TABLE[productId];
   if (!p) return null;
+  if (typeof p.fixedPrice === 'number') return p.fixedPrice;
   const idx = getVariantIndex(productId, selectedSize, selectedColor);
   if (idx < 0) return null;
   return p.pricesByVariant[idx];
@@ -61,7 +69,13 @@ function computeOrderTotal(items, giftWrapping = false) {
   }
 
   const subtotalEur = subtotalCents / 100;
-  const shippingCents = subtotalEur >= FREE_SHIPPING_THRESHOLD_EUR ? 0 : Math.round(SHIPPING_EUR * 100);
+  const hasMysteryGift = (items || []).some(
+    (it) => Number(it.productId) === MYSTERY_GIFT_PRODUCT_ID
+  );
+  const shippingCents =
+    subtotalEur >= FREE_SHIPPING_THRESHOLD_EUR || hasMysteryGift
+      ? 0
+      : Math.round(SHIPPING_EUR * 100);
   const giftWrappingCents = giftWrapping ? Math.round(GIFT_WRAPPING_EUR * 100) : 0;
   const amountCents = subtotalCents + shippingCents + giftWrappingCents;
 
