@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { buildOrderConfirmationHtml } from "./order-confirmation-email-html.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -27,11 +28,7 @@ export default async function handler(req, res) {
   const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
 
   try {
-    const html = `
-<h1>Užsakymas patvirtintas!</h1>
-<p>Užsakymo numeris: <strong>${orderId.trim()}</strong></p>
-<p>Ačiū už pirkinį!</p>
-`;
+    const html = buildOrderConfirmationHtml(orderId.trim());
 
     await resend.emails.send({
       from: fromAddress,
