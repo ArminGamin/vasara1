@@ -710,6 +710,67 @@ function HomePage() {
     const base = (import.meta as any).env?.BASE_URL || '/';
     return `${base}${path.startsWith('/') ? path.slice(1) : path}`;
   }, []);
+
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+    const params = new URLSearchParams(location.search);
+    const colorParam = params.get('color')?.toLowerCase();
+    const addParam = params.get('add');
+    const shouldAdd = addParam === '1' || addParam === 'true' || addParam === 'cart';
+    const blue = colorParam === 'blue' || colorParam === 'melyna' || colorParam === 'mėlyna';
+    const pink = colorParam === 'pink' || colorParam === 'rozine' || colorParam === 'rožinė' || colorParam === 'rozinis';
+
+    if (colorParam && (blue || pink)) {
+      setSectionSizesByGroup((prev) => [prev[0] ?? 0, pink ? 1 : 0]);
+      setSectionImageIndex(0);
+    }
+
+    if (!shouldAdd) return;
+
+    const product = productsSorted[0];
+    if (!product) return;
+
+    const dedupeKey = `vk-email-add:${location.search}`;
+    let alreadyAdded = false;
+    try {
+      alreadyAdded = sessionStorage.getItem(dedupeKey) === '1';
+      if (!alreadyAdded) sessionStorage.setItem(dedupeKey, '1');
+    } catch {}
+
+    params.delete('add');
+    const qs = params.toString();
+    navigate(`${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`, { replace: true });
+
+    if (alreadyAdded) return;
+
+    const sizeGroups = product.sizeGroups ?? [];
+    const typeIdx = 0;
+    const colorIdx = pink ? 1 : blue ? 0 : 0;
+    const combinedIndex = computePdpCombinedIndex(sizeGroups, [typeIdx, colorIdx]);
+    const variantPrices = product.pricesBySize ?? [product.price];
+    const variantImages = product.imagesBySize ?? [product.images ?? [product.image]];
+    const currentPrice = Number(variantPrices[combinedIndex] ?? product.price);
+    const typeName = sizeGroups[0]?.sizes?.[typeIdx]?.name ?? '';
+    const colorName = sizeGroups[1]?.sizes?.[colorIdx]?.name ?? '';
+    const imgs = variantImages[combinedIndex] ?? variantImages[0] ?? [];
+    const image = resolveImagePath(imgs[0] ?? product.image);
+
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: currentPrice,
+      image,
+      quantity: 1,
+      selectedColor: colorName,
+      selectedSize: typeName,
+      sizeLabel: sizeGroups[0]?.label ?? 'Tipas',
+    });
+
+    setCartOpen(true);
+    setSectionAddSuccess(true);
+    const successTimer = window.setTimeout(() => setSectionAddSuccess(false), 3000);
+    return () => window.clearTimeout(successTimer);
+  }, [location.pathname, location.search, location.hash, productsSorted, addItem, resolveImagePath, navigate]);
   
   const validateEmail = (email: string) => {
     const validDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'yahoo.co.uk', 'hotmail.co.uk', 'outlook.co.uk'];

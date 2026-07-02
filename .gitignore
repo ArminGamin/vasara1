@@ -4,3 +4,6 @@ dist/
 .env
 .env.local 
 data/newsletter-subscribers.txt
+tools/newsletter-sender/send_state.json
+tools/newsletter-sender/.venv/
+tools/newsletter-sender/.env
